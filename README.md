@@ -1,4 +1,6 @@
 # SAMPLE Text
 Social Account Media Platform for Liking and Engaging with Text
 
-the better alternative to 4chan
+The better alternative to 4chan
+
+Created by students in Purdue CS 307
