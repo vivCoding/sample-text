@@ -3,9 +3,10 @@ import type { NextPage } from 'next';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Link from '../src/components/common/Link';
 
-const Home: NextPage = () => (
+const About: NextPage = () => (
     <Container maxWidth="lg">
         <Box
             sx={{
@@ -17,13 +18,15 @@ const Home: NextPage = () => (
             }}
         >
             <Typography variant="h4" component="h1" gutterBottom>
-                MUI v5 + Next.js with TypeScript example
+                Test Page
             </Typography>
-            <Link href="/test" color="secondary">
-                Go to the test page
-            </Link>
+            <Box maxWidth="sm">
+                <Button variant="contained" component={Link} noLinkStyle href="/">
+                    Go to the index page
+                </Button>
+            </Box>
         </Box>
     </Container>
 );
 
-export default Home;
+export default About;

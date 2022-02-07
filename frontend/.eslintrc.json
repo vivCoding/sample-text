@@ -13,6 +13,8 @@
       },
       "rules": {
         "linebreak-style": "off",
+        "max-len": ["error", { "code": 120 }],
+        "import/prefer-default-export": "warn",
         // TODO: set this to "error" when cleaning
         "@typescript-eslint/no-unused-vars": "warn",
         "@typescript-eslint/ban-ts-comment": "warn",
@@ -25,6 +27,8 @@
           }
         ],
         "@typescript-eslint/indent": ["error", 4],
+        "react/display-name": "off",
+        "react/require-default-props": "off",
         "react/jsx-indent": ["error", 4],
         "react/jsx-indent-props": ["error", 4],
         "react-hooks/rules-of-hooks": "error",
