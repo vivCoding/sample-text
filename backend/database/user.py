@@ -38,4 +38,4 @@ class User:
         col = db[User.collection]
         doc = {"user_id" : user_id}
         res = col.find_one(doc)
-        return User(res["username"], res["email"], res["password"])
+        return User(res["user_id"], res["username"], res["email"], res["password"])
