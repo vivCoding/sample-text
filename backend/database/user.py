@@ -4,8 +4,9 @@ class User:
     database = "sample-text-db"
     collection = "users"
 
-    def __init__(self, username="bob123", email="bob123@gmail.com", password="pa55word") -> None:
+    def __init__(self, mongo_client, username="bob123", email="bob123@gmail.com", password="pa55word") -> None:
         # TODO: initialize values from parameters
+        self.mongo_client = mongo_client
         self.user_id = ''
         self.username = username
         self.email = email
@@ -14,10 +15,10 @@ class User:
     # Pushes this object to MongoDB, and returns whether it was successful
     def push(self) -> bool:
         # TODO: implement
-        if Connection.client is None:
+        if self.mongo_client is None:
             return False
         try: 
-            db = Connection.client[User.database]
+            db = self.mongo_client[User.database]
             col = db[User.collection]
             doc = {
                 "user_id" : self.user_id,
