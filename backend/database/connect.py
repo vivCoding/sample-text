@@ -11,4 +11,4 @@ class Connection:
     # Initializes MongoDb client (from env), and sets static variable to client
     @staticmethod
     def init() -> bool:
-        client = MongoClient(ATLAS_URL)
+        Connection.client = MongoClient(ATLAS_URL)
