@@ -10,6 +10,7 @@ import Link from '../../src/components/common/Link';
 import PasswordField from '../../src/components/common/PasswordField';
 import Helmet from '../../src/components/common/Helmet';
 import StyledTextField from '../../src/components/common/StyledTextField';
+import { createUser } from '../../src/api/user';
 
 type FormType = {
     email: string,
@@ -33,6 +34,7 @@ const Signup: NextPage = () => {
 
     const handleCreate = (): void => {
         // TODO: insert api stuff here
+        createUser(form.username, form.email, form.password)
         router.push('/signup/success')
     }
     const emailChange: ChangeEventHandler<HTMLInputElement> = (e) => setFormType({ ...form, email: e.target.value })
