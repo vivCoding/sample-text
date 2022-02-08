@@ -1,41 +1,45 @@
 from .connect import Connection
+from os import getenv
 
 class User:
-    database = "sample-text-db"
     collection = "users"
 
-    def __init__(self, username="bob123", email="bob123@gmail.com", password="pa55word") -> None:
-        # TODO: initialize values from parameters
-        self.user_id = ''
+    def __init__(self, username, email, password) -> None:
+        # TODO: add other optional profile fields
         self.username = username
         self.email = email
         self.password = password
 
     # Pushes this object to MongoDB, and returns whether it was successful
     def push(self) -> bool:
-        # TODO: implement
         if Connection.client is None:
             return False
         try: 
-            db = Connection.client[User.database]
+            db = Connection.client[Connection.database]
             col = db[User.collection]
             doc = {
-                "user_id" : self.user_id,
                 "username" : self.username,
                 "email" : self.email,
                 "password": self.password
             }
             col.insert_one(doc)
-        except:
+            return True
+        except Exception as e:
+            print (e)
             return False
-        return True
 
-    # Static method that finds and returns a specific user from the collection
+    # Static method that finds and returns a specific user from the collection based on filters
     @staticmethod
-    def find(user_id):
-        # TODO: implement
-        db = Connection.client[User.database]
+    def find(filters: dict):
+        db = Connection.client[Connection.database]
         col = db[User.collection]
-        doc = {"user_id" : user_id}
-        res = col.find_one(doc)
-        return User(res["user_id"], res["username"], res["email"], res["password"])
+        res = col.find_one(filters)
+        return User(res["username"], res["email"], res["password"])
+
+    @staticmethod
+    def find_by_username(username: str):
+        return User.find({ "username": username })
+    
+    @staticmethod
+    def find_by_email(email: str):
+        return User.find({ "email": email })
