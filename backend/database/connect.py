@@ -21,7 +21,7 @@ class Connection:
                 IndexModel([
                     ("username", ASCENDING),
                     ("email", ASCENDING)
-                ])
+                ], unique=True)
             ])
             # TODO: add other collections
             return True
