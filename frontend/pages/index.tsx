@@ -4,42 +4,43 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import {
     Button,
-    Stack, styled, TextField,
+    Stack,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import Link from '../src/components/common/Link';
-
-const StyledTextfield = styled(TextField)({
-    width: '350px',
-    maxWidth: '30vw',
-})
+import Helmet from '../src/components/common/Helmet';
+import StyledTextField from '../src/components/common/StyledTextField';
 
 const Home: NextPage = () => (
     <Container sx={{ mt: 20, px: 5 }}>
-        <Box sx={{ textAlign: 'center' }}>
+        <Helmet title="Login" />
+        <Box sx={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
+        }}
+        >
             <Typography variant="h1">
                 SAMPLE Text
             </Typography>
             <Typography variant="h6">
                 Simple Social Platform for Everyone
             </Typography>
-            <Stack sx={{ mt: 7 }} alignItems="center">
+            <Box alignItems="center" sx={{ width: '350px', mt: 7 }}>
                 <Typography variant="h3">
                     Login
                 </Typography>
-                <Box alignItems="center" sx={{ width: '350px' }}>
-                    <StyledTextfield
+                <Stack>
+                    <StyledTextField
                         label="Username or Email"
                         variant="outlined"
                         margin="normal"
                     />
-                    <StyledTextfield label="Password" variant="outlined" margin="dense" />
+                    <StyledTextField label="Password" variant="outlined" margin="dense" />
                     <Box sx={{ display: 'flex', alignItems: 'center', alignContent: 'space-between' }}>
                         <Button variant="text" component={Link} noLinkStyle href="/signup">Create Account</Button>
                         <LoadingButton variant="contained" sx={{ my: 2, ml: 'auto' }}>Login</LoadingButton>
                     </Box>
-                </Box>
-            </Stack>
+                </Stack>
+            </Box>
         </Box>
     </Container>
 );
