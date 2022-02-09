@@ -1,15 +1,16 @@
-import imp
 from urllib import response
 from flask import Flask
-import json
-from flask_pytest_example.handlers.routes import configure_routes
+from flask import Blueprint, jsonify, request
+'''
+Module not Found error here when
+pytest tests/routes.py do not know how to link app.py
+'''
+import app
 
 def test_index():
-    app = Flask("__name__")
-    configure_routes(app)
     client = app.test_client()
     url = '/'
     response = client.get(url)
-
-    assert response.get_data() == "Hello world!"
+    data = response.data
+    assert "Hello world" in data
     assert response.status_code == 200
