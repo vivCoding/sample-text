@@ -1,4 +1,5 @@
 from validate_email import validate_email
+from database.user import User
 import re
 
 # Checks if new account information is valid, returns an integer status code
@@ -16,13 +17,15 @@ def checkCreationFields(username, email, password) -> int:
         return 1
     if not re.match(r"""[a-zA-Z0-9\-_.]{1,20}""", username):
         return 2
-    if not validate_email(email):
+    if not validate_email(email, check_smtp=False):
         return 3
     if len(password) < 8 or len(password) > 25:
         return 4
     if not re.match(r"""[a-zA-Z0-9~`!@#$%^&*()_\-+={[}\]|\:;'"<,>.?\/]{8,25}""", password):
         return 5
-    # check if username is in db here
-    # check if email is in db here
+    if User.find_by_username(username):
+        return 6
+    if User.find_by_email(email):
+        return 7
     return 0
 
