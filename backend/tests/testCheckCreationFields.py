@@ -5,6 +5,7 @@ goodUsernameCharacters = "-_."
 badUsernameCharacters = """~`!@#$%^&*()+={[}\]|\:;'"<,>?\/"""
 goodPasswordCharacters = """~`!@#$%^&*()_-+={[}\]|\:;'"<,>.?\/"""
 goodEmail = "frankieray12345@gmail.com"
+goodPass = "12345678"
 
 def generateGoodUsername():
     sze = random.randint(1, 20)
@@ -41,7 +42,17 @@ def generateBadUsername():
     return ret
 
 def checkGoodUser():
-    assert checkCreationFields(generateGoodUsername(), "12345678", goodEmail) == 0
+    status = checkCreationFields(generateGoodUsername(), goodPass, goodEmail)
+    assert status == 0
 
 def checkBadUser():
-    assert checkCreationFields(generateBadUsername(), "12345678", goodEmail) == 0
+    status = checkCreationFields(generateBadUsername(), goodPass, goodEmail)
+    assert status == 1 or status == 2
+
+def checkEmptyUser():
+    status = checkCreationFields("", goodPass, goodEmail)
+    assert status == 1
+
+def checkEmptyPass():
+    status = checkCreationFields(generateGoodUsername, "", goodEmail);
+    assert status == 4
