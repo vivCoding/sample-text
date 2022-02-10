@@ -1,6 +1,7 @@
 from validate_email import validate_email
 import re
 
+# TODO: documentation
 def checkCreationFields(username, email, password) -> int:
     if len(username) < 1 or len(username) > 20:
         return 1        # username length must be in [1, 20]
