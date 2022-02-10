@@ -2,9 +2,9 @@ import ResponseType from '../types/api'
 import client from './httpClient'
 
 export const createUser = async (username: string, email: string, password: string): Promise<ResponseType> => {
-    const response = await client.post('/user/createaccount', { username, email, password })
+	const response = await client.post('/user/createaccount', { username, email, password })
     const error = {
-        email: '', username: '', password: '', server: '',
+		email: '', username: '', password: '', server: '',
     }
     if (response.status !== 500) {
         error.server = 'There was an error signing you up. Try again later!'

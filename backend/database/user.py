@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 from .connect import Connection
 from os import getenv
 
@@ -36,7 +35,7 @@ class User:
         col = db[User.collection]
         res = col.find_one(filters)
         if not res:
-            return NULL
+            return None
         return User(res["username"], res["email"], res["password"])
 
     @staticmethod
