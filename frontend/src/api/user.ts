@@ -2,11 +2,11 @@ import ResponseType from '../types/api'
 import client from './httpClient'
 
 export const createUser = async (username: string, email: string, password: string): Promise<ResponseType> => {
-	const response = await client.post('/user/createaccount', { username, email, password })
+    const response = await client.post('/user/createaccount', { username, email, password })
     const error = {
-		email: '', username: '', password: '', server: '',
+        email: '', username: '', password: '', server: '',
     }
-    if (response.status !== 500) {
+    if (response.status !== 200) {
         error.server = 'There was an error signing you up. Try again later!'
         return { success: false, data: error, error: -1 }
     }
@@ -33,7 +33,9 @@ export const createUser = async (username: string, email: string, password: stri
         case 7:
             error.email = 'Email already exists!'
             break
-        default: error.server = 'There was an error signing you up. Try again later!'
+        default:
+            error.server = 'There was an error signing you up. Try again later!'
+            break
     }
     return { ...data, data: error }
 }
