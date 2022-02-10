@@ -1,20 +1,25 @@
 import type { NextPage } from 'next';
 import Container from '@mui/material/Container';
 import {
-    Box, Typography, Button, Stack,
+    Box, Typography, Button, Stack, LinearProgress, Alert, AlertTitle,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { ChangeEventHandler, useState } from 'react';
+import { ChangeEventHandler, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from '../../src/components/common/Link';
 import PasswordField from '../../src/components/common/PasswordField';
 import Helmet from '../../src/components/common/Helmet';
 import StyledTextField from '../../src/components/common/StyledTextField';
+import { createUser } from '../../src/api/user';
 
-type FormType = {
+interface FormType {
     email: string,
     username: string,
     password: string,
+}
+
+interface ErrorFormType extends FormType {
+    server: string,
 }
 
 const Signup: NextPage = () => {
@@ -22,18 +27,24 @@ const Signup: NextPage = () => {
     const [form, setFormType] = useState({ email: '', username: '', password: '' } as FormType)
     const [confirmPassword, setConfirm] = useState('')
     const [error, setError] = useState({
-        email: false, username: false, password: false, confirm: false,
-    } as {
-        email: boolean,
-        username: boolean,
-        password: boolean,
-        confirm: boolean
-    })
+        email: '', username: '', password: '', server: '',
+    } as ErrorFormType)
     const [loading, setLoading] = useState(false)
 
     const handleCreate = (): void => {
-        // TODO: insert api stuff here
-        router.push('/signup/success')
+        setLoading(true)
+        setError({
+            email: '', username: '', password: '', server: '',
+        })
+        createUser(form.username, form.email, form.password).then((res) => {
+            if (res.success) {
+                router.push('/signup/success')
+                setLoading(false)
+            } else {
+                setError(res.data as ErrorFormType)
+                setLoading(false)
+            }
+        })
     }
     const emailChange: ChangeEventHandler<HTMLInputElement> = (e) => setFormType({ ...form, email: e.target.value })
     const usernameChange: ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -60,9 +71,21 @@ const Signup: NextPage = () => {
                     Simple Social Platform for Everyone
                 </Typography>
                 <Box alignItems="center" sx={{ width: '350px', mt: 6 }}>
-                    <Typography variant="h3" sx={{ mb: 3 }}>
+                    <Typography variant="h3" sx={{ mb: 1 }}>
                         Create Account
                     </Typography>
+                    <Box sx={{ mb: 2 }}>
+                        {loading && <LinearProgress /> }
+                        {error.server !== ''
+                            && (
+                                <Alert severity="error" sx={{ textAlign: 'left' }}>
+                                    <AlertTitle>Server Error</AlertTitle>
+                                    There was an error signing you up.
+                                    <br />
+                                    Try again later!
+                                </Alert>
+                            )}
+                    </Box>
                     <Stack>
                         <StyledTextField
                             label="Email"
@@ -70,19 +93,26 @@ const Signup: NextPage = () => {
                             margin="dense"
                             size="small"
                             onChange={emailChange}
+                            error={error.email !== ''}
+                            helperText={(error.email === '' ? undefined : error.email)}
                         />
                         <StyledTextField
                             label="Username"
                             variant="outlined"
                             margin="dense"
                             size="small"
-                            helperText="Use up to 20 characters with a mix of letters,
-                                    numbers, periods, dashes, and underscores"
+                            helperText={(error.username === ''
+                                ? 'Use up to 20 characters with a mix of letters, numbers, periods, dashes, and underscores'
+                                : error.username)}
+                            error={error.username !== ''}
                             onChange={usernameChange}
                         />
                         <PasswordField
                             label="Password"
-                            helperText="Use 8-25 characters with a mix of letters, numbers, and symbols"
+                            error={error.password !== ''}
+                            helperText={(error.password === ''
+                                ? 'Use 8-25 characters with a mix of letters, numbers, and symbols'
+                                : error.password)}
                             onChange={passwordChange}
                         />
                         <PasswordField
@@ -97,8 +127,8 @@ const Signup: NextPage = () => {
                             variant="contained"
                             sx={{ my: 2, ml: 'auto' }}
                             onClick={handleCreate}
-                            disabled={form.username === '' || form.email === ''
-                            || confirmPassword === '' || form.password !== confirmPassword}
+                            disabled={form.username === '' || form.email === '' || confirmPassword === '' || form.password !== confirmPassword}
+                            loading={loading}
                         >
                             Create
                         </LoadingButton>

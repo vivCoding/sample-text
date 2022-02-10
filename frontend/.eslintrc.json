@@ -13,7 +13,7 @@
       },
       "rules": {
         "linebreak-style": "off",
-        "max-len": ["error", { "code": 120 }],
+        "max-len": ["error", { "code": 200 }],
         "import/prefer-default-export": "warn",
         // TODO: set this to "error" when cleaning
         "@typescript-eslint/no-unused-vars": "warn",
