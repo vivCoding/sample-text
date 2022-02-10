@@ -28,4 +28,3 @@ def checkCreationFields(username, email, password) -> int:
     if User.find_by_email(email):
         return 7
     return 0
-
