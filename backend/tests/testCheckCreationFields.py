@@ -4,7 +4,10 @@ from backend.utils.checkCreationFields import checkCreationFields
 goodUsernameCharacters = "-_."
 badUsernameCharacters = """~`!@#$%^&*()+={[}\]|\:;'"<,>?\/"""
 goodPasswordCharacters = """~`!@#$%^&*()_-+={[}\]|\:;'"<,>.?\/"""
-goodEmail = "frankieray12345@gmail.com"
+existingUser = "bob"
+existingEmail = "frankieray12345@gmail.com"
+nonexistingEmail = "qud@purdue.edu"
+badEmail = "12345"
 goodPass = "12345678"
 
 def generateGoodUsername():
@@ -20,7 +23,7 @@ def generateGoodUsername():
             ret += chr(ord('0')+c-52)
         else:
             ret += goodUsernameCharacters[c-62]
-    return ret;
+    return ret
 
 def generateBadUsername():
     sze = random.randint(0, 50)
@@ -42,17 +45,29 @@ def generateBadUsername():
     return ret
 
 def checkGoodUser():
-    status = checkCreationFields(generateGoodUsername(), goodPass, goodEmail)
+    status = checkCreationFields(generateGoodUsername(), nonexistingEmail, goodPass)
     assert status == 0
 
 def checkBadUser():
-    status = checkCreationFields(generateBadUsername(), goodPass, goodEmail)
+    status = checkCreationFields(generateBadUsername(), nonexistingEmail, goodPass)
     assert status == 1 or status == 2
 
 def checkEmptyUser():
-    status = checkCreationFields("", goodPass, goodEmail)
+    status = checkCreationFields("", nonexistingEmail, goodPass)
     assert status == 1
 
 def checkEmptyPass():
-    status = checkCreationFields(generateGoodUsername, "", goodEmail);
+    status = checkCreationFields(generateGoodUsername(), nonexistingEmail, "")
     assert status == 4
+
+def checkBadEmail():
+    status = checkCreationFields(generateGoodUsername(), badEmail, goodPass)
+    assert status == 3
+
+def checkExistingEmail():
+    status = checkCreationFields(generateGoodUsername(), existingEmail, goodPass)
+    assert status == 7
+
+def checkExistingUser():
+    status = checkCreationFields(existingUser, nonexistingEmail, goodPass)
+    assert status == 6
