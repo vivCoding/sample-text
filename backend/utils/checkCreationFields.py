@@ -17,7 +17,7 @@ def checkCreationFields(username, email, password) -> int:
         return 1
     if not re.match(r"""[a-zA-Z0-9\-_.]{1,20}""", username):
         return 2
-    if not validate_email(email):
+    if not validate_email(email, check_smtp=False):
         return 3
     if len(password) < 8 or len(password) > 25:
         return 4
