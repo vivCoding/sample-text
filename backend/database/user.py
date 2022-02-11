@@ -34,7 +34,7 @@ class User:
         db = Connection.client[Connection.database]
         col = db[User.collection]
         res = col.find_one(filters)
-        if not res:
+        if res is None:
             return None
         return User(res["username"], res["email"], res["password"])
 
