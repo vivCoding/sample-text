@@ -10,6 +10,11 @@ class User:
         self.email = email
         self.password = password
 
+    def __eq__(self, other) -> bool:
+        if isinstance(other, User):
+            return self.username == other.username
+        return False
+
     # Pushes this object to MongoDB, and returns whether it was successful
     def push(self) -> bool:
         if Connection.client is None:
