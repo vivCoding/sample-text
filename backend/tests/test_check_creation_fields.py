@@ -1,6 +1,5 @@
 import random
-from urllib.parse import non_hierarchical
-from utils.checkCreationFields import check_creation_fields
+from utils.check_creation_fields import check_creation_fields
 
 good_username_characters = "-_."
 bad_username_characters = """~`!@#$%^&*()+={[}\]|\:;'"<,>?\/"""
@@ -45,30 +44,30 @@ def generate_bad_username():
         ret += bad_username_characters[random.randrange(0, len(bad_username_characters))]
     return ret
 
-def checkGoodUser():
+def test_good_user():
     status = check_creation_fields(generate_good_username(), nonexisting_email, good_pass)
-    assert status == 0
+    assert status == 0, "Failed test for all valid fields"
 
-def checkBadUser():
+def test_bad_user():
     status = check_creation_fields(generate_bad_username(), nonexisting_email, good_pass)
-    assert status == 1 or status == 2
+    assert status == 1 or status == 2, "Failed test for bad username"
 
-def checkEmptyUser():
+def test_empty_user():
     status = check_creation_fields("", nonexisting_email, good_pass)
-    assert status == 1
+    assert status == 1, "Failed test for empty username"
 
-def checkEmptyPass():
+def test_empty_pass():
     status = check_creation_fields(generate_good_username(), nonexisting_email, "")
-    assert status == 4
+    assert status == 4, "Failed test for empty password"
 
-def checkBadEmail():
+def test_bad_email():
     status = check_creation_fields(generate_good_username(), bad_email, good_pass)
-    assert status == 3
+    assert status == 3, "Failed test for bad email"
 
-def checkExistingEmail():
+def test_existing_email():
     status = check_creation_fields(generate_good_username(), existing_email, good_pass)
-    assert status == 7
+    assert status == 7, "Failed test for existing email"
 
-def checkExistingUser():
+def test_existing_user():
     status = check_creation_fields(existing_user, nonexisting_email, good_pass)
-    assert status == 6
+    assert status == 6, "Failed test for existing user"
