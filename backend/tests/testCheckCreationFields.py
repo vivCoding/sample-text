@@ -20,7 +20,7 @@ def generateGoodUsername():
             ret += chr(ord('0')+c-52)
         else:
             ret += goodUsernameCharacters[c-62]
-    return ret;
+    return ret
 
 def generateBadUsername():
     sze = random.randint(0, 50)
@@ -54,5 +54,5 @@ def checkEmptyUser():
     assert status == 1
 
 def checkEmptyPass():
-    status = checkCreationFields(generateGoodUsername, "", goodEmail);
+    status = checkCreationFields(generateGoodUsername, "", goodEmail)
     assert status == 4
