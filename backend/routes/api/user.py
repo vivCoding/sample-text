@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from utils.checkCreationFields import checkCreationFields
 from database.user import User
+import hashlib
 
 user_blueprint = Blueprint("user", __name__)
 
@@ -15,10 +16,11 @@ def create_account():
 	try:
 		if status == 0:
 			# TODO: cookies
-			new_user = User(data["username"], data["email"], data["password"])
+			hashed_password = hashlib.md5(data["password"].encode())
+			new_user = User(data["username"], data["email"], hashed_password.hexdigest())
 			new_user.push()
-			return 200, jsonify({ "success": True })
+			return jsonify({ "success": True }), 200
 		else:
-			return 200, jsonify({ "success": False,"error": status })
+			return jsonify({ "success": False,"error": status }), 200
 	except Exception as e:
-		return 500, jsonify({"success": False, "error": -1 })
+		return jsonify({"success": False, "error": -1 }), 500

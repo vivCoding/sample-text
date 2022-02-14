@@ -1,4 +1,3 @@
-from distutils.log import debug
 from dotenv import load_dotenv
 from database.connect import Connection
 from flask import Flask, jsonify
@@ -17,6 +16,5 @@ def index():
 app.register_blueprint(user_blueprint, url_prefix="/api/user")
 
 if __name__ == "__main__":
-	app.run("0.0.0.0", port = 5000, debug=True)
-	print ("Server running on port 5000!", "=" * 50)
-
+	print ("Server running on port 5000!\n", "=" * 50)
+	app.run("0.0.0.0", port=5000, debug=True)
