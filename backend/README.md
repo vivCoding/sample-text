@@ -1,3 +1,8 @@
+- [Setup](#Setup)
+- [Folder-Structure](#Folder-Structure)
+- [API Docs](docs/api.md)
+- [Testing](docs/tests.md)
+
 # Setup
 
 Ensure you have Python 3.6+
@@ -39,6 +44,7 @@ ATLAS_URL=<insert_mongodb_url>
 │   ├── message.py
 │   ├── convo.py
 │   ├── misc.py
+├── docs
 ├── routes
 │   ├── api
 │   |   ├── user.py
@@ -47,12 +53,19 @@ ATLAS_URL=<insert_mongodb_url>
 │   |   ├── convo.py
 │   |   ├── message.py
 │   |   ├── misc.py
+├── tests
+│   ├── db_tests.py
+│   ├── routes.py
+│   ├── checkCreationFields.py
+│   ├── etc.py
 ├── utils
 │   ├── valid_email.py
 │   ├── parse_something.py
 │   ├── etc.py
 ├── app.py
 ├── config.py
+├── runtests.py
+├── requirements.txt
 ├── .env
 └── .gitignore
 ```
@@ -64,14 +77,9 @@ ATLAS_URL=<insert_mongodb_url>
 - `routes` should contain all api routes, each split up into different files for each path 
     - e.g. `/api/user/getprofile` and `/api/topic/search`
 
+- `tests` should contain code to test util functions and routes
+    - The main driver for running tests is `runtests.py`
+
 - `utils` should contain misc utility functions for our use. For example:
     - helper function to parse/validate an email
     - etc
-
-# Documentation
-
-All API routes should be documented in `docs/` in appropriate markdown file, with the following format, clearly specifying
-- URL route path
-- query parameters
-- body parameters
-- response type
