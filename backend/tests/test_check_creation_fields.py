@@ -1,9 +1,10 @@
 import random
 from utils.check_creation_fields import check_creation_fields
+from runtests import mongodb
 
 good_username_characters = "-_."
-bad_username_characters = """~`!@#$%^&*()+={[}\]|\:;'"<,>?\/"""
-good_password_characters = """~`!@#$%^&*()_-+={[}\]|\:;'"<,>.?\/"""
+bad_username_characters = r"""~`!@#$%^&*()+={[}]|:;'"<,>?\/"""
+good_password_characters = r"""~`!@#$%^&*()_-+={[}]|:;'"<,>.?\/"""
 existing_user = "bob"
 existing_email = "frankieray12345@gmail.com"
 nonexisting_email = "qud@purdue.edu"
@@ -44,30 +45,30 @@ def generate_bad_username():
         ret += bad_username_characters[random.randrange(0, len(bad_username_characters))]
     return ret
 
-def test_good_user():
+def test_good_user(mongodb):
     status = check_creation_fields(generate_good_username(), nonexisting_email, good_pass)
     assert status == 0, "Failed test for all valid fields"
 
-def test_bad_user():
+def test_bad_user(mongodb):
     status = check_creation_fields(generate_bad_username(), nonexisting_email, good_pass)
     assert status == 1 or status == 2, "Failed test for bad username"
 
-def test_empty_user():
+def test_empty_user(mongodb):
     status = check_creation_fields("", nonexisting_email, good_pass)
     assert status == 1, "Failed test for empty username"
 
-def test_empty_pass():
+def test_empty_pass(mongodb):
     status = check_creation_fields(generate_good_username(), nonexisting_email, "")
     assert status == 4, "Failed test for empty password"
 
-def test_bad_email():
+def test_bad_email(mongodb):
     status = check_creation_fields(generate_good_username(), bad_email, good_pass)
     assert status == 3, "Failed test for bad email"
 
-def test_existing_email():
+def test_existing_email(mongodb):
     status = check_creation_fields(generate_good_username(), existing_email, good_pass)
     assert status == 7, "Failed test for existing email"
 
-def test_existing_user():
+def test_existing_user(mongodb):
     status = check_creation_fields(existing_user, nonexisting_email, good_pass)
     assert status == 6, "Failed test for existing user"
