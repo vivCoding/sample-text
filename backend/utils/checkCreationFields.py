@@ -12,7 +12,7 @@ import re
 # 6 - A user with the desired username already exists
 # 7 - A user with the desired email address already exists
 
-def checkCreationFields(username, email, password) -> int:
+def check_creation_fields(username, email, password) -> int:
     if len(username) < 1 or len(username) > 20:
         return 1
     if not re.match(r"""[a-zA-Z0-9\-_.]{1,20}""", username):
@@ -23,8 +23,8 @@ def checkCreationFields(username, email, password) -> int:
         return 4
     if not re.match(r"""[a-zA-Z0-9~`!@#$%^&*()_\-+={[}\]|\:;'"<,>.?\/]{8,25}""", password):
         return 5
-    if User.find_by_username(username):
+    # if User.find_by_username(username):
         return 6
-    if User.find_by_email(email):
+    # if User.find_by_email(email):
         return 7
     return 0

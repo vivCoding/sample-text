@@ -1,20 +1,21 @@
 import random
-from backend.utils.checkCreationFields import checkCreationFields
+from urllib.parse import non_hierarchical
+from utils.checkCreationFields import check_creation_fields
 
-goodUsernameCharacters = "-_."
-badUsernameCharacters = """~`!@#$%^&*()+={[}\]|\:;'"<,>?\/"""
-goodPasswordCharacters = """~`!@#$%^&*()_-+={[}\]|\:;'"<,>.?\/"""
-existingUser = "bob"
-existingEmail = "frankieray12345@gmail.com"
-nonexistingEmail = "qud@purdue.edu"
-badEmail = "12345"
-goodPass = "12345678"
+good_username_characters = "-_."
+bad_username_characters = """~`!@#$%^&*()+={[}\]|\:;'"<,>?\/"""
+good_password_characters = """~`!@#$%^&*()_-+={[}\]|\:;'"<,>.?\/"""
+existing_user = "bob"
+existing_email = "frankieray12345@gmail.com"
+nonexisting_email = "qud@purdue.edu"
+bad_email = "12345"
+good_pass = "12345678"
 
-def generateGoodUsername():
+def generate_good_username():
     sze = random.randint(1, 20)
     ret = ""
     for i in range(sze):
-        c = random.randrange(62 + len(goodUsernameCharacters))
+        c = random.randrange(62 + len(good_username_characters))
         if c <= 25:
             ret += chr(ord('a')+c)
         elif c <= 51:
@@ -22,14 +23,14 @@ def generateGoodUsername():
         elif c <= 61:
             ret += chr(ord('0')+c-52)
         else:
-            ret += goodUsernameCharacters[c-62]
+            ret += good_username_characters[c-62]
     return ret
 
-def generateBadUsername():
+def generate_bad_username():
     sze = random.randint(0, 50)
     ret = ""
     for i in range(sze):
-        c = random.randrange(62 + len(goodUsernameCharacters) + len(badUsernameCharacters))
+        c = random.randrange(62 + len(good_username_characters) + len(bad_username_characters))
         if c <= 25:
             ret += chr(ord('a')+c)
         elif c <= 51:
@@ -37,37 +38,37 @@ def generateBadUsername():
         elif c <= 61:
             ret += chr(ord('0')+c-52)
         elif c <= 64:
-            ret += goodUsernameCharacters[c-62]
+            ret += good_username_characters[c-62]
         else:
-            ret += badUsernameCharacters[c-65]
+            ret += bad_username_characters[c-65]
     if sze > 0:
-        ret += badUsernameCharacters[random.randrange(0, len(badUsernameCharacters))]
+        ret += bad_username_characters[random.randrange(0, len(bad_username_characters))]
     return ret
 
 def checkGoodUser():
-    status = checkCreationFields(generateGoodUsername(), nonexistingEmail, goodPass)
+    status = check_creation_fields(generate_good_username(), nonexisting_email, good_pass)
     assert status == 0
 
 def checkBadUser():
-    status = checkCreationFields(generateBadUsername(), nonexistingEmail, goodPass)
+    status = check_creation_fields(generate_bad_username(), nonexisting_email, good_pass)
     assert status == 1 or status == 2
 
 def checkEmptyUser():
-    status = checkCreationFields("", nonexistingEmail, goodPass)
+    status = check_creation_fields("", nonexisting_email, good_pass)
     assert status == 1
 
 def checkEmptyPass():
-    status = checkCreationFields(generateGoodUsername(), nonexistingEmail, "")
+    status = check_creation_fields(generate_good_username(), nonexisting_email, "")
     assert status == 4
 
 def checkBadEmail():
-    status = checkCreationFields(generateGoodUsername(), badEmail, goodPass)
+    status = check_creation_fields(generate_good_username(), bad_email, good_pass)
     assert status == 3
 
 def checkExistingEmail():
-    status = checkCreationFields(generateGoodUsername(), existingEmail, goodPass)
+    status = check_creation_fields(generate_good_username(), existing_email, good_pass)
     assert status == 7
 
 def checkExistingUser():
-    status = checkCreationFields(existingUser, nonexistingEmail, goodPass)
+    status = check_creation_fields(existing_user, nonexisting_email, good_pass)
     assert status == 6
