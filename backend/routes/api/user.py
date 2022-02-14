@@ -1,4 +1,3 @@
-from tabnanny import check
 from flask import Blueprint, jsonify, request
 from utils.check_creation_fields import check_creation_fields
 from database.user import User
