@@ -23,8 +23,8 @@ def check_creation_fields(username, email, password) -> int:
         return 4
     if not re.match(r"""[a-zA-Z0-9~`!@#$%^&*()_\-+={[}\]|\:;'"<,>.?\/]{8,25}""", password):
         return 5
-    # if User.find_by_username(username):
+    if User.find_by_username(username) is not None:
         return 6
-    # if User.find_by_email(email):
+    if User.find_by_email(email) is not None:
         return 7
     return 0
