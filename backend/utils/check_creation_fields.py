@@ -2,6 +2,9 @@ from validate_email import validate_email
 from database.user import User
 import re
 
+good_username = re.compile(r"[a-zA-Z0-9\-_.]{1,20}")
+good_password = re.compile(r"[a-zA-Z0-9~`!@#$%^&*()_\-+={[}\]|:;'\"<,>.?\/]{8,25}")
+
 # Checks if new account information is valid, returns an integer status code
 # 0 - Fields are valid
 # 1 - Username length is not between 1 and 20, inclusive
@@ -15,13 +18,13 @@ import re
 def check_creation_fields(username, email, password) -> int:
     if len(username) < 1 or len(username) > 20:
         return 1
-    if not re.match(r"""[a-zA-Z0-9\-_.]{1,20}""", username):
+    if good_username.fullmatch(username) is None:
         return 2
     if not validate_email(email, check_smtp=False):
         return 3
     if len(password) < 8 or len(password) > 25:
         return 4
-    if not re.match(r"""[a-zA-Z0-9~`!@#$%^&*()_\-+={[}\]|\:;'"<,>.?\/]{8,25}""", password):
+    if good_password.fullmatch(password) is None:
         return 5
     if User.find_by_username(username) is not None:
         return 6
