@@ -6,7 +6,9 @@ good_user = generate_user(good=True)
 bad_user = generate_user(good=False)
 
 def test_push_user(mongodb):
-    assert good_user.push(), "Push on user failed"
+    if User.find_by_username(good_user.username) is None:
+        assert good_user.push(), "Push on user failed"
+    assert User.find_by_username(good_user.username) is not None, "Could not find user"
 
 def test_find_user_with_valid_username(mongodb):
     assert User.find_by_username(good_user.username) == good_user, "Could not find user by username"
