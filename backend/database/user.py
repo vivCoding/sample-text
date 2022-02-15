@@ -31,12 +31,23 @@ class User:
     # Static method that finds and returns a specific user from the collection based on filters
     @staticmethod
     def find(filters: dict):
-        db = Connection.client[Connection.database]
-        col = db[User.collection]
-        res = col.find_one(filters)
-        if res is None:
+        try: 
+            db = Connection.client[Connection.database]
+            col = db[User.collection]
+            res = col.find_one(filters)
+            if res is None:
+                return None
+            return User(res["username"], res["email"], res["password"])
+        except Exception as e:
+            print (e)
             return None
-        return User(res["username"], res["email"], res["password"])
+
+    @staticmethod
+    def find_by_credentials(username: str, hashed_password: str):
+        found_user = User.find({ "username": username, "password": hashed_password })
+        if found_user is None:
+            found_user = User.find({ "email": username, "password": hashed_password })
+        return found_user
 
     @staticmethod
     def find_by_username(username: str):

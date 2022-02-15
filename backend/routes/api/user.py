@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 from utils.checkCreationFields import checkCreationFields
 from database.user import User
 import hashlib
+from validate_email import validate_email
 
 user_blueprint = Blueprint("user", __name__)
 
@@ -22,5 +23,18 @@ def create_account():
 			return jsonify({ "success": True }), 200
 		else:
 			return jsonify({ "success": False,"error": status }), 200
+	except Exception as e:
+		return jsonify({"success": False, "error": -1 }), 500
+
+@user_blueprint.route('/login', methods=["POST"])
+def login():
+	data = request.get_json()
+	hashed_password = hashlib.md5(data["password"].encode()).hexdigest()
+	try:
+		user = User.find_by_credentials(data["username"], hashed_password)
+		if user is not None:
+			return jsonify({ "success": True }), 200
+		else:
+			return jsonify({ "success": True , "error": 1}), 200
 	except Exception as e:
 		return jsonify({"success": False, "error": -1 }), 500
