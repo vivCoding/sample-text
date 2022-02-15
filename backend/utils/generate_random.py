@@ -39,7 +39,7 @@ def generate_bad_username():
     return ret
 
 def generate_user(good):
-    username = generate_bad_username() if not good else generate_good_username
+    username = generate_bad_username() if not good else generate_good_username()
     email = f"{username}@gmail.com"
     password = "password"
     return User(username, email, password)
