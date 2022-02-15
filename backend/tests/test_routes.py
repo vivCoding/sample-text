@@ -42,13 +42,3 @@ def test_bad_password(test_client):
     assert response.status_code == 200
     assert data["success"] == False and (data["error"] == 4), "Bad Password assertion failed"
 
-def test_exists(test_client):
-    
-    response = test_client.post("/api/user/createaccount", json={
-        "username": "pass",
-        "email": "pass@purdue.edu",
-        "password": "12345678910111213141516171819202122"
-        })
-    data = response.json
-    assert response.status_code == 200
-    assert data["success"] == False and (data["error"] == 4), "Bad Password assertion failed"
