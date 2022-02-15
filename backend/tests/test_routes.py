@@ -20,7 +20,7 @@ def test_user_creation(test_client):
         })
     data = response.json
     assert response.status_code == 200
-    assert data["success"] == True
+    assert data["success"] == True, "User creation test failed"
 
 def test_bad_email(test_client):
     response = test_client.post("/api/user/createaccount", json={
