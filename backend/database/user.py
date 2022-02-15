@@ -50,3 +50,18 @@ class User:
     @staticmethod
     def find_by_email(email: str):
         return User.find({ "email": email })
+
+    @staticmethod
+    def delete(filters: dict):
+        db = Connection.client[Connection.database]
+        col = db[User.collection]
+        res = col.find_one(filters)
+        col.delete_one(res)
+    
+    @staticmethod
+    def delete_by_username(username: str):
+        User.delete({ "username": username })
+
+    @staticmethod
+    def delete_by_email(email: str):
+        User.delete({ "email": email })
