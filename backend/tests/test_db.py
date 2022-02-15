@@ -12,7 +12,7 @@ def test_find_user_with_valid_username(mongodb):
     assert User.find_by_username(good_user.username) == good_user, "Could not find user by username"
 
 def test_find_user_with_invalid_username(mongodb):
-    assert User.find_by_username(bad_user.username)) is None, "Found nonexistent user by username"
+    assert User.find_by_username(bad_user.username) is None, "Found nonexistent user by username"
 
 def test_find_user_with_valid_email(mongodb):
     assert User.find_by_email(good_user.email) == good_user, "Could not find user by email"

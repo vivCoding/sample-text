@@ -2,7 +2,7 @@ import random
 from database.user import User
 
 good_username_characters = "-_."
-bad_username_characters = """~`!@#$%^&*()+={[}\]|\:;'"<,>?\/"""
+bad_username_characters = r"""~`!@#$%^&*()+={[}]|:;'"<,>?\/"""
 
 def generate_good_username():
     sze = random.randint(1, 20)
