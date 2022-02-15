@@ -2,7 +2,6 @@ from flask import Blueprint, jsonify, request
 from utils.checkCreationFields import checkCreationFields
 from database.user import User
 import hashlib
-from validate_email import validate_email
 
 user_blueprint = Blueprint("user", __name__)
 
