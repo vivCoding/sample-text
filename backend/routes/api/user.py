@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from utils.checkCreationFields import checkCreationFields
 from database.user import User
+import json
 import hashlib
 
 user_blueprint = Blueprint("user", __name__)
