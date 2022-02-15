@@ -17,7 +17,7 @@ def generate_good_username():
             ret += chr(ord('0')+c-52)
         else:
             ret += good_username_characters[c-62]
-    return ret;
+    return ret
 
 def generate_bad_username():
     sze = random.randint(0, 50)
