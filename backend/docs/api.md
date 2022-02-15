@@ -12,6 +12,16 @@ All API routes should be documented in `docs/` in appropriate markdown file, wit
 
 Creates an account, validates given parameters, and stores into MongoDB based on username
 
+<<<<<<< HEAD
+**@user_blueprint.route('/createaccount')**
+**description**: Creates an account, fethcing username, email, and password from 
+the creation fields
+**returns** status *200*, success and pushes 
+to the database if credentials are right
+**returns** status *200*, not success if 
+there are bad credentials
+**returns** status *500*, if could not communicate with the client
+=======
 ### Request Body
 ```json
 {
@@ -39,3 +49,4 @@ Creates an account, validates given parameters, and stores into MongoDB based on
 
 Logs in a user
 <!-- TODO: fill out rest -->
+>>>>>>> dev

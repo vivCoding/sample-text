@@ -16,6 +16,9 @@ def test_string():
 
 # To have access to the db, import `mongodb` fixture from runtests and pass parameter like so
 def test_db(mongodb):
+    if User.find_by_username("bob") is None:
+        user = User("bob", "frankieray12345@gmail.com", "password")
+        assert user.push(), "Could not push bob!"
     assert User.find_by_username("bob") is not None, "Could not find bob!"
 
 # To test flask, import `test_client` fixture from runtests and pass parameter like so
