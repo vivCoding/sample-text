@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from utils.checkCreationFields import checkCreationFields
+from utils.check_creation_fields import check_creation_fields
 from database.user import User
 import json
 import hashlib
@@ -13,7 +13,7 @@ def index():
 @user_blueprint.route('/createaccount', methods=["POST"])
 def create_account():
 	data = request.get_json()
-	status = checkCreationFields(data["username"], data["email"], data["password"])
+	status = check_creation_fields(data["username"], data["email"], data["password"])
 	try:
 		if status == 0:
 			# TODO: cookies
