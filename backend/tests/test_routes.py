@@ -40,6 +40,7 @@ def test_bad_email(test_client):
     assert response.status_code == 200
     assert data["success"] == False and (data["error"] == 3), "Bad Email Assertion Failed"
 
+
 def test_bad_password(test_client):
     user = generate_random.generate_user(True)
     response = test_client.post("/api/user/createaccount", json={
