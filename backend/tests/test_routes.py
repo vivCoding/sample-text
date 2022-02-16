@@ -38,8 +38,9 @@ def test_bad_email(test_client):
     data = response.json
     if User.find_by_email(user.email):
         User.delete_by_email(user.email)
-    assert response.status_code == 200
-    assert data["success"] == False and (data["error"] == 3), "Bad Email Assertion Failed"
+    assert response.status_code == 200, "Bad Email Test: Status Code " + response.status_code
+    assert data["success"] == False, "Bad Email Test: No Connection"
+    assert (data["error"] == 3), "Bad Email Test: creation test error " + data["error"]
 
 
 def test_bad_password(test_client):
