@@ -1,6 +1,5 @@
 from cgi import test
 from flask import Flask, jsonify
-from tkinter.tix import Tree
 from urllib import response
 from click import password_option
 from runtests import test_client
@@ -21,11 +20,11 @@ def test_user_creation(test_client):
         "password": user.password
         })
     data = response.json
+    if User.find_by_email(user.email):
+        User.delete_by_email(user.email)
     assert response.status_code == 200
     assert data["success"] == True, "User creation test failed"
-    User.delete_by_email(user.email)
     
-
 def test_bad_email(test_client):
     user = generate_random.generate_user(True)
     response = test_client.post("/api/user/createaccount", json={
@@ -33,7 +32,10 @@ def test_bad_email(test_client):
         "email": f"{user.username}atgmail.com",
         "password": user.password
         })
+    
     data = response.json
+    if User.find_by_email(user.email):
+        User.delete_by_email(user.email)
     assert response.status_code == 200
     assert data["success"] == False and (data["error"] == 3), "Bad Email Assertion Failed"
 
@@ -45,5 +47,7 @@ def test_bad_password(test_client):
         "password": "123456789101112131415161718"
         })
     data = response.json
+    if User.find_by_email(user.email):
+        User.delete_by_email(user.email)
     assert response.status_code == 200
     assert data["success"] == False and (data["error"] == 4), "Bad Password Assertion Failed"
