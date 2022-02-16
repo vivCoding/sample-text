@@ -70,5 +70,8 @@ jobs:
       - name: Change Heroku stack to Docker
         run: heroku stack:set container
       
+      - name: Unshallowing repo
+        run: git fetch --all --unshallow
+      
       - name: Push to Heroku
         run: git push heroku main
