@@ -10,6 +10,11 @@ class User:
         self.email = email
         self.password = password
 
+    def __eq__(self, other) -> bool:
+        if isinstance(other, User):
+            return self.username == other.username
+        return False
+
     # Pushes this object to MongoDB, and returns whether it was successful
     def push(self) -> bool:
         if Connection.client is None:
@@ -45,3 +50,18 @@ class User:
     @staticmethod
     def find_by_email(email: str):
         return User.find({ "email": email })
+
+    @staticmethod
+    def delete(filters: dict):
+        db = Connection.client[Connection.database]
+        col = db[User.collection]
+        res = col.find_one(filters)
+        col.delete_one(res)
+    
+    @staticmethod
+    def delete_by_username(username: str):
+        User.delete({ "username": username })
+
+    @staticmethod
+    def delete_by_email(email: str):
+        User.delete({ "email": email })
