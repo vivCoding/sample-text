@@ -2,7 +2,7 @@ import ResponseType from '../types/api'
 import client from './httpClient'
 
 export const createUser = async (username: string, email: string, password: string): Promise<ResponseType> => {
-    const response = await client.post('/user/createaccount', { username, email, password })
+    const response = await client.post('/user/createaccount', { username, email, password }).catch(() => ({ status: 404, data: undefined }))
     const error = {
         email: '', username: '', password: '', server: '',
     }
