@@ -1,0 +1,74 @@
+name: deploy
+
+on:
+  push:
+    branches: [ main ]
+
+  workflow_dispatch:
+
+jobs:
+  backend-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.10.2
+
+      - name: Install dependencies
+        run: cd backend && pip3 install -r requirements.txt
+      
+      - name: Run tests
+        env:
+          ATLAS_URL: ${{ secrets.ATLAS_URL }}
+          ENV: ${{ secrets.ENV }}
+        run: cd backend && export ATLAS_URL=$ATLAS_URL && export ENV=$ENV && python runtests.py
+
+  frontend-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+    
+      - name: Setup NodeJS
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      
+      - name: Install dependencies
+        run: cd frontend && npm i
+      
+      - name: Run tests
+        run: cd frontend && npm test
+
+  deploy:
+    needs: [backend-tests, frontend-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Login Heroku
+        run: |
+          cat > ~/.netrc <<EOF
+            machine api.heroku.com
+              login $HEROKU_EMAIL
+              password $HEROKU_API_KEY
+            machine git.heroku.com
+              login $HEROKU_EMAIL
+              password $HEROKU_API_KEY
+          EOF
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          HEROKU_EMAIL: ${{ secrets.HEROKU_EMAIL }}
+      
+      - name: Add Heroku remote
+        run: heroku git:remote -a $HEROKU_APP_NAME
+        env:
+          HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
+      
+      - name: Change Heroku stack to Docker
+        run: heroku stack:set container
+      
+      - name: Push to Heroku
+        run: git push heroku main
