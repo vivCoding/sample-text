@@ -1,6 +1,5 @@
 import os
 import sys
-from tkinter.messagebox import NO
 from dotenv import load_dotenv
 import pytest
 from database.connect import Connection
