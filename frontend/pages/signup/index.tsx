@@ -4,7 +4,7 @@ import {
     Box, Typography, Button, Stack, LinearProgress, Alert, AlertTitle,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { ChangeEventHandler, useEffect, useState } from 'react';
+import { ChangeEventHandler, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from '../../src/components/common/Link';
 import PasswordField from '../../src/components/common/PasswordField';
@@ -37,7 +37,6 @@ const Signup: NextPage = () => {
             email: '', username: '', password: '', server: '',
         })
         createUser(form.username, form.email, form.password).then((res) => {
-            console.log(res)
             if (res.success) {
                 router.push('/signup/success')
                 setLoading(false)

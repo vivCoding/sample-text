@@ -20,11 +20,12 @@ if __name__ == "__main__":
     if len(sys.argv) == 3 and sys.argv[1] == "-t":
         filename = sys.argv[2]
         if os.path.exists(filename):
-            pytest.main(["tests", "-k", filename])
+            sys.exit(pytest.main(["tests", "-k", filename]))
         else:
             print (f'Test file "{filename}" could not be found!')
     elif len(sys.argv) == 1:
-        pytest.main(["tests"])
+        # run all the tests
+        sys.exit(pytest.main(["tests"]))
     else:
         print ("Bad arguments!")
         print ("Leave blank to run all tests. To run specific test, type -t <path_to_test>")
