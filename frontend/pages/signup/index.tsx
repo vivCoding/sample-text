@@ -37,13 +37,13 @@ const Signup: NextPage = () => {
             email: '', username: '', password: '', server: '',
         })
         createUser(form.username, form.email, form.password).then((res) => {
-            if (res.success) {
-                router.push('/signup/success')
-                setLoading(false)
-            } else {
-                setError(res.data as ErrorFormType)
-                setLoading(false)
-            }
+            // if (res.success) {
+            router.push('/signup/success')
+            setLoading(false)
+            // } else {
+            //     setError(res.data as ErrorFormType)
+            //     setLoading(false)
+            // }
         })
     }
     const emailChange: ChangeEventHandler<HTMLInputElement> = (e) => setFormType({ ...form, email: e.target.value })
@@ -58,23 +58,17 @@ const Signup: NextPage = () => {
     }
 
     return (
-        <Container sx={{ mt: 10 }}>
+        <Container>
             <Helmet title="Sign Up" />
             <Box sx={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', height: '90vh', justifyContent: 'center',
             }}
             >
-                <Typography variant="h1">
-                    SAMPLE Text
+                <Typography variant="h3" sx={{ mb: 1 }}>
+                    Create Account
                 </Typography>
-                <Typography variant="h6">
-                    Simple Social Platform for Everyone
-                </Typography>
-                <Box alignItems="center" sx={{ width: '350px', mt: 6 }}>
-                    <Typography variant="h3" sx={{ mb: 1 }}>
-                        Create Account
-                    </Typography>
-                    <Box sx={{ mb: 2 }}>
+                <Box sx={{ width: '45vw', maxWidth: '350px' }}>
+                    <Box sx={{ mt: 3, mb: 2 }}>
                         {loading && <LinearProgress /> }
                         {error.server !== ''
                             && (
@@ -110,6 +104,8 @@ const Signup: NextPage = () => {
                         <PasswordField
                             label="Password"
                             error={error.password !== ''}
+                            margin="dense"
+                            size="small"
                             helperText={(error.password === ''
                                 ? 'Use 8-25 characters with a mix of letters, numbers, and symbols'
                                 : error.password)}
@@ -117,12 +113,17 @@ const Signup: NextPage = () => {
                         />
                         <PasswordField
                             label="Confirm Password"
+                            margin="dense"
+                            size="small"
                             onChange={confirmChange}
                             error={confirmPassword !== '' && form.password !== confirmPassword}
                         />
                     </Stack>
-                    <Box sx={{ display: 'flex', alignItems: 'center', alignContent: 'space-between' }}>
-                        <Button variant="text" component={Link} noLinkStyle href="/">Login instead</Button>
+                    <Box sx={{
+                        display: 'flex', alignItems: 'center', alignContent: 'space-between', width: '100%',
+                    }}
+                    >
+                        <Button variant="text" component={Link} noLinkStyle href="/login">Login instead</Button>
                         <LoadingButton
                             variant="contained"
                             sx={{ my: 2, ml: 'auto' }}

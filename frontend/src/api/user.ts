@@ -1,4 +1,4 @@
-import ResponseType from '../types/api'
+import { ResponseType } from '../types/api'
 import client from './httpClient'
 
 export const createUser = async (username: string, email: string, password: string): Promise<ResponseType> => {

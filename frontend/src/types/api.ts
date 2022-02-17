@@ -1,7 +1,5 @@
-interface ResponseType {
+export interface ResponseType {
     success: boolean,
     data?: any,
-    error?: number
+    error?: any
 }
-
-export default ResponseType
