@@ -41,6 +41,7 @@ Creates an account, validates given parameters, and stores into MongoDB based on
 
 Logs in a user
 
+
 ### Request Body
 ```json
 {
