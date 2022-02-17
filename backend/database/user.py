@@ -47,6 +47,7 @@ class User:
             filter = { "username" : self.username }
             new_value = { "$set": { "username": username } }
             col.update_one(filter, new_value)
+            self.username = username
             return True
         except Exception as e:
             print (e)
@@ -62,6 +63,23 @@ class User:
             filter = { "email" : self.email }
             new_value = { "$set": { "email": email } }
             col.update_one(filter, new_value)
+            self.email = email
+            return True
+        except Exception as e:
+            print (e)
+            return False
+    
+    # Updates this object's password in MongoDB, and returns whether it was successful
+    def update_password(self, password) -> bool:
+        if Connection.client is None:
+            return False
+        try: 
+            db = Connection.client[Connection.database]
+            col = db[User.collection]
+            filter = { "password" : self.password }
+            new_value = { "$set": { "password": password } }
+            col.update_one(filter, new_value)
+            self.password = password
             return True
         except Exception as e:
             print (e)

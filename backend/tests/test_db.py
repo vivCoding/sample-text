@@ -21,13 +21,25 @@ def test_find_user_with_invalid_email(mongodb):
     assert User.find_by_email(bad_user.email) is None, "Found nonexistent user by email"
 
 def test_update_user_username(mongodb):
-    pass
+    old_username = good_user.username
+    new_username = "NewUsename123"
+    good_user.update_username(new_username)
+    assert good_user.username == new_username
+    good_user.username = old_username
 
 def test_update_user_email(mongodb):
-    pass
+    old_email = good_user.email
+    new_email = "NewUsename123@gmail.com"
+    good_user.update_email(new_email)
+    assert good_user.email == new_email
+    good_user.email = old_email
 
 def test_update_user_password(mongodb):
-    pass
+    old_password = good_user.password
+    new_password = "NewPassword"
+    good_user.update_password(new_password)
+    assert good_user.password == new_password
+    good_user.password = old_password
 
 def test_delete_user_by_username(mongodb):
     if User.find_by_username(good_user.username) is None:
