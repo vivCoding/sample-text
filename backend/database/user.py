@@ -4,11 +4,15 @@ from os import getenv
 class User:
     collection = "users"
 
-    def __init__(self, username, email, password) -> None:
+    def __init__(self, username, email, password, first_name='', last_name='', bio='', profile_img='') -> None:
         # TODO: add other optional profile fields
         self.username = username
         self.email = email
         self.password = password
+        self.first_name = first_name
+        self.last_name = last_name
+        self.bio = bio
+        self.profile_img = profile_img
 
     def __eq__(self, other) -> bool:
         if isinstance(other, User):
@@ -33,6 +37,36 @@ class User:
             print (e)
             return False
 
+    # Updates this object's username in MongoDB, and returns whether it was successful
+    def update_username(self, username) -> bool:
+        if Connection.client is None:
+            return False
+        try: 
+            db = Connection.client[Connection.database]
+            col = db[User.collection]
+            filter = { "username" : self.username }
+            new_value = { "$set": { "username": username } }
+            col.update_one(filter, new_value)
+            return True
+        except Exception as e:
+            print (e)
+            return False
+
+    # Updates this object's email in MongoDB, and returns whether it was successful
+    def update_email(self, email) -> bool:
+        if Connection.client is None:
+            return False
+        try: 
+            db = Connection.client[Connection.database]
+            col = db[User.collection]
+            filter = { "email" : self.email }
+            new_value = { "$set": { "email": email } }
+            col.update_one(filter, new_value)
+            return True
+        except Exception as e:
+            print (e)
+            return False
+
     # Static method that finds and returns a specific user from the collection based on filters
     @staticmethod
     def find(filters: dict):
@@ -51,6 +85,7 @@ class User:
     def find_by_email(email: str):
         return User.find({ "email": email })
 
+    # Static method that deletes a specific user from the collection based on filters
     @staticmethod
     def delete(filters: dict):
         db = Connection.client[Connection.database]
