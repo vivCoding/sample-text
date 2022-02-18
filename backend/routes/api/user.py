@@ -38,3 +38,18 @@ def login():
 			return jsonify({ "success": True , "error": 1}), 200
 	except Exception as e:
 		return jsonify({"success": False, "error": -1 }), 500
+
+@user_blueprint.route('/viewprofile', methods=["POST"])
+def view_profile():
+	data = request.get_json()
+	username = data["username"]
+	try:
+		user = User.find_by_username(username)
+		if user is not None:
+			#TODO return more things later
+			return jsonify({ "success": True, "username": user.username}), 200
+		else:
+			return jsonify({ "success": True , "error": 1}), 200
+	except Exception as e:
+		return jsonify({"success": False, "error": -1 }), 500
+		
