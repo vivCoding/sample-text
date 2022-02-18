@@ -454,9 +454,9 @@ class MongoDBSessionInterface(SessionInterface):
         expires = self.get_expiration_time(app, session)
         val = self.serializer.dumps(dict(session))
         self.store.update_one({'id': store_id},
-                          {'id': store_id,
-                           'val': val,
-                           'expiration': expires}, True)
+                              {"$set": {'id': store_id,
+                                        'val': val,
+                                        'expiration': expires}}, True)
         if self.use_signer:
             session_id = self._get_signer(app).sign(want_bytes(session.sid))
         else:
