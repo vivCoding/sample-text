@@ -10,6 +10,7 @@ import Link from '../../src/components/common/Link';
 import PasswordField from '../../src/components/common/PasswordField';
 import Helmet from '../../src/components/common/Helmet';
 import StyledTextField from '../../src/components/common/StyledTextField';
+import Navbar from '../../src/components/navbar';
 
 const Login: NextPage = () => {
     const router = useRouter()
@@ -32,6 +33,7 @@ const Login: NextPage = () => {
     return (
         <Container>
             <Helmet title="Login" />
+            <Navbar />
             <Box sx={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', height: '90vh', justifyContent: 'center',
             }}
@@ -65,8 +67,8 @@ const Login: NextPage = () => {
                         display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', mt: 2,
                     }}
                     >
-                        <Button variant="text" component={Link} noLinkStyle href="/signup">Create Account</Button>
-                        <LoadingButton variant="contained" onClick={handleLogin}>Login</LoadingButton>
+                        <Button variant="text" component={Link} noLinkStyle href="/signup">Sign Up</Button>
+                        <LoadingButton variant="contained" onClick={handleLogin} disabled={loginField === '' || password === ''}>Login</LoadingButton>
                     </Box>
                 </Box>
             </Box>

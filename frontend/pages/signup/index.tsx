@@ -11,6 +11,7 @@ import PasswordField from '../../src/components/common/PasswordField';
 import Helmet from '../../src/components/common/Helmet';
 import StyledTextField from '../../src/components/common/StyledTextField';
 import { createUser } from '../../src/api/user';
+import Navbar from '../../src/components/navbar';
 
 interface FormType {
     email: string,
@@ -60,12 +61,13 @@ const Signup: NextPage = () => {
     return (
         <Container>
             <Helmet title="Sign Up" />
+            <Navbar />
             <Box sx={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', height: '90vh', justifyContent: 'center',
             }}
             >
                 <Typography variant="h3" sx={{ mb: 1 }}>
-                    Create Account
+                    Sign Up
                 </Typography>
                 <Box sx={{ width: '45vw', maxWidth: '350px' }}>
                     <Box sx={{ mt: 3, mb: 2 }}>
@@ -131,7 +133,7 @@ const Signup: NextPage = () => {
                             disabled={form.username === '' || form.email === '' || confirmPassword === '' || form.password !== confirmPassword}
                             loading={loading}
                         >
-                            Create
+                            Confirm
                         </LoadingButton>
                     </Box>
                 </Box>

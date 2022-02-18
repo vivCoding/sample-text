@@ -10,6 +10,7 @@ import Link from '../../src/components/common/Link';
 import Helmet from '../../src/components/common/Helmet';
 import StyledTextField from '../../src/components/common/StyledTextField';
 import ProfileAvatar from '../../src/components/common/ProfileAvatar'
+import Navbar from '../../src/components/navbar';
 
 const Input = styled('input')({
     display: 'none',
@@ -22,6 +23,7 @@ const SignupSuccess: NextPage = () => {
     return (
         <Container>
             <Helmet title="Sign Up" />
+            <Navbar />
             <Box sx={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', height: '90vh', justifyContent: 'center',
             }}
