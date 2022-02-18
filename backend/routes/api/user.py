@@ -22,7 +22,7 @@ def create_account():
 			hashed_password = hashlib.md5(data["password"].encode())
 			new_user = User(data["username"], data["email"], hashed_password.hexdigest())
 			new_user.push()
-			session[username] = 0
+			session[username] = username
 			return jsonify({ "success": True }), 200
 		else:
 			return jsonify({ "success": False,"error": status }), 200
