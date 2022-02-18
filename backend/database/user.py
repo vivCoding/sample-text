@@ -64,10 +64,14 @@ class User:
 
     @staticmethod
     def delete(filters: dict):
-        db = Connection.client[Connection.database]
-        col = db[User.collection]
-        res = col.find_one(filters)
-        col.delete_one(res)
+        try: 
+            db = Connection.client[Connection.database]
+            col = db[User.collection]
+            res = col.find_one(filters)
+            col.delete_one(res)
+        except Exception as e:
+            print (e)
+            return None
     
     @staticmethod
     def delete_by_username(username: str):

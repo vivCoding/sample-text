@@ -52,4 +52,13 @@ def view_profile():
 			return jsonify({ "success": True , "error": 1}), 200
 	except Exception as e:
 		return jsonify({"success": False, "error": -1 }), 500
-		
+
+@user_blueprint.route('/delete', methods=["POST"])
+def delete_user():
+	data = request.get_json()
+	try:
+		# check if valid session
+		username = data["username"]
+		User.delete_by_username(username)
+	except Exception as e:
+		return jsonify({"success": False, "error": -1 }), 500
