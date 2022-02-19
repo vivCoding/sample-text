@@ -39,6 +39,7 @@ def login():
 	try:
 		user = User.find_by_credentials(data["username"], hashed_password)
 		if user is not None:
+			session[username] = username
 			return jsonify({ "success": True }), 200
 		else:
 			return jsonify({ "success": True , "error": 1}), 200
