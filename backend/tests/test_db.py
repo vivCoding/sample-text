@@ -1,11 +1,14 @@
+import hashlib
 from database.user import User
 from runtests import mongodb
-from utils.generate_random import generate_good_username, generate_user
+from utils.generate_random import generate_user
 
 good_user = generate_user(good=True)
 bad_user = generate_user(good=False)
 
 def test_push_user(mongodb):
+    hashed_password = hashlib.md5(good_user.password.encode()).hexdigest()
+    good_user.password = hashed_password
     assert good_user.push(), "Push on user failed"
 
 def test_find_user_with_valid_username(mongodb):
@@ -19,6 +22,9 @@ def test_find_user_with_valid_email(mongodb):
 
 def test_find_user_with_invalid_email(mongodb):
     assert User.find_by_email(bad_user.email) is None, "Found nonexistent user by email"
+
+def test_find_user_by_credentials(mongodb):
+    assert User.find_by_credentials(good_user.username, good_user.password) is not None, "Could not find user with credentials"
 
 def test_update_user_username(mongodb):
     old_username = good_user.username
@@ -38,7 +44,8 @@ def test_update_user_email(mongodb):
 
 def test_update_user_password(mongodb):
     old_password = good_user.password
-    new_password = "NewPassword"
+    new_user = generate_user(good=True)
+    new_password = new_user.password
     good_user.update_password(new_password)
     assert good_user.password == new_password
     good_user.update_password(old_password)
