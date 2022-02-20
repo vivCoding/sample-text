@@ -26,7 +26,7 @@ def test_update_user_username(mongodb):
     new_username = new_user.username
     good_user.update_username(new_username)
     assert good_user.username == new_username
-    good_user.username = old_username
+    good_user.update_username(old_username)
 
 def test_update_user_email(mongodb):
     old_email = good_user.email
@@ -34,14 +34,14 @@ def test_update_user_email(mongodb):
     new_email = new_user.email
     good_user.update_email(new_email)
     assert good_user.email == new_email
-    good_user.email = old_email
+    good_user.update_email(old_email)
 
 def test_update_user_password(mongodb):
     old_password = good_user.password
     new_password = "NewPassword"
     good_user.update_password(new_password)
     assert good_user.password == new_password
-    good_user.password = old_password
+    good_user.update_password(old_password)
 
 def test_delete_user_by_username(mongodb):
     if User.find_by_username(good_user.username) is None:
@@ -50,7 +50,7 @@ def test_delete_user_by_username(mongodb):
     assert User.find_by_username(good_user.username) is None, "User was not deleted"
 
 def test_delete_user_by_email(mongodb):
-    if User.find_by_username(good_user.username) is None:
+    if User.find_by_email(good_user.email) is None:
         good_user.push()
     User.delete_by_email(good_user.email)
     assert User.find_by_email(good_user.email) is None, "User was not deleted"
