@@ -22,14 +22,16 @@ def test_find_user_with_invalid_email(mongodb):
 
 def test_update_user_username(mongodb):
     old_username = good_user.username
-    new_username = "NewUsename123"
+    new_user = generate_user(good=True)
+    new_username = new_user.username
     good_user.update_username(new_username)
     assert good_user.username == new_username
     good_user.username = old_username
 
 def test_update_user_email(mongodb):
     old_email = good_user.email
-    new_email = "NewUsename123@gmail.com"
+    new_user = generate_user(good=True)
+    new_email = new_user.email
     good_user.update_email(new_email)
     assert good_user.email == new_email
     good_user.email = old_email

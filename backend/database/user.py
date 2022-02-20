@@ -46,7 +46,7 @@ class User:
             col = db[User.collection]
             filter = { "username" : self.username }
             new_value = { "$set": { "username": username } }
-            col.update_one(filter, new_value)
+            col.update_one(filter, new_value, upsert=True)
             self.username = username
             return True
         except Exception as e:
@@ -62,7 +62,7 @@ class User:
             col = db[User.collection]
             filter = { "email" : self.email }
             new_value = { "$set": { "email": email } }
-            col.update_one(filter, new_value)
+            col.update_one(filter, new_value, upsert=True)
             self.email = email
             return True
         except Exception as e:
@@ -78,7 +78,7 @@ class User:
             col = db[User.collection]
             filter = { "password" : self.password }
             new_value = { "$set": { "password": password } }
-            col.update_one(filter, new_value)
+            col.update_one(filter, new_value, upsert=True)
             self.password = password
             return True
         except Exception as e:
