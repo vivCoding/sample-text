@@ -1,5 +1,5 @@
 from cgi import test
-from flask import Flask, jsonify
+from flask import Flask, jsonify, session
 from urllib import response
 from click import password_option
 from runtests import test_client
@@ -24,6 +24,7 @@ def test_user_creation(test_client):
         User.delete_by_email(user.email)
     assert response.status_code == 200
     assert data["success"] == True, "User creation test failed"
+    assert user.username in session, "User session not added"
     
 def test_bad_email(test_client):
     user = generate_random.generate_user(True)
