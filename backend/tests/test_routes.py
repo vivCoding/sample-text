@@ -30,7 +30,7 @@ def test_user_creation(test_client):
     if User.find_by_email(goodemail):
         User.delete_by_email(goodemail)
     assert response.status_code == 200, "User Creation Test: Status Code " + response.status_code
-    assert data["success"] == True, "User Creation Test: user was not created"
+    assert data["success"] == True, "User Creation Test: user was not created\n" + "User credentials: email: " + goodemail + " username: " + goodusername + " password: " + goodpass
     
     
 def test_bad_email(test_client):
@@ -41,11 +41,11 @@ def test_bad_email(test_client):
         })
     
     data = response.json
-    if User.find_by_email(goodemail):
-        User.delete_by_email(goodemail)
+    if User.find_by_email(bademail):
+        User.delete_by_email(bademail)
     assert response.status_code == 200, "Bad Email Test: Status Code " + response.status_code
     assert data["success"] == False, "Bad Email Test: No Connection"
-    assert (data["error"] == 3), "Bad Email Test: creation test error " + data["error"]
+    assert (data["error"] == 3), "Bad Email Test: creation test error " + data["error"] + "\n Problem with email:" + bademail
 
 
 def test_bad_password(test_client):
@@ -59,4 +59,4 @@ def test_bad_password(test_client):
         User.delete_by_email(goodemail)
     assert response.status_code == 200, "Bad Password Test: Status Code " + response.status_code
     assert data["success"] == False, "Bad Password Test: No Connection"
-    assert (data["error"] == 4), "Bad Password Test: creation test error " + data["error"]
+    assert (data["error"] == 4), "Bad Password Test: creation test error " + data["error"] + "\nProblem with password:" + badpass
