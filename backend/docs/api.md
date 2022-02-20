@@ -35,7 +35,25 @@ Creates an account, validates given parameters, and stores into MongoDB based on
 - Error 6: A user with the desired username already exists
 - Error 7: A user with the desired email address already exists
 
+
+
 ## `POST /api/user/login`
 
 Logs in a user
-<!-- TODO: fill out rest -->
+
+
+### Request Body
+```json
+{
+    "username": "string",
+    "password": "string",
+}
+```
+### Response Types
+```json
+{
+    "success": true | false,
+    "error": int
+}
+```
+- Error 1: Given username/email and password cannot be found
