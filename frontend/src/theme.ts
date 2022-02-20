@@ -11,11 +11,6 @@ const theme = createTheme({
                 disableRipple: true,
             },
         },
-        // MuiAppBar: {
-        //     defaultProps: {
-        //         backG
-        //     }
-        // }
     },
     palette: {
         mode: 'dark',

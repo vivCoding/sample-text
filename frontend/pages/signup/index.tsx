@@ -38,6 +38,7 @@ const Signup: NextPage = () => {
             email: '', username: '', password: '', server: '',
         })
         createUser(form.username, form.email, form.password).then((res) => {
+            // TODO: reset this
             // if (res.success) {
             router.push('/signup/success')
             setLoading(false)

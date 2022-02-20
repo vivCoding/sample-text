@@ -1,11 +1,12 @@
 import type { NextPage } from 'next';
 import Container from '@mui/material/Container';
 import {
-    Box, Typography, Button, Stack, LinearProgress, Alert, AlertTitle,
+    Box, Typography, Button, LinearProgress, Alert, AlertTitle,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { ChangeEventHandler, useState } from 'react';
 import { useRouter } from 'next/router';
+import LoginIcon from '@mui/icons-material/Login';
 import Link from '../../src/components/common/Link';
 import PasswordField from '../../src/components/common/PasswordField';
 import Helmet from '../../src/components/common/Helmet';
@@ -21,6 +22,8 @@ const Login: NextPage = () => {
 
     const handleLogin = (): void => {
         setLoading(true)
+        // TODO: call api function
+        router.push('/profile/insert_username')
     }
 
     const loginFieldChange: ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -68,7 +71,13 @@ const Login: NextPage = () => {
                     }}
                     >
                         <Button variant="text" component={Link} noLinkStyle href="/signup">Sign Up</Button>
-                        <LoadingButton variant="contained" onClick={handleLogin} disabled={loginField === '' || password === ''}>Login</LoadingButton>
+                        <LoadingButton
+                            variant="contained"
+                            onClick={handleLogin}
+                            disabled={loginField === '' || password === ''}
+                        >
+                            Login
+                        </LoadingButton>
                     </Box>
                 </Box>
             </Box>

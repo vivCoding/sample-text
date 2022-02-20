@@ -1,11 +1,13 @@
 import type { NextPage } from 'next';
 import Container from '@mui/material/Container';
 import {
-    Box, Typography, Button, Stack, styled, LinearProgress,
+    Box, Typography, Button, Stack, styled, LinearProgress, Alert, AlertTitle,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { useState } from 'react';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
+import { useRouter } from 'next/router';
+import CheckIcon from '@mui/icons-material/Check';
 import Link from '../../src/components/common/Link';
 import Helmet from '../../src/components/common/Helmet';
 import StyledTextField from '../../src/components/common/StyledTextField';
@@ -17,8 +19,20 @@ const Input = styled('input')({
 });
 
 const SignupSuccess: NextPage = () => {
-    const [name, setName] = useState('')
+    const router = useRouter()
     const [loading, setLoading] = useState(false)
+    const [error, setError] = useState(false)
+
+    const handleFinish = (): void => {
+        // TODO: call api function update user profile
+        setLoading(true)
+        router.push('/profile/insert_username')
+    }
+
+    const handleSkip = (): void => {
+        setLoading(true)
+        router.push('/profile/insert_username')
+    }
 
     return (
         <Container>
@@ -37,7 +51,18 @@ const SignupSuccess: NextPage = () => {
                 <Typography variant="h5" fontWeight="300">
                     Personalize your profile a little more
                 </Typography>
-                <Box sx={{ width: '45vw', maxWidth: '350px', mt: 4 }}>
+                <Box sx={{ width: '45vw', maxWidth: '350px', mt: 3 }}>
+                    <Box sx={{ mb: 4 }}>
+                        {loading && <LinearProgress />}
+                        {error && (
+                            <Alert severity="error" sx={{ textAlign: 'left' }}>
+                                <AlertTitle>Server Error</AlertTitle>
+                                There was an error updating your profile.
+                                <br />
+                                Try again later!
+                            </Alert>
+                        )}
+                    </Box>
                     <Stack alignItems="center" sx={{ mb: 1.5 }}>
                         <ProfileAvatar size={75} sx={{ mb: 1 }} />
                         <label htmlFor="contained-button-file">
@@ -67,13 +92,13 @@ const SignupSuccess: NextPage = () => {
                         display: 'flex', alignItems: 'center', alignContent: 'space-between', width: '100%',
                     }}
                     >
-                        <Button variant="text" component={Link} noLinkStyle href="/">Skip for Now</Button>
+                        <Button variant="text" onClick={handleSkip}>Skip for Now</Button>
                         <LoadingButton
                             variant="contained"
                             sx={{ my: 2, ml: 'auto' }}
-                            component={Link}
-                            noLinkStyle
-                            href="/"
+                            onClick={handleFinish}
+                            loading={loading}
+                            endIcon={<CheckIcon />}
                         >
                             Finish
                         </LoadingButton>
