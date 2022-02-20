@@ -13,10 +13,11 @@ interface PasswordFieldProps {
     required?: boolean,
     size?: 'small' | 'medium',
     margin?: 'none' | 'normal' | 'dense',
+    sx?: any,
 }
 
 const PasswordField = ({
-    label, helperText, onChange, error, required, size, margin,
+    label, helperText, onChange, error, required, size, margin, sx,
 }: PasswordFieldProps): JSX.Element => {
     const [viewPassword, setViewPassword] = useState(false)
 
@@ -35,6 +36,7 @@ const PasswordField = ({
             helperText={helperText}
             error={error ?? false}
             required={required ?? false}
+            sx={sx}
             InputProps={{
                 endAdornment: (
                     <InputAdornment position="end">

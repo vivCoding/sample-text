@@ -22,8 +22,9 @@ const pages: Page[] = [
 
 const settings: Page[] = [
     {
+        // TODO: set this conditionally?
         label: 'Settings',
-        path: '/',
+        path: '/profile/',
         icon: <SettingsOutlinedIcon />,
     },
     {
@@ -99,7 +100,13 @@ const Navbar = (): JSX.Element => {
                     >
                         {settings.map((setting) => (
                             <MenuItem key={setting.label} onClick={handleCloseUserMenu}>
-                                <Button component={Link} noLinkStyle href={setting.path} sx={{ color: 'white', backgroundColor: 'rgba(0,0,0,0)' }} startIcon={setting.icon}>
+                                <Button
+                                    component={Link}
+                                    noLinkStyle
+                                    href={setting.path}
+                                    sx={{ color: 'white', backgroundColor: 'rgba(0,0,0,0)' }}
+                                    startIcon={setting.icon}
+                                >
                                     {setting.label}
                                 </Button>
                             </MenuItem>

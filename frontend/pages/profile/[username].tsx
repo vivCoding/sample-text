@@ -20,6 +20,7 @@ const Home: NextPage = () => (
         >
             <Typography variant="h3">
                 User profile
+                {/* TODO */}
             </Typography>
         </Box>
     </Container>

@@ -4,15 +4,18 @@ import {
     Box, Typography, Button, Stack, styled, LinearProgress, Alert, AlertTitle,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import { useRouter } from 'next/router';
 import CheckIcon from '@mui/icons-material/Check';
+import { ToastContainer, toast } from 'react-toastify';
 import Link from '../../src/components/common/Link';
 import Helmet from '../../src/components/common/Helmet';
 import StyledTextField from '../../src/components/common/StyledTextField';
 import ProfileAvatar from '../../src/components/common/ProfileAvatar'
-import Navbar from '../../src/components/navbar';
+import UserNavbar from '../../src/components/navbar/user';
+
+import 'react-toastify/dist/ReactToastify.min.css'
 
 const Input = styled('input')({
     display: 'none',
@@ -22,6 +25,18 @@ const SignupSuccess: NextPage = () => {
     const router = useRouter()
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(false)
+
+    useEffect(() => {
+        toast.success('Success in creating account!', {
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            draggable: true,
+            progress: undefined,
+            theme: 'dark',
+            position: toast.POSITION.BOTTOM_RIGHT,
+        })
+    }, [])
 
     const handleFinish = (): void => {
         // TODO: call api function update user profile
@@ -36,8 +51,9 @@ const SignupSuccess: NextPage = () => {
 
     return (
         <Container>
+            <ToastContainer />
             <Helmet title="Sign Up" />
-            <Navbar />
+            <UserNavbar />
             <Box sx={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', height: '90vh', justifyContent: 'center',
             }}

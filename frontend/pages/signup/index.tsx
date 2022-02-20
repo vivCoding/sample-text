@@ -113,6 +113,7 @@ const Signup: NextPage = () => {
                                 ? 'Use 8-25 characters with a mix of letters, numbers, and symbols'
                                 : error.password)}
                             onChange={passwordChange}
+                            sx={{ mt: 2 }}
                         />
                         <PasswordField
                             label="Confirm Password"
