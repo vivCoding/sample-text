@@ -78,6 +78,9 @@ def test_login_existing(test_client):
     })
     data = response.json
 
+    if User.find_by_email(user.email):
+        User.delete_by_email(user.email)
+
     assert response.status_code == 200 or response.status_code == 302
     assert data["success"] == True, "Login to existing user test failed"
     assert user.username in session, "Username not added to session"
