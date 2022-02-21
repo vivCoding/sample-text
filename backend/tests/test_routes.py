@@ -60,6 +60,7 @@ def test_login_nonexisting(test_client):
         "password": user.password
     })
     data = response.json
+
     assert response.status_code == 200
     assert data["success"] == True and data["error"] == 1, "Login nonexisting user failed"
 
@@ -70,6 +71,7 @@ def test_login_existing(test_client):
         "email": user.email,
         "password": user.password
     })
+    
     assert response.status_code == 200
 
     response = test_client.post("/api/user/login", json={
