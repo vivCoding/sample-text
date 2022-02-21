@@ -50,6 +50,15 @@ def test_update_user_password(mongodb):
     assert good_user.password == new_password
     good_user.update_password(old_password)
 
+def test_update_user_profile(mongodb):
+    name = "xQcOw"
+    bio = "CS Student | Gamer | Streamer | Chef | YouTuber"
+    profile_img = "b64-encoded-img-of-minecraft"
+    good_user.update_profile(name=name, bio=bio, profile_img=profile_img)
+    assert good_user.name == name, "Name was not updated"
+    assert good_user.bio == bio, "Bio was not updated"
+    assert good_user.profile_img == profile_img, "Profile image was not updated"
+
 def test_delete_user_by_username(mongodb):
     if User.find_by_username(good_user.username) is None:
         good_user.push()
