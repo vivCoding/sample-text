@@ -15,7 +15,6 @@ def test_good_user(mongodb):
 
 def test_bad_user():
     username = generate_bad_username()
-    print(username)
     status = check_creation_fields(username, generate_good_email(), good_pass)
     assert status == 1 or status == 2, "Failed test for bad username"
 
@@ -32,15 +31,21 @@ def test_bad_email():
     assert status == 3, "Failed test for bad email"
 
 def test_existing_email(mongodb):
-    username = generate_good_username()
-    email = generate_good_email()
-    User(username, email, good_pass).push()
-    status = check_creation_fields(generate_good_username(), email, good_pass)
-    assert status == 7, "Failed test for existing email"
+    try:
+        user = generate_user(True)
+        user.push()
+        status = check_creation_fields(generate_good_username(), user.email, good_pass)
+        assert status == 7, "Failed test for existing email"
+    finally:
+        if User.find_by_email(user.email):
+            User.delete_by_email(user.email)
 
 def test_existing_user(mongodb):
-    username = generate_good_username()
-    email = generate_good_email()
-    User(username, email, good_pass).push()
-    status = check_creation_fields(username, generate_good_email(), good_pass)
-    assert status == 6, "Failed test for existing user"
+    try:
+        user = generate_user(True)
+        user.push()
+        status = check_creation_fields(user.username, generate_good_email(), good_pass)
+        assert status == 6, "Failed test for existing user"
+    finally:
+        if User.find_by_email(user.email):
+            User.delete_by_email(user.email)
