@@ -16,7 +16,7 @@ def create_account():
 	status = check_creation_fields(data["username"], data["email"], data["password"])
 	username = data["username"]
 	if username in session:
-		return 302	# should go to the user timeline
+		return jsonify({ "success": True }), 302	# should go to the user timeline
 	try:
 		if status == 0:
 			hashed_password = hashlib.md5(data["password"].encode())
@@ -35,7 +35,7 @@ def login():
 	hashed_password = hashlib.md5(data["password"].encode()).hexdigest()
 	username = data["username"]
 	if username in session:
-		return 302	# should go to the user timeline
+		return jsonify({ "success": True }), 302	# should go to the user timeline
 	try:
 		user = User.find_by_credentials(data["username"], hashed_password)
 		if user is not None:
