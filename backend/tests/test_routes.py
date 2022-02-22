@@ -1,7 +1,4 @@
-from cgi import test
-from flask import Flask, jsonify, session
-from urllib import response
-from click import password_option
+from flask import session
 from runtests import test_client
 from database.user import User
 from utils import generate_random

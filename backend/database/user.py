@@ -1,5 +1,4 @@
 from .connect import Connection
-from os import getenv
 
 class User:
     collection = "users"
