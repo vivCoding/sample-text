@@ -1,6 +1,7 @@
 from .connect import Connection
 from os import getenv
 import json
+from flask import jsonify
 
 class User:
     collection = "users"
