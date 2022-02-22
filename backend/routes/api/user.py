@@ -47,7 +47,7 @@ def view_profile():
 		user = User.find_by_username(username)
 		if user is not None:
 			#TODO return more things later
-			return jsonify({ "success": True, "username": user.username}), 200
+			return jsonify({ "success": True, "profile_img": user.profile_img, "username": user.username, "name": user.name, "bio": user.bio}), 200
 		else:
 			return jsonify({ "success": True , "error": 1}), 200
 	except Exception as e:
