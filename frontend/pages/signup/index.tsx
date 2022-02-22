@@ -5,12 +5,14 @@ import {
 import { LoadingButton } from '@mui/lab';
 import { ChangeEventHandler, useState } from 'react';
 import { useRouter } from 'next/router';
+import { useDispatch } from 'react-redux';
 import Link from '../../src/components/common/Link';
 import PasswordField from '../../src/components/common/PasswordField';
 import Helmet from '../../src/components/common/Helmet';
 import StyledTextField from '../../src/components/common/StyledTextField';
 import { createUser } from '../../src/api/user';
 import Navbar from '../../src/components/navbar';
+import { setCurrentUser } from '../../src/store';
 
 interface FormType {
     email: string,
@@ -31,6 +33,8 @@ const Signup: NextPage = () => {
     } as ErrorFormType)
     const [loading, setLoading] = useState(false)
 
+    const dispatch = useDispatch()
+
     const handleCreate = (): void => {
         setLoading(true)
         setError({
@@ -39,6 +43,7 @@ const Signup: NextPage = () => {
         createUser(form.username, form.email, form.password).then((res) => {
             // TODO: reset this
             // if (res.success) {
+            dispatch(setCurrentUser({ username: form.username, email: form.email }))
             router.push('/signup/success')
             setLoading(false)
             // } else {

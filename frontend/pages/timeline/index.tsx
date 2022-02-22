@@ -1,6 +1,10 @@
 import type { NextPage } from 'next';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
 import {
-    Button, Stack, Box, Container, Grid, Typography,
+    Button,
+    Stack,
 } from '@mui/material';
 import { useSelector } from 'react-redux';
 import Helmet from '../../src/components/common/Helmet';
@@ -14,14 +18,15 @@ const ProfilePage: NextPage = () => {
         <Box>
             <Helmet title="Sample Text" />
             <UserNavbar />
-            <Container sx={{ mt: 5 }}>
-                <Grid>
-                    <Grid item xs={12}>
-                        <Typography variant="h3">{username}</Typography>
-                    </Grid>
-                </Grid>
-
-            </Container>
+            <Stack sx={{
+                alignItems: 'center', height: '90vh', justifyContent: 'center',
+            }}
+            >
+                <Typography variant="h3">
+                    Timeline View
+                    {/* TODO */}
+                </Typography>
+            </Stack>
         </Box>
     )
 };

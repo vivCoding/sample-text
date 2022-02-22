@@ -8,7 +8,7 @@ import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { ChangeEventHandler, useState } from 'react';
 import EditIcon from '@mui/icons-material/Edit';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { ToastContainer, toast } from 'react-toastify';
@@ -20,12 +20,18 @@ import StyledTextField from '../../src/components/common/StyledTextField';
 import { ReduxStoreType } from '../../src/types/redux';
 
 import 'react-toastify/dist/ReactToastify.min.css'
+import { setCurrentUser } from '../../src/store';
+import { LENGTH_LIMIT } from '../../src/constants/formLimit';
 
 const FormRow = ({
-    title, value, onSave, multiline, disabled,
-}: { title: string, value?: string, onSave?: any, multiline?: boolean, disabled?: boolean }): JSX.Element => {
+    title, value, onSave, multiline, disabled, charLimit,
+}: { title: string, value?: string, onSave?: (val: string) => boolean, multiline?: boolean, disabled?: boolean, charLimit?: number }): JSX.Element => {
     const [editing, setEditing] = useState(false)
     const [editValue, setEditValue] = useState(value)
+
+    const handleValueChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+        setEditValue(e.target.value)
+    }
 
     return (
         <>
@@ -48,13 +54,21 @@ const FormRow = ({
                                 </InputAdornment>
                             ),
                         }}
+                        error={charLimit !== undefined && editValue !== undefined && editValue.length > charLimit}
+                        helperText={charLimit ? `${(editValue && editValue.length) ?? 0} / ${charLimit}` : undefined}
                         sx={{ pr: 0 }}
+                        onChange={handleValueChange}
                     />
                 ) : <Typography variant="body1" sx={{ wordWrap: 'break-word' }}>{value ?? ''}</Typography>}
             </Grid>
             <Grid item xs={1}>
                 {editing ? (
-                    <IconButton sx={{ ml: 1 }} title={`Save ${title}`} disabled={disabled}>
+                    <IconButton
+                        sx={{ ml: 1 }}
+                        title={`Save ${title}`}
+                        disabled={disabled || (charLimit !== undefined && editValue !== undefined && editValue.length > charLimit)}
+                        onClick={() => onSave && onSave(editValue ?? '') && setEditing(false)}
+                    >
                         <SaveIcon />
                     </IconButton>
                 ) : (
@@ -71,6 +85,10 @@ const Settings: NextPage = () => {
     const {
         username, email, name, bio, pfp,
     } = useSelector((state: ReduxStoreType) => state.user)
+    const dispatch = useDispatch()
+
+    const [changingPfp, setChangingPfp] = useState(false)
+    const [currentPfp, setCurrentPfp] = useState(pfp)
 
     const [changingPassword, setChangingPassword] = useState(false)
     const [oldPassword, setOldPassword] = useState('')
@@ -81,6 +99,73 @@ const Settings: NextPage = () => {
     const [accountLoading, setAccountLoading] = useState(false)
     const [passwordLoading, setPasswordLoading] = useState(false)
 
+    const handleImageChange = (image64: string): void => {
+        setCurrentPfp(image64)
+        setChangingPfp(true)
+    }
+
+    const handleRemoveImage = (): void => {
+        setCurrentPfp('')
+        setChangingPfp(true)
+    }
+
+    const handleSavePfp = (): void => {
+        // TODO: api call
+        setProfileLoading(true)
+        if (username && email) {
+            dispatch(setCurrentUser({
+                username, email, name, bio, pfp: currentPfp,
+            }))
+        }
+        setChangingPfp(false)
+        setProfileLoading(false)
+    }
+
+    const handleCancelPfpChange = (): void => {
+        setCurrentPfp(pfp)
+        setChangingPfp(false)
+    }
+
+    const handleSaveName = (val: string): boolean => {
+        // TODO: api call
+        if (username && email) {
+            dispatch(setCurrentUser({
+                username, email, name: val, bio, pfp,
+            }))
+        }
+        return true
+    }
+
+    const handleSaveBio = (val: string): boolean => {
+        // TODO: api call
+        if (username && email) {
+            dispatch(setCurrentUser({
+                username, email, name, bio: val, pfp,
+            }))
+        }
+        return true
+    }
+
+    const handleSaveUsername = (val: string): boolean => {
+        // TODO: api call
+        if (username && email) {
+            dispatch(setCurrentUser({
+                username: val, email, name, bio, pfp,
+            }))
+        }
+        return true
+    }
+
+    const handleSaveEmail = (val: string): boolean => {
+        // TODO: api call
+        if (username && email) {
+            dispatch(setCurrentUser({
+                username, email: val, name, bio, pfp,
+            }))
+        }
+        return true
+    }
+
     const handleOldPassword: ChangeEventHandler<HTMLInputElement> = (e) => {
         setOldPassword(e.target.value)
     }
@@ -90,7 +175,7 @@ const Settings: NextPage = () => {
     const handleConfirm: ChangeEventHandler<HTMLInputElement> = (e) => {
         setConfirm(e.target.value)
     }
-    const handleSavePassword = () => {
+    const handleSavePassword = (): void => {
         setAccountLoading(true)
         setPasswordLoading(true)
         toast.success('Successfully changed password!', {
@@ -132,19 +217,33 @@ const Settings: NextPage = () => {
                             <Grid item xs={5}>
                                 <Typography variant="h6">Profile Picture</Typography>
                             </Grid>
-                            <Grid item xs={7}>
-                                <Stack alignItems="center" direction="row">
-                                    <ProfileAvatar size={75} sx={{ mr: 2 }} />
-                                    <ImageUpload text="Change" />
-                                    <Button variant="outlined" sx={{ ml: 2 }}>Remove</Button>
+                            <Grid item xs={5}>
+                                <Stack>
+                                    <Stack alignItems="center" direction="row">
+                                        <ProfileAvatar size={75} sx={{ mr: 2 }} picture64={currentPfp} />
+                                        <ImageUpload text="Change" onImageChange={handleImageChange} />
+                                        <Button variant="outlined" sx={{ ml: 2 }} onClick={handleRemoveImage}>Remove</Button>
+                                    </Stack>
                                 </Stack>
                             </Grid>
+                            <Grid item xs={2}>
+                                {changingPfp
+                                && (
+                                    <>
+                                        <IconButton sx={{ ml: 1 }} title="Cancel Changes" onClick={handleCancelPfpChange}>
+                                            <CancelIcon />
+                                        </IconButton>
+                                        <IconButton sx={{ ml: 1 }} title="Save Profile Picture" onClick={handleSavePfp}>
+                                            <SaveIcon />
+                                        </IconButton>
+                                    </>
+                                )}
+                            </Grid>
                             <Grid item xs={12}><Divider /></Grid>
-                            <FormRow title="Display Name" value={name} disabled={profileLoading} />
+                            <FormRow title="Display Name" value={name} disabled={profileLoading} onSave={handleSaveName} charLimit={LENGTH_LIMIT.NAME} />
                             <Grid item xs={12}><Divider /></Grid>
-                            <FormRow title="Biography" value={bio} multiline disabled={profileLoading} />
+                            <FormRow title="Biography" value={bio} multiline disabled={profileLoading} onSave={handleSaveBio} charLimit={LENGTH_LIMIT.BIO} />
                         </Grid>
-
                     </Paper>
                     <Typography
                         variant="h4"
@@ -156,9 +255,9 @@ const Settings: NextPage = () => {
                     <Paper variant="outlined">
                         {accountLoading && <LinearProgress />}
                         <Grid container alignItems="center" justifyContent="center" spacing={3} sx={{ p: 4 }}>
-                            <FormRow title="Username" value={username} disabled={accountLoading} />
+                            <FormRow title="Username" value={username} disabled={accountLoading} onSave={handleSaveUsername} />
                             <Grid item xs={12}><Divider /></Grid>
-                            <FormRow title="Email" value={email} disabled={accountLoading} />
+                            <FormRow title="Email" value={email} disabled={accountLoading} onSave={handleSaveEmail} />
                             <Grid item xs={12}><Divider /></Grid>
                             <Grid item xs={5}>
                                 <Typography variant="h6">Password</Typography>
@@ -167,12 +266,32 @@ const Settings: NextPage = () => {
                                 {changingPassword ? (
                                     <Box>
                                         <Typography variant="h6" sx={{ mb: 1 }}>Change Password</Typography>
-                                        <StyledTextField margin="dense" size="small" label="Old Password" />
-                                        <StyledTextField margin="dense" size="small" label="New Password" helperText="Use 8-25 characters with a mix of letters, numbers, and symbols" />
-                                        <StyledTextField margin="dense" size="small" label="Confirm Password" />
+                                        <StyledTextField margin="dense" size="small" label="Old Password" onChange={handleOldPassword} />
+                                        <StyledTextField
+                                            margin="dense"
+                                            size="small"
+                                            label="New Password"
+                                            helperText="Use 8-25 characters with a mix of letters, numbers, and symbols"
+                                            onChange={handleNewPassword}
+                                        />
+                                        <StyledTextField
+                                            margin="dense"
+                                            size="small"
+                                            label="Confirm Password"
+                                            onChange={handleConfirm}
+                                            error={confirm !== '' && newPassword !== confirm}
+                                        />
                                         <Stack direction="row" justifyContent="end" sx={{ mt: 2 }}>
                                             <Button variant="outlined" onClick={() => setChangingPassword(false)}>Cancel</Button>
-                                            <LoadingButton variant="contained" sx={{ ml: 2 }} loading={passwordLoading} onClick={handleSavePassword}>Save</LoadingButton>
+                                            <LoadingButton
+                                                variant="contained"
+                                                sx={{ ml: 2 }}
+                                                loading={passwordLoading}
+                                                onClick={handleSavePassword}
+                                                disabled={oldPassword === '' || newPassword === '' || confirm === ''}
+                                            >
+                                                Save
+                                            </LoadingButton>
                                         </Stack>
                                     </Box>
                                 ) : <Button variant="outlined" onClick={() => setChangingPassword(true)}>Change Password</Button>}

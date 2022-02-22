@@ -18,6 +18,10 @@ export const userSlice = createSlice({
             state.bio = bio
             state.pfp = pfp
         },
+        clearUser: (state) => {
+            state.username = undefined
+            state.email = undefined
+        },
     },
 })
 

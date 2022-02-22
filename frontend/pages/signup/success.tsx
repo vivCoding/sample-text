@@ -8,6 +8,7 @@ import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import { useRouter } from 'next/router';
 import CheckIcon from '@mui/icons-material/Check';
 import { ToastContainer, toast } from 'react-toastify';
+import { useDispatch, useSelector } from 'react-redux';
 import Helmet from '../../src/components/common/Helmet';
 import StyledTextField from '../../src/components/common/StyledTextField';
 import ProfileAvatar from '../../src/components/common/ProfileAvatar'
@@ -16,6 +17,8 @@ import UserNavbar from '../../src/components/navbar/user';
 
 import 'react-toastify/dist/ReactToastify.min.css'
 import { LENGTH_LIMIT } from '../../src/constants/formLimit';
+import { ReduxStoreType } from '../../src/types/redux';
+import { setCurrentUser } from '../../src/store';
 
 const Input = styled('input')({
     display: 'none',
@@ -29,8 +32,11 @@ const SignupSuccess: NextPage = () => {
     const [bio, setBio] = useState('')
     const [pfp, setPfp] = useState('')
 
+    const { username, email } = useSelector((state: ReduxStoreType) => state.user)
+    const dispatch = useDispatch()
+
     useEffect(() => {
-        toast.success('Success in creating account!', {
+        toast.success(`Welcome to SAMPLE Text, ${username}!`, {
             autoClose: 3000,
             hideProgressBar: false,
             closeOnClick: true,
@@ -47,14 +53,19 @@ const SignupSuccess: NextPage = () => {
     const handleSetBio: ChangeEventHandler<HTMLInputElement> = (e) => {
         setBio(e.target.value)
     }
-    const handleSetPfp: ChangeEventHandler<HTMLInputElement> = (e) => {
-        setPfp(e.target.value)
+    const handleSetPfp = (image64: string): void => {
+        setPfp(image64)
     }
 
     const handleFinish = (): void => {
         // TODO: call api function update user profile
         setLoading(true)
         router.push('/profile')
+        if (username && email) {
+            dispatch(setCurrentUser({
+                username, email, name, bio, pfp,
+            }))
+        }
     }
 
     const handleSkip = (): void => {
@@ -76,7 +87,10 @@ const SignupSuccess: NextPage = () => {
                 </Stack>
                 <Stack alignItems="center">
                     <Typography variant="h5" fontWeight="300">
-                        Personalize your profile a little more!
+                        Personalize your profile a little more,
+                        {' '}
+                        {username}
+                        !
                     </Typography>
                     <Box sx={{ width: '45vw', maxWidth: '350px', mt: 3 }}>
                         <Box sx={{ mb: 3 }}>
@@ -91,11 +105,8 @@ const SignupSuccess: NextPage = () => {
                             )}
                         </Box>
                         <Stack alignItems="center" sx={{ mb: 1.5 }}>
-                            <ProfileAvatar size={75} sx={{ mb: 1 }} />
-                            <label htmlFor="contained-button-file">
-                                <Input accept="image/*" id="contained-button-file" multiple type="file" />
-                                <ImageUpload text="Add Profile Picture" />
-                            </label>
+                            <ProfileAvatar size={75} sx={{ mb: 1 }} picture64={pfp} />
+                            <ImageUpload text="Add Profile Picture" onImageChange={handleSetPfp} />
                         </Stack>
                         <StyledTextField
                             label="Name"

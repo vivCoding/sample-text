@@ -8,9 +8,11 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/Person';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import { useSelector } from 'react-redux';
 import Link from '../common/Link'
 import { NavBtnStyle, Page } from '.';
 import ProfileAvatar from '../common/ProfileAvatar'
+import { ReduxStoreType } from '../../types/redux';
 
 const pages: Page[] = [
     // {
@@ -46,6 +48,8 @@ const Navbar = (): JSX.Element => {
     const [showUserMenu, setShowUserMenu] = useState(false)
     const [anchorElUser, setAnchorElUser]: [Element | undefined, any] = useState(undefined)
 
+    const { username, pfp } = useSelector((state: ReduxStoreType) => state.user)
+
     const handleOpenUserMenu: MouseEventHandler<HTMLButtonElement> = (e) => {
         setAnchorElUser(e.currentTarget)
         setShowUserMenu(true)
@@ -66,16 +70,16 @@ const Navbar = (): JSX.Element => {
             }}
         >
             <Toolbar disableGutters sx={{ width: '100%' }}>
-                <IconButton
-                    component={Link}
-                    noLinkStyle
-                    href="/profile"
+                <Tooltip
+                    title="Home"
                     sx={{
                         mr: 2, color: 'white', '&:hover': { backgroundColor: 'rgba(0,0,0,0)' },
                     }}
                 >
-                    <TextFieldsIcon fontSize="large" />
-                </IconButton>
+                    <IconButton component={Link} noLinkStyle href="/timeline">
+                        <TextFieldsIcon fontSize="large" />
+                    </IconButton>
+                </Tooltip>
                 <Box sx={{ ml: 'auto' }}>
                     {pages.map((page) => (
                         <Button key={page.label} component={Link} noLinkStyle href={page.path} sx={NavBtnStyle}>
@@ -98,7 +102,7 @@ const Navbar = (): JSX.Element => {
                     </Tooltip>
                     <Tooltip title="Open Menu" sx={{ mx: 1 }}>
                         <IconButton onClick={handleOpenUserMenu}>
-                            <ProfileAvatar size={40} />
+                            <ProfileAvatar size={40} picture64={pfp} />
                         </IconButton>
                     </Tooltip>
                     <Menu
