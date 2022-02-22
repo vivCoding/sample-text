@@ -33,7 +33,9 @@ def login():
 	try:
 		user = User.find_by_credentials(data["username"], hashed_password)
 		if user is not None:
-			return jsonify({ "success": True }), 200
+			return_dict = {"success": True}
+			return_dict.update(user.to_dict)
+			return jsonify(return_dict), 200
 		else:
 			return jsonify({ "success": True , "error": 1}), 200
 	except Exception as e:
@@ -46,12 +48,18 @@ def view_profile():
 	try:
 		user = User.find_by_username(username)
 		if user is not None:
-			#TODO return more things later
-			return jsonify({ "success": True, "profile_img": user.profile_img, "username": user.username, "name": user.name, "bio": user.bio}), 200
+			return_dict = {"success": True}
+			return_dict.update(user.to_dict)
+			return jsonify(return_dict), 200
 		else:
 			return jsonify({ "success": True , "error": 1}), 200
 	except Exception as e:
 		return jsonify({"success": False, "error": -1 }), 500
+		
+@user_blueprint.route('/editprofile', methods=["POST"])
+def edit_profile():
+	#TODO check session matches profile you are editing
+	data = request.get_json()
 
 @user_blueprint.route('/delete', methods=["POST"])
 def delete_user():
