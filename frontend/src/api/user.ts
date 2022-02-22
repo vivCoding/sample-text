@@ -40,6 +40,13 @@ export const createUser = async (username: string, email: string, password: stri
     return { ...data, data: error }
 }
 
-export const loginUser = async (username: string, password: string): Promise<any> => {
+export const loginUser = async (username: string, password: string): Promise<ResponseType> => {
     // TODO: implement and add return type
+    const response = await client.post('/user/login', { username, password }).catch(() => ({ status: 404, data: undefined }))
+    if (response.status === 200) {
+        return response.data
+    } if (response.status === 302) {
+        return { ...response.data, error: 302 }
+    }
+    return { ...response.data, error: -1 }
 }

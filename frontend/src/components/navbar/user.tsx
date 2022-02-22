@@ -69,7 +69,7 @@ const Navbar = (): JSX.Element => {
                 <IconButton
                     component={Link}
                     noLinkStyle
-                    href="/"
+                    href="/profile"
                     sx={{
                         mr: 2, color: 'white', '&:hover': { backgroundColor: 'rgba(0,0,0,0)' },
                     }}

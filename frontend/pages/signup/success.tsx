@@ -1,5 +1,4 @@
 import type { NextPage } from 'next';
-import Container from '@mui/material/Container';
 import {
     Box, Typography, Button, Stack, styled, LinearProgress, Alert, AlertTitle,
 } from '@mui/material';
@@ -9,7 +8,6 @@ import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import { useRouter } from 'next/router';
 import CheckIcon from '@mui/icons-material/Check';
 import { ToastContainer, toast } from 'react-toastify';
-import Link from '../../src/components/common/Link';
 import Helmet from '../../src/components/common/Helmet';
 import StyledTextField from '../../src/components/common/StyledTextField';
 import ProfileAvatar from '../../src/components/common/ProfileAvatar'
@@ -56,12 +54,12 @@ const SignupSuccess: NextPage = () => {
     const handleFinish = (): void => {
         // TODO: call api function update user profile
         setLoading(true)
-        router.push('/profile/insert_username')
+        router.push('/profile')
     }
 
     const handleSkip = (): void => {
         setLoading(true)
-        router.push('/profile/insert_username')
+        router.push('/profile')
     }
 
     return (

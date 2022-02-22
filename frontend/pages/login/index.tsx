@@ -5,11 +5,13 @@ import {
 import { LoadingButton } from '@mui/lab';
 import { ChangeEventHandler, useState } from 'react';
 import { useRouter } from 'next/router';
+import { useDispatch } from 'react-redux';
 import Link from '../../src/components/common/Link';
 import PasswordField from '../../src/components/common/PasswordField';
 import Helmet from '../../src/components/common/Helmet';
 import StyledTextField from '../../src/components/common/StyledTextField';
 import Navbar from '../../src/components/navbar';
+import { setCurrentUser } from '../../src/store';
 
 const Login: NextPage = () => {
     const router = useRouter()
@@ -18,10 +20,17 @@ const Login: NextPage = () => {
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
 
+    const dispatch = useDispatch()
+
     const handleLogin = (): void => {
         setLoading(true)
         // TODO: call api function
-        router.push('/profile/insert_username')
+        router.push('/profile')
+        dispatch(setCurrentUser({
+            username: loginField,
+            email: 'bob@gmail.com',
+            name: 'bobby bob',
+        }))
     }
 
     const loginFieldChange: ChangeEventHandler<HTMLInputElement> = (e) => {
