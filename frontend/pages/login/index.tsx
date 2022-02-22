@@ -34,7 +34,7 @@ const Login: NextPage = () => {
     }
 
     return (
-        <Container>
+        <Box>
             <Helmet title="Login" />
             <Navbar />
             <Box sx={{
@@ -81,7 +81,7 @@ const Login: NextPage = () => {
                     </Box>
                 </Box>
             </Box>
-        </Container>
+        </Box>
     )
 }
 export default Login

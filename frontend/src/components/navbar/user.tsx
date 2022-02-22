@@ -1,10 +1,11 @@
 import {
-    AppBar, Button, Box, IconButton, Toolbar, Tooltip, Menu, MenuItem, Typography,
+    AppBar, Button, Box, IconButton, Toolbar, Tooltip, Menu, MenuItem, Badge,
 } from '@mui/material';
 import TextFieldsIcon from '@mui/icons-material/TextFields';
 import { MouseEventHandler, useState } from 'react';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 import Link from '../common/Link'
 import { NavBtnStyle, Page } from '.';
 import ProfileAvatar from '../common/ProfileAvatar'
@@ -49,6 +50,7 @@ const Navbar = (): JSX.Element => {
 
     return (
         <AppBar
+            position="sticky"
             color="transparent"
             enableColorOnDark
             sx={{
@@ -77,7 +79,14 @@ const Navbar = (): JSX.Element => {
                             {page.label}
                         </Button>
                     ))}
-                    <Tooltip title="Open Menu" sx={{ mx: 2 }}>
+                    <Tooltip title="Notifications" sx={{ mx: 1 }}>
+                        <IconButton>
+                            <Badge badgeContent={4} color="primary">
+                                <NotificationsIcon color="action" />
+                            </Badge>
+                        </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Open Menu" sx={{ mx: 1 }}>
                         <IconButton onClick={handleOpenUserMenu}>
                             <ProfileAvatar size={40} />
                         </IconButton>
@@ -104,7 +113,7 @@ const Navbar = (): JSX.Element => {
                                     component={Link}
                                     noLinkStyle
                                     href={setting.path}
-                                    sx={{ color: 'white', backgroundColor: 'rgba(0,0,0,0)' }}
+                                    sx={{ color: 'white', '&:hover': { backgroundColor: 'rgba(0,0,0,0)' } }}
                                     startIcon={setting.icon}
                                 >
                                     {setting.label}

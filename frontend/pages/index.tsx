@@ -12,11 +12,13 @@ import Helmet from '../src/components/common/Helmet';
 import Navbar from '../src/components/navbar';
 
 const Home: NextPage = () => (
-    <Container>
+    <Box>
         <Helmet title="Sample Text" />
         <Navbar />
-        <Box sx={{
-            display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', height: '90vh', justifyContent: 'center',
+        <Stack sx={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '90vh',
         }}
         >
             <Typography variant="h1">
@@ -29,8 +31,8 @@ const Home: NextPage = () => (
                 <Button variant="outlined" component={Link} noLinkStyle href="/signup">Sign Up</Button>
                 <Button variant="contained" component={Link} noLinkStyle href="/login" sx={{ ml: 3 }} endIcon={<LoginIcon />}>Login</Button>
             </Stack>
-        </Box>
-    </Container>
+        </Stack>
+    </Box>
 );
 
 export default Home;

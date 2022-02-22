@@ -48,7 +48,9 @@ const Signup: NextPage = () => {
             // }
         })
     }
-    const emailChange: ChangeEventHandler<HTMLInputElement> = (e) => setFormType({ ...form, email: e.target.value })
+    const emailChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+        setFormType({ ...form, email: e.target.value })
+    }
     const usernameChange: ChangeEventHandler<HTMLInputElement> = (e) => {
         setFormType({ ...form, username: e.target.value })
     }
@@ -60,11 +62,13 @@ const Signup: NextPage = () => {
     }
 
     return (
-        <Container>
+        <Box>
             <Helmet title="Sign Up" />
             <Navbar />
-            <Box sx={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', height: '90vh', justifyContent: 'center',
+            <Stack sx={{
+                alignItems: 'center',
+                height: '90vh',
+                justifyContent: 'center',
             }}
             >
                 <Typography variant="h3" sx={{ mb: 1 }}>
@@ -139,8 +143,8 @@ const Signup: NextPage = () => {
                         </LoadingButton>
                     </Box>
                 </Box>
-            </Box>
-        </Container>
+            </Stack>
+        </Box>
     )
 }
 export default Signup
