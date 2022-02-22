@@ -1,11 +1,9 @@
 from dotenv import load_dotenv
+
 from database.connect import Connection
-from flask import Flask, jsonify, session
+from flask import Flask, jsonify
 from flask_session import Session
 from routes.api.user import user_blueprint
-import json
-from pymongo import MongoClient
-import os
 
 load_dotenv()
 Connection.init()
