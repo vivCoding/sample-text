@@ -1,5 +1,3 @@
-import random
-from uuid import uuid4
 from database.user import User
 from utils.check_creation_fields import check_creation_fields
 from utils.generate_random import *
