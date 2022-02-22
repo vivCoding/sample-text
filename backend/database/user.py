@@ -1,7 +1,5 @@
 from .connect import Connection
 from os import getenv
-import json
-from flask import jsonify
 
 class User:
     collection = "users"
@@ -20,8 +18,8 @@ class User:
             return self.username == other.username
         return False
 
-    def to_json(self):
-        return jsonify({"username": self.username, "email": self.email, "name": self.name, "bio": self.bio, "profile_img": self.profile_img})
+    def to_dict(self):
+        return {"username": self.username, "email": self.email, "name": self.name, "bio": self.bio, "profile_img": self.profile_img}
 
     # Pushes this object to MongoDB, and returns whether it was successful
     def push(self) -> bool:
