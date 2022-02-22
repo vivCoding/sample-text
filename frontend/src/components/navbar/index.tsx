@@ -33,54 +33,50 @@ const pages: Page[] = [
 
 const Navbar = (): JSX.Element => (
     <AppBar
-        position="static"
+        position="sticky"
         color="transparent"
         enableColorOnDark
         sx={{
-            px: 2,
+            px: 3,
             backgroundColor: '#282828',
-            left: 0,
-            right: 0,
         }}
     >
-        <Container maxWidth="xl">
-            <Toolbar disableGutters>
-                <IconButton
+        <Toolbar disableGutters>
+            <IconButton
+                component={Link}
+                noLinkStyle
+                href="/"
+                sx={{
+                    mr: 2, color: 'white', '&:hover': { backgroundColor: 'rgba(0,0,0,0)' },
+                }}
+            >
+                <TextFieldsIcon fontSize="large" />
+            </IconButton>
+            <Box sx={{ ml: 'auto' }}>
+                {pages.map((page) => (
+                    <Button key={page.label} component={Link} noLinkStyle href={page.path} sx={NavBtnStyle}>
+                        {page.label}
+                    </Button>
+                ))}
+                <Button
+                    variant="outlined"
                     component={Link}
                     noLinkStyle
-                    href="/"
+                    href="/login"
                     sx={{
-                        mr: 2, color: 'white', '&:hover': { backgroundColor: 'rgba(0,0,0,0)' },
+                        color: 'white',
+                        mx: 2,
+                        borderColor: 'rgba(255, 255, 255, 0.5)',
+                        '&:hover': {
+                            borderColor: 'white',
+                        },
                     }}
+                    endIcon={<LoginIcon />}
                 >
-                    <TextFieldsIcon fontSize="large" />
-                </IconButton>
-                <Box sx={{ ml: 'auto' }}>
-                    {pages.map((page) => (
-                        <Button key={page.label} component={Link} noLinkStyle href={page.path} sx={NavBtnStyle}>
-                            {page.label}
-                        </Button>
-                    ))}
-                    <Button
-                        variant="outlined"
-                        component={Link}
-                        noLinkStyle
-                        href="/login"
-                        sx={{
-                            color: 'white',
-                            mx: 2,
-                            borderColor: 'rgba(255, 255, 255, 0.5)',
-                            '&:hover': {
-                                borderColor: 'white',
-                            },
-                        }}
-                        endIcon={<LoginIcon />}
-                    >
-                        Login
-                    </Button>
-                </Box>
-            </Toolbar>
-        </Container>
+                    Login
+                </Button>
+            </Box>
+        </Toolbar>
     </AppBar>
 )
 

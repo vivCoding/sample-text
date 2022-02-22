@@ -1,7 +1,6 @@
 import type { NextPage } from 'next';
-import Container from '@mui/material/Container';
 import {
-    Box, Typography, Button, Stack, LinearProgress, Alert, AlertTitle,
+    Box, Typography, Button, Stack, LinearProgress, Alert, AlertTitle, Paper, Container,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { ChangeEventHandler, useState } from 'react';
@@ -65,85 +64,85 @@ const Signup: NextPage = () => {
         <Box>
             <Helmet title="Sign Up" />
             <Navbar />
-            <Stack sx={{
-                alignItems: 'center',
-                height: '90vh',
-                justifyContent: 'center',
-            }}
-            >
-                <Typography variant="h3" sx={{ mb: 1 }}>
-                    Sign Up
-                </Typography>
-                <Box sx={{ width: '45vw', maxWidth: '350px' }}>
-                    <Box sx={{ mt: 3, mb: 2 }}>
-                        {loading && <LinearProgress /> }
-                        {error.server !== ''
-                            && (
-                                <Alert severity="error" sx={{ textAlign: 'left' }}>
-                                    <AlertTitle>Server Error</AlertTitle>
-                                    There was an error signing you up.
-                                    <br />
-                                    Try again later!
-                                </Alert>
-                            )}
-                    </Box>
-                    <Stack>
-                        <StyledTextField
-                            label="Email"
-                            variant="outlined"
-                            margin="dense"
-                            size="small"
-                            onChange={emailChange}
-                            error={error.email !== ''}
-                            helperText={(error.email === '' ? undefined : error.email)}
-                        />
-                        <StyledTextField
-                            label="Username"
-                            variant="outlined"
-                            margin="dense"
-                            size="small"
-                            helperText={(error.username === ''
-                                ? 'Use up to 20 characters with a mix of letters, numbers, periods, dashes, and underscores'
-                                : error.username)}
-                            error={error.username !== ''}
-                            onChange={usernameChange}
-                        />
-                        <PasswordField
-                            label="Password"
-                            error={error.password !== ''}
-                            margin="dense"
-                            size="small"
-                            helperText={(error.password === ''
-                                ? 'Use 8-25 characters with a mix of letters, numbers, and symbols'
-                                : error.password)}
-                            onChange={passwordChange}
-                            sx={{ mt: 2 }}
-                        />
-                        <PasswordField
-                            label="Confirm Password"
-                            margin="dense"
-                            size="small"
-                            onChange={confirmChange}
-                            error={confirmPassword !== '' && form.password !== confirmPassword}
-                        />
-                    </Stack>
-                    <Box sx={{
-                        display: 'flex', alignItems: 'center', alignContent: 'space-between', width: '100%',
+            <Container maxWidth="md" sx={{ mt: '15vh', mb: 20 }}>
+                <Paper
+                    variant="outlined"
+                    sx={{
+                        width: '55vw', maxWidth: '450px', ml: 'auto', mr: 'auto', textAlign: 'center',
                     }}
-                    >
-                        <Button variant="text" component={Link} noLinkStyle href="/login">Login instead</Button>
-                        <LoadingButton
-                            variant="contained"
-                            sx={{ my: 2, ml: 'auto' }}
-                            onClick={handleCreate}
-                            disabled={form.username === '' || form.email === '' || confirmPassword === '' || form.password !== confirmPassword}
-                            loading={loading}
+                >
+                    {loading && <LinearProgress /> }
+                    <Box sx={{ p: 4, pt: 6 }}>
+                        <Typography variant="h3" sx={{ mb: 4 }}>
+                            Sign Up
+                        </Typography>
+                        {error.server !== ''
+                                && (
+                                    <Alert severity="error" sx={{ textAlign: 'left' }}>
+                                        <AlertTitle>Server Error</AlertTitle>
+                                        There was an error signing you up.
+                                        <br />
+                                        Try again later!
+                                    </Alert>
+                                )}
+                        <Stack sx={{ mt: 2 }}>
+                            <StyledTextField
+                                label="Email"
+                                variant="outlined"
+                                margin="dense"
+                                size="small"
+                                onChange={emailChange}
+                                error={error.email !== ''}
+                                helperText={(error.email === '' ? undefined : error.email)}
+                            />
+                            <StyledTextField
+                                label="Username"
+                                variant="outlined"
+                                margin="dense"
+                                size="small"
+                                helperText={(error.username === ''
+                                    ? 'Use up to 20 characters with a mix of letters, numbers, periods, dashes, and underscores'
+                                    : error.username)}
+                                error={error.username !== ''}
+                                onChange={usernameChange}
+                            />
+                            <PasswordField
+                                label="Password"
+                                error={error.password !== ''}
+                                margin="dense"
+                                size="small"
+                                helperText={(error.password === ''
+                                    ? 'Use 8-25 characters with a mix of letters, numbers, and symbols'
+                                    : error.password)}
+                                onChange={passwordChange}
+                                sx={{ mt: 2 }}
+                            />
+                            <PasswordField
+                                label="Confirm Password"
+                                margin="dense"
+                                size="small"
+                                onChange={confirmChange}
+                                error={confirmPassword !== '' && form.password !== confirmPassword}
+                            />
+                        </Stack>
+                        <Box sx={{
+                            display: 'flex', alignItems: 'center', alignContent: 'space-between', width: '100%',
+                        }}
                         >
-                            Confirm
-                        </LoadingButton>
+                            <Button variant="text" component={Link} noLinkStyle href="/login">Login instead</Button>
+                            <LoadingButton
+                                variant="contained"
+                                sx={{ my: 2, ml: 'auto' }}
+                                onClick={handleCreate}
+                                disabled={form.username === '' || form.email === '' || confirmPassword === '' || form.password !== confirmPassword}
+                                loading={loading}
+                            >
+                                Confirm
+                            </LoadingButton>
+                        </Box>
                     </Box>
-                </Box>
-            </Stack>
+                </Paper>
+            </Container>
         </Box>
     )
 }

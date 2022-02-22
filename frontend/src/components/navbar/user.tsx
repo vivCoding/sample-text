@@ -5,27 +5,34 @@ import TextFieldsIcon from '@mui/icons-material/TextFields';
 import { MouseEventHandler, useState } from 'react';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
+import PersonIcon from '@mui/icons-material/Person';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import Link from '../common/Link'
 import { NavBtnStyle, Page } from '.';
 import ProfileAvatar from '../common/ProfileAvatar'
 
 const pages: Page[] = [
-    {
-        label: 'Timeline',
-        path: '/',
-    },
-    {
-        label: 'My Posts',
-        path: '/',
-    },
+    // {
+    //     label: 'Timeline',
+    //     path: '/',
+    // },
+    // {
+    //     label: 'My Posts',
+    //     path: '/',
+    // },
 ]
 
 const settings: Page[] = [
     {
         // TODO: set this conditionally?
+        label: 'My Profile',
+        path: '/profile',
+        icon: <PersonIcon />,
+    },
+    {
         label: 'Settings',
-        path: '/profile/',
+        path: '/settings',
         icon: <SettingsOutlinedIcon />,
     },
     {
@@ -54,11 +61,7 @@ const Navbar = (): JSX.Element => {
             color="transparent"
             enableColorOnDark
             sx={{
-                display: 'flex',
-                flexDirection: 'row',
-                justfiyContent: 'center',
-                alignItems: 'center',
-                px: 2,
+                px: 3,
                 backgroundColor: '#282828',
             }}
         >
@@ -79,6 +82,13 @@ const Navbar = (): JSX.Element => {
                             {page.label}
                         </Button>
                     ))}
+                    <Tooltip title="Friend Requests" sx={{ mx: 1 }}>
+                        <IconButton>
+                            <Badge color="primary">
+                                <PersonAddIcon color="action" />
+                            </Badge>
+                        </IconButton>
+                    </Tooltip>
                     <Tooltip title="Notifications" sx={{ mx: 1 }}>
                         <IconButton>
                             <Badge badgeContent={4} color="primary">

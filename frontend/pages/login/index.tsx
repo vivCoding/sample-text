@@ -1,12 +1,10 @@
 import type { NextPage } from 'next';
-import Container from '@mui/material/Container';
 import {
-    Box, Typography, Button, LinearProgress, Alert, AlertTitle,
+    Box, Typography, Button, LinearProgress, Alert, AlertTitle, Paper, Container,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { ChangeEventHandler, useState } from 'react';
 import { useRouter } from 'next/router';
-import LoginIcon from '@mui/icons-material/Login';
 import Link from '../../src/components/common/Link';
 import PasswordField from '../../src/components/common/PasswordField';
 import Helmet from '../../src/components/common/Helmet';
@@ -37,50 +35,52 @@ const Login: NextPage = () => {
         <Box>
             <Helmet title="Login" />
             <Navbar />
-            <Box sx={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', height: '90vh', justifyContent: 'center',
-            }}
-            >
-                <Typography variant="h3">
-                    Login
-                </Typography>
-                <Box sx={{ width: '45vw', maxWidth: '350px', mt: 3 }}>
-                    <Box sx={{ mb: 1 }}>
-                        {loading && <LinearProgress />}
-                        {error !== ''
-                            && (
-                                <Alert severity="error" sx={{ textAlign: 'left' }}>
-                                    <AlertTitle>Error</AlertTitle>
-                                    There was an error logging you in.
-                                </Alert>
-                            )}
-                    </Box>
-                    <StyledTextField
-                        label="Username or Email"
-                        variant="outlined"
-                        onChange={loginFieldChange}
-                        margin="normal"
-                    />
-                    <PasswordField
-                        label="Password"
-                        onChange={passwordChange}
-                        margin="dense"
-                    />
-                    <Box sx={{
-                        display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', mt: 2,
+            <Container maxWidth="md" sx={{ mt: '15vh', mb: 20 }}>
+                <Paper
+                    variant="outlined"
+                    sx={{
+                        width: '55vw', maxWidth: '450px', ml: 'auto', mr: 'auto', textAlign: 'center',
                     }}
-                    >
-                        <Button variant="text" component={Link} noLinkStyle href="/signup">Sign Up</Button>
-                        <LoadingButton
-                            variant="contained"
-                            onClick={handleLogin}
-                            disabled={loginField === '' || password === ''}
-                        >
+                >
+                    {loading && <LinearProgress />}
+                    <Box sx={{ p: 4, pt: 6 }}>
+                        <Typography variant="h3" sx={{ mb: 4 }}>
                             Login
-                        </LoadingButton>
+                        </Typography>
+                        {error !== ''
+                        && (
+                            <Alert severity="error" sx={{ textAlign: 'left', mb: 2 }}>
+                                <AlertTitle>Error</AlertTitle>
+                                There was an error logging you in.
+                            </Alert>
+                        )}
+                        <StyledTextField
+                            label="Username or Email"
+                            variant="outlined"
+                            onChange={loginFieldChange}
+                            margin="normal"
+                        />
+                        <PasswordField
+                            label="Password"
+                            onChange={passwordChange}
+                            margin="dense"
+                        />
+                        <Box sx={{
+                            display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', mt: 2,
+                        }}
+                        >
+                            <Button variant="text" component={Link} noLinkStyle href="/signup">Sign Up</Button>
+                            <LoadingButton
+                                variant="contained"
+                                onClick={handleLogin}
+                                disabled={loginField === '' || password === ''}
+                            >
+                                Login
+                            </LoadingButton>
+                        </Box>
                     </Box>
-                </Box>
-            </Box>
+                </Paper>
+            </Container>
         </Box>
     )
 }

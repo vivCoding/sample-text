@@ -2,7 +2,7 @@ import type { NextPage } from 'next';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import {
-    Button, Stack, Grid, Container, styled,
+    Button, Stack, Grid, Container, styled, Paper,
 } from '@mui/material';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import Link from '../../src/components/common/Link';
@@ -19,24 +19,24 @@ const Settings: NextPage = () => (
     <Box>
         <Helmet title="Sample Text" />
         <UserNavbar />
-        <Box sx={{
-            height: '90vh',
-            my: 4,
-        }}
-        >
+        <Container maxWidth="md" sx={{ mt: 6, mb: 20 }}>
             <Stack direction="row" alignItems="center" justifyContent="center">
                 <Typography variant="h3" fontWeight="300" sx={{ mr: 1 }}>
                     Settings
                 </Typography>
                 <SettingsOutlinedIcon sx={{ fontSize: 50 }} />
             </Stack>
-            <Container>
-                <Grid container alignItems="center" justifyContent="center" spacing={2} sx={{ mt: 2 }}>
-                    <>
+            <Container maxWidth="md" sx={{ mt: 6 }}>
+                <Typography
+                    variant="h4"
+                    sx={{ mt: 5, mb: 2, ml: 1 }}
+                    fontWeight="light"
+                >
+                    Profile
+                </Typography>
+                <Paper variant="outlined" sx={{ py: 2, px: 4 }}>
+                    <Grid container alignItems="center" justifyContent="center" spacing={3}>
                         {/* Profile section */}
-                        <Grid item xs={12}>
-                            <Typography variant="h4">Profile</Typography>
-                        </Grid>
                         <Grid item xs={6}>
                             <Typography variant="h6">Profile Picture</Typography>
                         </Grid>
@@ -59,12 +59,18 @@ const Settings: NextPage = () => (
                         <Grid item xs={6}>
                             <Typography variant="body1">Insert bio hardy har har har har har</Typography>
                         </Grid>
-                    </>
-                    <>
+                    </Grid>
+                </Paper>
+                <Typography
+                    variant="h4"
+                    sx={{ mt: 5, mb: 2, ml: 1 }}
+                    fontWeight="light"
+                >
+                    Account
+                </Typography>
+                <Paper variant="outlined" sx={{ py: 2, px: 4 }}>
+                    <Grid container alignItems="center" justifyContent="center" spacing={3}>
                         {/* Account section */}
-                        <Grid item xs={12} sx={{ mt: 2 }}>
-                            <Typography variant="h4">Account</Typography>
-                        </Grid>
                         <Grid item xs={6}>
                             <Typography variant="h6">Username</Typography>
                         </Grid>
@@ -83,10 +89,10 @@ const Settings: NextPage = () => (
                         <Grid item xs={6}>
                             <Button variant="outlined">Change Password</Button>
                         </Grid>
-                    </>
-                </Grid>
+                    </Grid>
+                </Paper>
             </Container>
-        </Box>
+        </Container>
     </Box>
 );
 
