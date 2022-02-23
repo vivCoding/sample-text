@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, session
-from utils.check_creation_fields import check_creation_fields
+from utils.check_creation_fields import check_creation_fields, check_email, check_password, check_username
 from database.user import User
 import hashlib
 
@@ -63,7 +63,7 @@ def view_profile():
 @user_blueprint.route('/editprofile', methods=["POST"])
 def edit_profile():
 	if session.get('username') is None:
-		return jsonify({ "success": True , "error": 1}), 200
+		return jsonify({ "success": True , "error": 8}), 200
 	data = request.get_json()
 	try:
 		user = User.find_by_username(session.get('username'))
@@ -75,6 +75,9 @@ def edit_profile():
 		new_password = None
 		if 'username' in data:
 			new_username = data['username']
+			username_result = check_username(new_username)
+			if username_result is not 0:
+				return jsonify({ "success": True , "error": username_result}), 200
 			user.update_username(new_username)
 		if 'profile_img' in data or 'bio' in data or 'name' in data:
 			new_profile_img = data['profile_img']
@@ -82,13 +85,19 @@ def edit_profile():
 			new_name = data['name']
 			user.update_profile(new_name, new_bio, new_profile_img)
 		if 'email' in data:
-			new_email = data['email']
+			new_email = data['email']			
+			email_result = check_email(new_email)
+			if email_result is not 0:
+				return jsonify({ "success": True , "error": email_result}), 200
 			user.update_email(new_email)
-		if 'password' in data:
+		if 'password' in data:			
+			password_result = check_email(data["password"])
+			if password_result is not 0:
+				return jsonify({ "success": True , "error": password_result}), 200
 			new_password = hashlib.md5(data["password"].encode()).hexdigest()
 			old_password = hashlib.md5(data['old_password'].encode()).hexdigest()
 			if User.find_by_credentials(session.get('username'), old_password) is None: # incorrect old password
-				return jsonify({ "success": True , "error": 2}), 200
+				return jsonify({ "success": True , "error": 9}), 200
 			user.update_password(new_password)
 		return jsonify({ "success": True }), 200
 	except Exception as e:
