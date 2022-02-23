@@ -7,4 +7,4 @@ export const store = configureStore({
     },
 })
 
-export { setCurrentUser } from './reducers/user'
+export { setCurrentUser, clearUser } from './reducers/user'

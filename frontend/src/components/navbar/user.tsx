@@ -1,5 +1,5 @@
 import {
-    AppBar, Button, Box, IconButton, Toolbar, Tooltip, Menu, MenuItem, Badge,
+    AppBar, Button, Box, IconButton, Toolbar, Tooltip, Menu, MenuItem, Badge, Typography, Skeleton, Stack,
 } from '@mui/material';
 import TextFieldsIcon from '@mui/icons-material/TextFields';
 import { MouseEventHandler, useState } from 'react';
@@ -8,11 +8,13 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/Person';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useRouter } from 'next/router';
 import Link from '../common/Link'
 import { NavBtnStyle, Page } from '.';
 import ProfileAvatar from '../common/ProfileAvatar'
 import { ReduxStoreType } from '../../types/redux';
+import { clearUser } from '../../store';
 
 const pages: Page[] = [
     // {
@@ -37,11 +39,6 @@ const settings: Page[] = [
         path: '/settings',
         icon: <SettingsOutlinedIcon />,
     },
-    {
-        label: 'Log Out',
-        path: '/',
-        icon: <LogoutIcon />,
-    },
 ]
 
 const Navbar = (): JSX.Element => {
@@ -49,6 +46,8 @@ const Navbar = (): JSX.Element => {
     const [anchorElUser, setAnchorElUser]: [Element | undefined, any] = useState(undefined)
 
     const { username, pfp } = useSelector((state: ReduxStoreType) => state.user)
+    const dispatch = useDispatch()
+    const router = useRouter()
 
     const handleOpenUserMenu: MouseEventHandler<HTMLButtonElement> = (e) => {
         setAnchorElUser(e.currentTarget)
@@ -57,6 +56,11 @@ const Navbar = (): JSX.Element => {
 
     const handleCloseUserMenu = (): void => {
         setShowUserMenu(false)
+    }
+
+    const handleLogout = (): void => {
+        dispatch(clearUser())
+        router.push('/')
     }
 
     return (
@@ -80,7 +84,7 @@ const Navbar = (): JSX.Element => {
                         <TextFieldsIcon fontSize="large" />
                     </IconButton>
                 </Tooltip>
-                <Box sx={{ ml: 'auto' }}>
+                <Stack direction="row" alignItems="center" sx={{ ml: 'auto' }}>
                     {pages.map((page) => (
                         <Button key={page.label} component={Link} noLinkStyle href={page.path} sx={NavBtnStyle}>
                             {page.label}
@@ -100,9 +104,19 @@ const Navbar = (): JSX.Element => {
                             </Badge>
                         </IconButton>
                     </Tooltip>
+                    {username
+                        ? (
+                            <Typography display="inline-block" sx={{ mx: 1 }}>
+                                u/
+                                {username}
+                            </Typography>
+                        )
+                        : (
+                            <Skeleton width={150} height={40} sx={{ display: 'inline-block', mx: 1 }} />
+                        )}
                     <Tooltip title="Open Menu" sx={{ mx: 1 }}>
                         <IconButton onClick={handleOpenUserMenu}>
-                            <ProfileAvatar size={40} picture64={pfp} />
+                            <ProfileAvatar size={40} picture64={pfp} loading={username === undefined} />
                         </IconButton>
                     </Tooltip>
                     <Menu
@@ -134,8 +148,16 @@ const Navbar = (): JSX.Element => {
                                 </Button>
                             </MenuItem>
                         ))}
+                        <MenuItem onClick={handleLogout}>
+                            <Button
+                                sx={{ color: 'white', '&:hover': { backgroundColor: 'rgba(0,0,0,0)' } }}
+                                startIcon={<LogoutIcon />}
+                            >
+                                Logout
+                            </Button>
+                        </MenuItem>
                     </Menu>
-                </Box>
+                </Stack>
             </Toolbar>
         </AppBar>
     )

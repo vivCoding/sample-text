@@ -21,9 +21,12 @@ export const userSlice = createSlice({
         clearUser: (state) => {
             state.username = undefined
             state.email = undefined
+            state.name = undefined
+            state.bio = undefined
+            state.pfp = undefined
         },
     },
 })
 
-export const { setCurrentUser } = userSlice.actions
+export const { setCurrentUser, clearUser } = userSlice.actions
 export default userSlice.reducer

@@ -27,6 +27,7 @@
             "allowConciseArrowFunctionExpressionsStartingWithVoid": true
           }
         ],
+        "no-plusplus": 0,
         "@typescript-eslint/indent": ["error", 4],
         "react/display-name": "off",
         "react/require-default-props": "off",

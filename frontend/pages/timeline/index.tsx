@@ -1,11 +1,7 @@
 import type { NextPage } from 'next';
-import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import {
-    Button,
-    Stack,
-} from '@mui/material';
+import { Button, Stack, Container } from '@mui/material';
 import { useSelector } from 'react-redux';
 import Helmet from '../../src/components/common/Helmet';
 import UserNavbar from '../../src/components/navbar/user';

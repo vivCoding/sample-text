@@ -1,27 +1,28 @@
-import type { NextPage } from 'next';
+import type { GetServerSideProps, NextPage } from 'next';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import {
-    Button, Stack, Grid, Container, Paper, IconButton, InputAdornment, Divider, LinearProgress,
+    Button, Stack, Grid, Container, Paper, IconButton, InputAdornment, Divider, LinearProgress, Skeleton, CircularProgress,
 } from '@mui/material';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { ChangeEventHandler, useState } from 'react';
+import { ChangeEventHandler, useState, useEffect } from 'react';
 import EditIcon from '@mui/icons-material/Edit';
 import { useDispatch, useSelector } from 'react-redux';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { ToastContainer, toast } from 'react-toastify';
+import { useRouter } from 'next/router';
 import Helmet from '../../src/components/common/Helmet';
 import UserNavbar from '../../src/components/navbar/user';
 import ProfileAvatar from '../../src/components/common/ProfileAvatar';
 import ImageUpload from '../../src/components/common/ImageUpload';
 import StyledTextField from '../../src/components/common/StyledTextField';
 import { ReduxStoreType } from '../../src/types/redux';
-
-import 'react-toastify/dist/ReactToastify.min.css'
 import { setCurrentUser } from '../../src/store';
 import { LENGTH_LIMIT } from '../../src/constants/formLimit';
+import { badDummyRequest, randomDummyRequest } from '../../src/api/dummy';
+import 'react-toastify/dist/ReactToastify.min.css'
 
 const FormRow = ({
     title, value, onSave, multiline, disabled, charLimit,
@@ -87,6 +88,9 @@ const Settings: NextPage = () => {
     } = useSelector((state: ReduxStoreType) => state.user)
     const dispatch = useDispatch()
 
+    const router = useRouter()
+    const [loading, setLoading] = useState(false)
+
     const [changingPfp, setChangingPfp] = useState(false)
     const [currentPfp, setCurrentPfp] = useState(pfp)
 
@@ -98,6 +102,14 @@ const Settings: NextPage = () => {
     const [profileLoading, setProfileLoading] = useState(false)
     const [accountLoading, setAccountLoading] = useState(false)
     const [passwordLoading, setPasswordLoading] = useState(false)
+
+    useEffect(() => {
+        setLoading(true)
+        // TODO: auth, dont need if already in redux store
+        setTimeout(() => {
+            setLoading(false)
+        }, 2000)
+    }, [])
 
     const handleImageChange = (image64: string): void => {
         setCurrentPfp(image64)
@@ -191,10 +203,25 @@ const Settings: NextPage = () => {
         setAccountLoading(false)
     }
 
+    if (loading) {
+        return (
+            <Box>
+                <Helmet title="Settings" />
+                <UserNavbar />
+                <Box sx={{
+                    display: 'flex', height: '90vh', alignItems: 'center', justifyContent: 'center',
+                }}
+                >
+                    <CircularProgress />
+                </Box>
+            </Box>
+        )
+    }
+
     return (
         <Box>
             <ToastContainer />
-            <Helmet title="Sample Text" />
+            <Helmet title="Settings" />
             <UserNavbar />
             <Container maxWidth="md" sx={{ mt: 6, mb: 20 }}>
                 <Stack direction="row" alignItems="center" justifyContent="center">
