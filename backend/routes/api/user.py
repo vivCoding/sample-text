@@ -13,15 +13,14 @@ def index():
 def create_account():
 	data = request.get_json()
 	status = check_creation_fields(data["username"], data["email"], data["password"])
-	username = data["username"]
-	if username in session:
+	if session.get('username') is data["username"]:
 		return jsonify({ "success": True }), 302	# should go to the user timeline
 	try:
 		if status == 0:
 			hashed_password = hashlib.md5(data["password"].encode())
 			new_user = User(data["username"], data["email"], hashed_password.hexdigest())
 			new_user.push()
-			session[username] = username
+			session["username"] = data["username"]
 			return jsonify({ "success": True }), 200
 		else:
 			return jsonify({ "success": False,"error": status }), 200
@@ -64,27 +63,38 @@ def view_profile():
 		
 @user_blueprint.route('/editprofile', methods=["POST"])
 def edit_profile():
-	#TODO check session matches profile you are editing
+	if session.get('username') is None:
+		return jsonify({ "success": True , "error": 1}), 200
 	data = request.get_json()
-	new_username = None
-	new_profile_img = None
-	new_bio = None
-	new_name = None
-	new_email = None
-	new_password = None
-	if 'username' in data:
-		new_username = data['username']
-	if 'profile_img' in data:
-		new_profile_img = data['profile_img']
-	if 'bio' in data:
-		new_bio = data['bio']
-	if 'name' in data:
-		new_name = data['name']
-	if 'email' in data:
-		new_email = data['email']
-	if 'password' in data:
-		new_password = data['password']
-		old_password = data['old_password']
+	try:
+		user = User.find_by_username(session.get('username'))
+		new_username = None
+		new_profile_img = None
+		new_bio = None
+		new_name = None
+		new_email = None
+		new_password = None
+		if 'username' in data:
+			new_username = data['username']
+			user.update_username(new_username)
+		if 'profile_img' in data or 'bio' in data or 'name' in data:
+			new_profile_img = data['profile_img']
+			new_bio = data['bio']
+			new_name = data['name']
+			user.update_profile(new_name, new_bio, new_profile_img)
+		if 'email' in data:
+			new_email = data['email']
+			user.update_email(new_email)
+		if 'password' in data:
+			new_password = hashlib.md5(data["password"].encode()).hexdigest()
+			old_password = hashlib.md5(data['old_password'].encode()).hexdigest()
+			if User.find_by_credentials(session.get('username'), old_password) is None: # incorrect old password
+				return jsonify({ "success": True , "error": 2}), 200
+			user.update_password(new_password)
+		return jsonify({ "success": True }), 200
+	except Exception as e:
+		return jsonify({"success": False, "error": -1 }), 500
+
 
 @user_blueprint.route('/delete', methods=["POST"])
 def delete_user():
