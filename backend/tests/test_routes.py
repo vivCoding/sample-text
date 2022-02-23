@@ -44,7 +44,7 @@ def test_user_creation(test_client):
     if User.find_by_email(goodemail):
         User.delete_by_email(goodemail)
     assert response.status_code == 200, "User Creation Test: Status Code " + response.status_code
-    assert data["success"] == True, "User Creation Test: "
+    assert data["success"] == True, "User Creation Test: user was not created"
     
 >>>>>>> 909637a (Made tests more consistent)
     
@@ -61,11 +61,15 @@ def test_bad_email(test_client):
     assert response.status_code == 200, "Bad Email Test: Status Code " + response.status_code
     assert data["success"] == False, "Bad Email Test: No Connection"
 <<<<<<< HEAD
+<<<<<<< HEAD
     assert (data["error"] == 3), "Bad Email Test: creation test error " + data["error"] + "\n Problem with email:" + bademail
 
 =======
     assert (data["error"] == 3), "Bad Email Test: creation test error "
 >>>>>>> 909637a (Made tests more consistent)
+=======
+    assert (data["error"] == 3), "Bad Email Test: creation test error " + data["error"]
+>>>>>>> fb3a3f8 (More consistent tests)
 
 
 def test_bad_password(test_client):
