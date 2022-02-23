@@ -1,4 +1,5 @@
 import random
+from uuid import uuid4
 from database.user import User
 
 good_username_characters = "-_."
@@ -37,6 +38,9 @@ def generate_bad_username():
     if sze > 0:
         ret += bad_username_characters[random.randrange(0, len(bad_username_characters))]
     return ret
+
+def generate_good_email():
+    return uuid4().hex + "@gmail.com"
 
 def generate_user(good):
     username = generate_bad_username() if not good else generate_good_username()
