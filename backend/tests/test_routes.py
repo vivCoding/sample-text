@@ -9,7 +9,6 @@ def test_index(test_client):
     assert test_client.get("/api/user/").status_code == 200, "Could not get user index route!"
 
 def test_user_creation(test_client):
-<<<<<<< HEAD
     try:
         user = generate_random.generate_user(True)
         response = test_client.post("/api/user/createaccount", json={
@@ -26,19 +25,6 @@ def test_user_creation(test_client):
             User.delete_by_email(user.email)
         if user.username in session:
             session.pop(user.username)
-=======
-    user = generate_random.generate_user(True)
-    response = test_client.post("/api/user/createaccount", json={
-        "username": user.username,
-        "email": user.email,
-        "password": user.password
-        })
-    data = response.json
-    if User.find_by_email(user.email):
-        User.delete_by_email(user.email)
-    assert response.status_code == 200, "User Creation Test: Status Code " + response.status_code
-    assert data["success"] == True, "User Creation Test: user creation was not successful"
->>>>>>> 233a4cd (Making assertions more dynamic)
     
 def test_bad_email(test_client):
     user = generate_random.generate_user(True)
@@ -66,7 +52,6 @@ def test_bad_password(test_client):
     data = response.json
     if User.find_by_email(user.email):
         User.delete_by_email(user.email)
-<<<<<<< HEAD
     assert response.status_code == 200
     assert data["success"] == False and (data["error"] == 4), "Bad Password Assertion Failed"
 
@@ -106,8 +91,3 @@ def test_login_existing(test_client):
             User.delete_by_email(user.email)
         if user.username in session:
             session.pop(user.username)
-=======
-    assert response.status_code == 200, "Bad Password Test: Status Code " + response.status_code
-    assert data["success"] == False, "Bad Password Test: No Connection"
-    assert (data["error"] == 4), "Bad Password Test: creation test error " + data["error"]
->>>>>>> 233a4cd (Making assertions more dynamic)
