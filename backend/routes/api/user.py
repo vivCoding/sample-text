@@ -60,6 +60,25 @@ def view_profile():
 def edit_profile():
 	#TODO check session matches profile you are editing
 	data = request.get_json()
+	new_username = None
+	new_profile_img = None
+	new_bio = None
+	new_name = None
+	new_email = None
+	new_password = None
+	if 'username' in data:
+		new_username = data['username']
+	if 'profile_img' in data:
+		new_profile_img = data['profile_img']
+	if 'bio' in data:
+		new_bio = data['bio']
+	if 'name' in data:
+		new_name = data['name']
+	if 'email' in data:
+		new_email = data['email']
+	if 'password' in data:
+		new_password = data['password']
+		old_password = data['old_password']
 
 @user_blueprint.route('/delete', methods=["POST"])
 def delete_user():
