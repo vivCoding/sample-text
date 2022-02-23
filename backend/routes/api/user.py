@@ -44,3 +44,23 @@ def login():
 			return jsonify({ "success": True , "error": 1}), 200
 	except Exception as e:
 		return jsonify({"success": False, "error": -1 }), 500
+		
+@user_blueprint.route('/updateprofile', methods=['POST'])
+def update_user():
+	data = request.get_json()
+	try:
+		old_user = User.find_by_username(data["username"])
+		if old_user is not None:
+			new_user = User(username=old_user.username, email=old_user.email, password=old_user.password, 
+														name=data["name"], bio=data["bio"], profile_img=data["profile_img"])
+			User.delete_by_username(old_user.username)	
+			new_user.push()
+			if User.find_by_username(new_user.username) is not None:
+				return jsonify({"success": True }), 200
+			else:
+				#-2 no error, but no user		s			
+				return jsonify({"success": True, "error": -2 }), 500
+		else:
+			return jsonify({ "success": True , "error": 1}), 200
+	except Exception as e:
+		return jsonify({"success": False, "error": -1 }), 500
