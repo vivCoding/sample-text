@@ -13,8 +13,8 @@ def index():
 def create_account():
 	data = request.get_json()
 	status = check_creation_fields(data["username"], data["email"], data["password"])
-	if session.get('username') is data["username"]:
-		return jsonify({ "success": True }), 302	# should go to the user timeline
+	# if session.get('username') is data["username"]:
+	# 	return jsonify({ "success": True }), 302	# should go to the user timeline
 	try:
 		if status == 0:
 			hashed_password = hashlib.md5(data["password"].encode())
