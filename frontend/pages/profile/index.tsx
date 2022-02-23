@@ -19,6 +19,7 @@ const ProfilePage: NextPage = () => {
     const router = useRouter()
     const [loading, setLoading] = useState(false)
 
+    // TODO: use hook
     useEffect(() => {
         // TODO: get profile and auth, prob dont need if already in store
         setLoading(true)

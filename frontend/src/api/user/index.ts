@@ -1,7 +1,8 @@
-import { ResponseType } from '../types/api'
-import client from './httpClient'
+import { GeneralResponseType, UserResponseType } from '../../types/api'
+import { UserType } from '../../types/user'
+import client from '../httpClient'
 
-export const createUser = async (username: string, email: string, password: string): Promise<ResponseType> => {
+export const createUser = async (username: string, email: string, password: string): Promise<GeneralResponseType> => {
     const response = await client.post('/user/createaccount', { username, email, password }).catch(() => ({ status: 404, data: undefined }))
     const error = {
         email: '', username: '', password: '', server: '',
@@ -10,7 +11,7 @@ export const createUser = async (username: string, email: string, password: stri
         error.server = 'There was an error signing you up. Try again later!'
         return { success: false, data: error, error: -1 }
     }
-    const data = response.data as ResponseType
+    const data = response.data as GeneralResponseType
     switch (data.error) {
         case 1:
             error.username = 'Username length must contain 1 to 20 characters!'
@@ -40,8 +41,8 @@ export const createUser = async (username: string, email: string, password: stri
     return { ...data, data: error }
 }
 
-export const loginUser = async (username: string, password: string): Promise<ResponseType> => {
-    // TODO: implement and add return type
+export const loginUser = async (username: string, password: string): Promise<UserResponseType> => {
+    // TODO: finish
     const response = await client.post('/user/login', { username, password }).catch(() => ({ status: 404, data: undefined }))
     if (response.status === 200) {
         return response.data

@@ -22,6 +22,7 @@ const Login: NextPage = () => {
 
     const dispatch = useDispatch()
 
+    // TODO: use hook
     const handleLogin = (): void => {
         setLoading(true)
         // TODO: call api function

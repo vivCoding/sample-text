@@ -19,7 +19,7 @@ import ProfileAvatar from '../../src/components/common/ProfileAvatar';
 import ImageUpload from '../../src/components/common/ImageUpload';
 import StyledTextField from '../../src/components/common/StyledTextField';
 import { ReduxStoreType } from '../../src/types/redux';
-import { setCurrentUser } from '../../src/store';
+import { setCurrentAccount, setCurrentProfile } from '../../src/store';
 import { LENGTH_LIMIT } from '../../src/constants/formLimit';
 import { badDummyRequest, randomDummyRequest } from '../../src/api/dummy';
 import 'react-toastify/dist/ReactToastify.min.css'
@@ -103,6 +103,7 @@ const Settings: NextPage = () => {
     const [accountLoading, setAccountLoading] = useState(false)
     const [passwordLoading, setPasswordLoading] = useState(false)
 
+    // TODO: implement swr hook instead
     useEffect(() => {
         setLoading(true)
         // TODO: auth, dont need if already in redux store
@@ -125,9 +126,7 @@ const Settings: NextPage = () => {
         // TODO: api call
         setProfileLoading(true)
         if (username && email) {
-            dispatch(setCurrentUser({
-                username, email, name, bio, pfp: currentPfp,
-            }))
+            dispatch(setCurrentProfile({ name, bio, pfp: currentPfp }))
         }
         setChangingPfp(false)
         setProfileLoading(false)
@@ -141,9 +140,7 @@ const Settings: NextPage = () => {
     const handleSaveName = (val: string): boolean => {
         // TODO: api call
         if (username && email) {
-            dispatch(setCurrentUser({
-                username, email, name: val, bio, pfp,
-            }))
+            dispatch(setCurrentProfile({ name: val, bio, pfp }))
         }
         return true
     }
@@ -151,9 +148,7 @@ const Settings: NextPage = () => {
     const handleSaveBio = (val: string): boolean => {
         // TODO: api call
         if (username && email) {
-            dispatch(setCurrentUser({
-                username, email, name, bio: val, pfp,
-            }))
+            dispatch(setCurrentProfile({ name, bio: val, pfp }))
         }
         return true
     }
@@ -161,9 +156,7 @@ const Settings: NextPage = () => {
     const handleSaveUsername = (val: string): boolean => {
         // TODO: api call
         if (username && email) {
-            dispatch(setCurrentUser({
-                username: val, email, name, bio, pfp,
-            }))
+            dispatch(setCurrentAccount({ username: val, email }))
         }
         return true
     }
@@ -171,9 +164,7 @@ const Settings: NextPage = () => {
     const handleSaveEmail = (val: string): boolean => {
         // TODO: api call
         if (username && email) {
-            dispatch(setCurrentUser({
-                username, email: val, name, bio, pfp,
-            }))
+            dispatch(setCurrentAccount({ username, email: val }))
         }
         return true
     }

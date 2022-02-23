@@ -18,7 +18,7 @@ import UserNavbar from '../../src/components/navbar/user';
 import 'react-toastify/dist/ReactToastify.min.css'
 import { LENGTH_LIMIT } from '../../src/constants/formLimit';
 import { ReduxStoreType } from '../../src/types/redux';
-import { setCurrentUser } from '../../src/store';
+import { setCurrentProfile } from '../../src/store';
 
 const Input = styled('input')({
     display: 'none',
@@ -62,9 +62,7 @@ const SignupSuccess: NextPage = () => {
         setLoading(true)
         router.push('/profile')
         if (username && email) {
-            dispatch(setCurrentUser({
-                username, email, name, bio, pfp,
-            }))
+            dispatch(setCurrentProfile({ name, bio, pfp }))
         }
     }
 

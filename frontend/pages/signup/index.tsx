@@ -12,7 +12,7 @@ import Helmet from '../../src/components/common/Helmet';
 import StyledTextField from '../../src/components/common/StyledTextField';
 import { createUser } from '../../src/api/user';
 import Navbar from '../../src/components/navbar';
-import { setCurrentUser } from '../../src/store';
+import { setCurrentAccount } from '../../src/store';
 
 interface FormType {
     email: string,
@@ -35,6 +35,7 @@ const Signup: NextPage = () => {
 
     const dispatch = useDispatch()
 
+    // TODO: use hook
     const handleCreate = (): void => {
         setLoading(true)
         setError({
@@ -43,7 +44,7 @@ const Signup: NextPage = () => {
         createUser(form.username, form.email, form.password).then((res) => {
             // TODO: reset this
             // if (res.success) {
-            dispatch(setCurrentUser({ username: form.username, email: form.email }))
+            dispatch(setCurrentAccount({ username: form.username, email: form.email }))
             router.push('/signup/success')
             setLoading(false)
             // } else {
