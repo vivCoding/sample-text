@@ -1,36 +1,13 @@
 import type { NextPage } from 'next';
-import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
-import {
-    Button,
-    Stack,
-} from '@mui/material';
-import { useSelector } from 'react-redux';
-import Helmet from '../../src/components/common/Helmet';
-import UserNavbar from '../../src/components/navbar/user';
-import { ReduxStoreType } from '../../src/types/redux';
+import { useRouter } from 'next/router';
+import ProfileView from '../../src/components/profile/View';
 
-const ProfilePage: NextPage = () => {
-    const { username } = useSelector((state: ReduxStoreType) => state.user)
+const UserProfilePage: NextPage = () => {
+    const { query } = useRouter()
 
     return (
-        <Box>
-            <Helmet title="Sample Text" />
-            <UserNavbar />
-            <Stack sx={{
-                alignItems: 'center', height: '90vh', justifyContent: 'center',
-            }}
-            >
-                <Typography variant="h3">
-                    User profile viewing
-                    {' '}
-                    {username}
-                    {/* TODO */}
-                </Typography>
-            </Stack>
-        </Box>
+        <ProfileView username={query.username as string} />
     )
 };
 
-export default ProfilePage;
+export default UserProfilePage;

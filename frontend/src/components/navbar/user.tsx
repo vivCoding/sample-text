@@ -29,7 +29,6 @@ const pages: Page[] = [
 
 const settings: Page[] = [
     {
-        // TODO: set this conditionally?
         label: 'My Profile',
         path: '/profile',
         icon: <PersonIcon />,

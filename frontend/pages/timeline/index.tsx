@@ -20,7 +20,7 @@ const ProfilePage: NextPage = () => {
             >
                 <Typography variant="h3">
                     Timeline View
-                    {/* TODO */}
+                    {/* TODO implement timeline */}
                 </Typography>
             </Stack>
         </Box>

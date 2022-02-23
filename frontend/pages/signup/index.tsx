@@ -13,6 +13,7 @@ import StyledTextField from '../../src/components/common/StyledTextField';
 import { createUser } from '../../src/api/user';
 import Navbar from '../../src/components/navbar';
 import { setCurrentAccount } from '../../src/store';
+import { useUserAccount } from '../../src/api/user/hooks';
 
 interface FormType {
     email: string,
@@ -34,23 +35,26 @@ const Signup: NextPage = () => {
     const [loading, setLoading] = useState(false)
 
     const dispatch = useDispatch()
+    const { auth } = useUserAccount()
 
-    // TODO: use hook
+    if (!auth) {
+        router.push('/timeline')
+    }
+
     const handleCreate = (): void => {
         setLoading(true)
         setError({
             email: '', username: '', password: '', server: '',
         })
         createUser(form.username, form.email, form.password).then((res) => {
-            // TODO: reset this
-            // if (res.success) {
-            dispatch(setCurrentAccount({ username: form.username, email: form.email }))
-            router.push('/signup/success')
-            setLoading(false)
-            // } else {
-            //     setError(res.data as ErrorFormType)
-            //     setLoading(false)
-            // }
+            if (res.success) {
+                dispatch(setCurrentAccount({ username: form.username, email: form.email }))
+                router.push('/signup/success')
+                setLoading(false)
+            } else {
+                setError(res.data as ErrorFormType)
+                setLoading(false)
+            }
         })
     }
     const emailChange: ChangeEventHandler<HTMLInputElement> = (e) => {
