@@ -17,6 +17,9 @@ class User:
             return self.username == other.username
         return False
 
+    def to_dict(self):
+        return {"username": self.username, "email": self.email, "name": self.name, "bio": self.bio, "profile_img": self.profile_img}
+
     # Pushes this object to MongoDB, and returns whether it was successful
     def push(self) -> bool:
         if Connection.client is None:
