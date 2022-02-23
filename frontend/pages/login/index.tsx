@@ -12,26 +12,34 @@ import Helmet from '../../src/components/common/Helmet';
 import StyledTextField from '../../src/components/common/StyledTextField';
 import Navbar from '../../src/components/navbar';
 import { setCurrentUser } from '../../src/store';
+import { useUserAccount } from '../../src/api/user/hooks';
+import { loginUser } from '../../src/api/user';
 
 const Login: NextPage = () => {
     const router = useRouter()
     const [loading, setLoading] = useState(false)
     const [loginField, setLoginField] = useState('')
     const [password, setPassword] = useState('')
-    const [error, setError] = useState('')
+    const [loginError, setLoginError] = useState('')
 
     const dispatch = useDispatch()
+    const { auth } = useUserAccount()
 
-    // TODO: use hook
+    if (auth) {
+        router.push('/timeline')
+    }
+
     const handleLogin = (): void => {
         setLoading(true)
-        // TODO: call api function
-        router.push('/profile')
-        dispatch(setCurrentUser({
-            username: loginField,
-            email: 'bob@gmail.com',
-            name: 'bobby bob',
-        }))
+        loginUser(loginField, password).then((res) => {
+            if (res.success && res.data !== undefined) {
+                dispatch(setCurrentUser(res.data))
+                router.push('/timeline')
+            } else {
+                setLoginError(res.errorMessage ?? 'Error!')
+                setLoading(false)
+            }
+        })
     }
 
     const loginFieldChange: ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -57,11 +65,11 @@ const Login: NextPage = () => {
                         <Typography variant="h3" sx={{ mb: 4 }}>
                             Login
                         </Typography>
-                        {error !== ''
+                        {loginError !== ''
                         && (
                             <Alert severity="error" sx={{ textAlign: 'left', mb: 2 }}>
                                 <AlertTitle>Error</AlertTitle>
-                                There was an error logging you in.
+                                {loginError}
                             </Alert>
                         )}
                         <StyledTextField

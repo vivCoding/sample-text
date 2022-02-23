@@ -1,13 +1,12 @@
-import type { GetServerSideProps, NextPage } from 'next';
+import type { NextPage } from 'next';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import {
-    Button, Stack, Grid, Container, Paper, IconButton, InputAdornment, Divider, LinearProgress, Skeleton, CircularProgress,
+    Button, Stack, Grid, Container, Paper, IconButton, Divider, LinearProgress, Skeleton, CircularProgress,
 } from '@mui/material';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { ChangeEventHandler, useState, useEffect } from 'react';
-import EditIcon from '@mui/icons-material/Edit';
+import { ChangeEventHandler, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -21,75 +20,16 @@ import StyledTextField from '../../src/components/common/StyledTextField';
 import { ReduxStoreType } from '../../src/types/redux';
 import { setCurrentAccount, setCurrentProfile } from '../../src/store';
 import { LENGTH_LIMIT } from '../../src/constants/formLimit';
-import { badDummyRequest, randomDummyRequest } from '../../src/api/dummy';
+import { useUserAccount } from '../../src/api/user/hooks'
+import FormRow from '../../src/components/settings/FormRow'
+
 import 'react-toastify/dist/ReactToastify.min.css'
-
-const FormRow = ({
-    title, value, onSave, multiline, disabled, charLimit,
-}: { title: string, value?: string, onSave?: (val: string) => boolean, multiline?: boolean, disabled?: boolean, charLimit?: number }): JSX.Element => {
-    const [editing, setEditing] = useState(false)
-    const [editValue, setEditValue] = useState(value)
-
-    const handleValueChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-        setEditValue(e.target.value)
-    }
-
-    return (
-        <>
-            <Grid item xs={5}>
-                <Typography variant="h6">{title}</Typography>
-            </Grid>
-            <Grid item xs={6}>
-                {editing ? (
-                    <StyledTextField
-                        size="small"
-                        defaultValue={value}
-                        multiline={multiline}
-                        minRows={(multiline ?? false) ? 3 : 1}
-                        InputProps={{
-                            endAdornment: (
-                                <InputAdornment position="end" sx={{ pr: 0 }}>
-                                    <IconButton title="Cancel Changes" onClick={() => setEditing(false)}>
-                                        <CancelIcon />
-                                    </IconButton>
-                                </InputAdornment>
-                            ),
-                        }}
-                        error={charLimit !== undefined && editValue !== undefined && editValue.length > charLimit}
-                        helperText={charLimit ? `${(editValue && editValue.length) ?? 0} / ${charLimit}` : undefined}
-                        sx={{ pr: 0 }}
-                        onChange={handleValueChange}
-                    />
-                ) : <Typography variant="body1" sx={{ wordWrap: 'break-word' }}>{value ?? ''}</Typography>}
-            </Grid>
-            <Grid item xs={1}>
-                {editing ? (
-                    <IconButton
-                        sx={{ ml: 1 }}
-                        title={`Save ${title}`}
-                        disabled={disabled || (charLimit !== undefined && editValue !== undefined && editValue.length > charLimit)}
-                        onClick={() => onSave && onSave(editValue ?? '') && setEditing(false)}
-                    >
-                        <SaveIcon />
-                    </IconButton>
-                ) : (
-                    <IconButton sx={{ ml: 1 }} title="Change Username" onClick={() => setEditing(true)}>
-                        <EditIcon />
-                    </IconButton>
-                )}
-            </Grid>
-        </>
-    )
-}
 
 const Settings: NextPage = () => {
     const {
         username, email, name, bio, pfp,
     } = useSelector((state: ReduxStoreType) => state.user)
     const dispatch = useDispatch()
-
-    const router = useRouter()
-    const [loading, setLoading] = useState(false)
 
     const [changingPfp, setChangingPfp] = useState(false)
     const [currentPfp, setCurrentPfp] = useState(pfp)
@@ -103,14 +43,12 @@ const Settings: NextPage = () => {
     const [accountLoading, setAccountLoading] = useState(false)
     const [passwordLoading, setPasswordLoading] = useState(false)
 
-    // TODO: implement swr hook instead
-    useEffect(() => {
-        setLoading(true)
-        // TODO: auth, dont need if already in redux store
-        setTimeout(() => {
-            setLoading(false)
-        }, 2000)
-    }, [])
+    const router = useRouter()
+    const { loading, error, auth } = useUserAccount()
+
+    if (!auth) {
+        router.push('/401')
+    }
 
     const handleImageChange = (image64: string): void => {
         setCurrentPfp(image64)

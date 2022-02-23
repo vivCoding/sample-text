@@ -19,6 +19,9 @@ import 'react-toastify/dist/ReactToastify.min.css'
 import { LENGTH_LIMIT } from '../../src/constants/formLimit';
 import { ReduxStoreType } from '../../src/types/redux';
 import { setCurrentProfile } from '../../src/store';
+import { useUserAccount } from '../../src/api/user/hooks';
+import { updateProfile } from '../../src/api/user/profile';
+import { TOAST_OPTIONS } from '../../src/constants/toast';
 
 const Input = styled('input')({
     display: 'none',
@@ -35,6 +38,12 @@ const SignupSuccess: NextPage = () => {
     const { username, email } = useSelector((state: ReduxStoreType) => state.user)
     const dispatch = useDispatch()
 
+    const { auth } = useUserAccount()
+
+    if (!auth) {
+        router.push('/signup')
+    }
+
     useEffect(() => {
         toast.success(`Welcome to SAMPLE Text, ${username}!`, {
             autoClose: 3000,
@@ -45,7 +54,7 @@ const SignupSuccess: NextPage = () => {
             theme: 'dark',
             position: toast.POSITION.BOTTOM_RIGHT,
         })
-    }, [])
+    }, [username])
 
     const handleSetName: ChangeEventHandler<HTMLInputElement> = (e) => {
         setName(e.target.value)
@@ -58,17 +67,20 @@ const SignupSuccess: NextPage = () => {
     }
 
     const handleFinish = (): void => {
-        // TODO: call api function update user profile
         setLoading(true)
-        router.push('/profile')
-        if (username && email) {
-            dispatch(setCurrentProfile({ name, bio, pfp }))
-        }
+        updateProfile({ name, bio, pfp }).then((res) => {
+            if (res.success) {
+                dispatch(setCurrentProfile({ name, bio, pfp }))
+                router.push('/profile')
+            } else {
+                toast.error(res.errorMessage ?? 'Error!', TOAST_OPTIONS)
+            }
+        })
     }
 
     const handleSkip = (): void => {
         setLoading(true)
-        router.push('/profile')
+        router.push('/timeline')
     }
 
     return (
@@ -90,17 +102,10 @@ const SignupSuccess: NextPage = () => {
                         {username}
                         !
                     </Typography>
+                    {/* TODO: use paper */}
                     <Box sx={{ width: '45vw', maxWidth: '350px', mt: 3 }}>
                         <Box sx={{ mb: 3 }}>
                             {loading && <LinearProgress />}
-                            {error && (
-                                <Alert severity="error" sx={{ textAlign: 'left' }}>
-                                    <AlertTitle>Server Error</AlertTitle>
-                                    There was an error updating your profile.
-                                    <br />
-                                    Try again later!
-                                </Alert>
-                            )}
                         </Box>
                         <Stack alignItems="center" sx={{ mb: 1.5 }}>
                             <ProfileAvatar size={75} sx={{ mb: 1 }} picture64={pfp} />
