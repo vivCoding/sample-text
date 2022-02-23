@@ -79,6 +79,7 @@ def edit_profile():
 			if username_result is not 0:
 				return jsonify({ "success": True , "error": username_result}), 200
 			user.update_username(new_username)
+			session['username'] = new_username
 		if 'profile_img' in data or 'bio' in data or 'name' in data:
 			new_profile_img = data['profile_img']
 			new_bio = data['bio']
