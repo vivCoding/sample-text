@@ -42,13 +42,21 @@ def test_bad_email(test_client):
         })
     
     data = response.json
+<<<<<<< HEAD
     if User.find_by_email(goodemail):
         User.delete_by_email(goodemail)
+=======
+    if User.find_by_email(bademail):
+        User.delete_by_email(bademail)
+>>>>>>> d5673cf5e9f847f4a461a816b683c0d170124da1
     assert response.status_code == 200, "Bad Email Test: Status Code " + response.status_code
     assert data["success"] == False, "Bad Email Test: No Connection"
     assert (data["error"] == 3), "Bad Email Test: creation test error " + data["error"] + "\n Problem with email:" + bademail
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> d5673cf5e9f847f4a461a816b683c0d170124da1
 
 def test_bad_password(test_client):
     response = test_client.post("/api/user/createaccount", json={
