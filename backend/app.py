@@ -10,7 +10,7 @@ load_dotenv()
 Connection.init()
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, methods=["OPTIONS", "GET", "POST"], supports_credentials=True)
 app.config.from_object("config.Config")
 Session(app)
 
