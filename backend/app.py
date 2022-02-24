@@ -4,11 +4,13 @@ from database.connect import Connection
 from flask import Flask, jsonify
 from flask_session import Session
 from routes.api.user import user_blueprint
+from flask_cors import CORS
 
 load_dotenv()
 Connection.init()
 
 app = Flask(__name__)
+CORS(app)
 app.config.from_object("config.Config")
 Session(app)
 
