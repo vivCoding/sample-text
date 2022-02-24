@@ -64,13 +64,20 @@ jobs:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
           HEROKU_EMAIL: ${{ secrets.HEROKU_EMAIL }}
       
-      - name: Add Heroku remote
-        run: heroku git:remote -a $HEROKU_APP_NAME
+      - name: Add Heroku backend remote
+        run: heroku git:remote -a $HEROKU_BACKEND_APP_NAME
         env:
-          HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
+          HEROKU_BACKEND_APP_NAME: ${{ secrets.HEROKU_BACKEND_APP_NAME }}
       
-      - name: Change Heroku stack to Docker
-        run: heroku stack:set container
+      - name: Push backend to Heroku
+        run: git subtree push --prefix backend heroku main
       
-      - name: Push to Heroku
-        run: git push heroku main
+      - name: Add Heroku frontend remote
+        run: heroku git:remote -a $HEROKU_FRONTEND_APP_NAME
+        env:
+          HEROKU_FRONTEND_APP_NAME: ${{ secrets.HEROKU_FRONTEND_APP_NAME }}
+      
+      - name: Push frontend to Heroku
+        run: git subtree push --prefix frontend heroku main
+
+      

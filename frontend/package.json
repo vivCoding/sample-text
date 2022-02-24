@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start -p 3000",
+    "start": "next start",
     "start-prod": "pm2-runtime npm -- start",
     "lint": "next lint",
     "fix": "next lint --fix",
