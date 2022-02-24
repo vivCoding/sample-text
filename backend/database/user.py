@@ -17,6 +17,9 @@ class User:
             return self.username == other.username
         return False
 
+    def to_dict(self):
+        return {"username": self.username, "email": self.email, "name": self.name, "bio": self.bio, "profile_img": self.profile_img}
+
     # Pushes this object to MongoDB, and returns whether it was successful
     def push(self) -> bool:
         if Connection.client is None:
@@ -149,10 +152,14 @@ class User:
     # Static method that deletes a specific user from the collection based on filters
     @staticmethod
     def delete(filters: dict):
-        db = Connection.client[Connection.database]
-        col = db[User.collection]
-        res = col.find_one(filters)
-        col.delete_one(res)
+        try: 
+            db = Connection.client[Connection.database]
+            col = db[User.collection]
+            res = col.find_one(filters)
+            col.delete_one(res)
+        except Exception as e:
+            print (e)
+            return None
     
     @staticmethod
     def delete_by_username(username: str):

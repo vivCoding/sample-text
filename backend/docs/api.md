@@ -57,3 +57,51 @@ Logs in a user
 }
 ```
 - Error 1: Given username/email and password cannot be found
+
+
+## `POST /api/user/viewprofile`
+
+Returns user profile given username or email
+
+### Request Body
+```json
+{
+    "username": "string",
+}
+```
+### Response Types
+```json
+{
+    "success": true | false,
+    "error": int
+}
+```
+- Error 1: Given username/email cannot be found
+
+
+## `POST /api/user/editprofile`
+
+Updates the user's profile
+
+### Request Body
+```json
+{
+    "username": "string",
+}
+```
+### Response Types
+```json
+{
+    "success": true | false,
+    "error": int
+}
+```
+- Error 1: Username length is not between 1 and 20, inclusive
+- Error 2: Username contains invalid characters
+- Error 3: Email is not a valid email
+- Error 4: Password length is not between 8 and 25, inclusive
+- Error 5: Password contains invalid characters
+- Error 6: A user with the desired username already exists
+- Error 7: A user with the desired email address already exists
+- Error 8: Attempting to edit profile when not in a session
+- Error 9: Incorrect old password when attempting to change password

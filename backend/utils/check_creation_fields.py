@@ -48,4 +48,8 @@ def check_password(password):
         return 4
     if good_password.fullmatch(password) is None:
         return 5
+<<<<<<< HEAD
     return 0
+=======
+    return 0
+>>>>>>> dev

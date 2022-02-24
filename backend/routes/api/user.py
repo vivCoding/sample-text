@@ -38,6 +38,7 @@ def login():
 		user = User.find_by_credentials(data["username"], hashed_password)
 		print("ZHOPA2")
 		if user is not None:
+<<<<<<< HEAD
 			print("ZHOPA3")
 			return_dict = {"success": True}
 			print("ZHOPA4")
@@ -45,6 +46,11 @@ def login():
 			print("ZHOPA5")
 			session["username"] = data["username"]
 			print("ZHOPA6")
+=======
+			return_dict = {"success": True}
+			return_dict.update(user.to_dict)
+			session["username"] = data["username"]
+>>>>>>> dev
 			return jsonify(return_dict), 200
 		else:
 			return jsonify({ "success": True , "error": 1}), 200
