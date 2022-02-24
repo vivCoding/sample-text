@@ -10,7 +10,7 @@ import Helmet from '../src/components/common/Helmet';
 
 const Home: NextPage = () => (
     <Box>
-        <Helmet title="401 | Sample Text" />
+        <Helmet title="404 | Sample Text" />
         <Stack sx={{
             alignItems: 'center',
             justifyContent: 'center',
@@ -21,10 +21,10 @@ const Home: NextPage = () => (
                 SAMPLE Text
             </Typography>
             <Typography variant="h2" sx={{ mt: 3, mb: 3 }}>
-                401 Unauthorized
+                404 Not Found :(
             </Typography>
             <Typography variant="h6">
-                You must be logged in to access this page
+                The page you were looking could not found
             </Typography>
             <Button variant="contained" component={Link} sx={{ mt: 7 }} href="/">Return to Home Page</Button>
         </Stack>

@@ -8,14 +8,31 @@ import StyledTextField from '../common/StyledTextField';
 
 import 'react-toastify/dist/ReactToastify.min.css'
 
+interface FormRowProps {
+    title: string,
+    value?: string,
+    onSave?: (val: string) => Promise<boolean>,
+    multiline?: boolean,
+    disabled?: boolean,
+    charLimit?: number,
+    error?: boolean,
+    errorMessage?: string,
+}
+
 const FormRow = ({
-    title, value, onSave, multiline, disabled, charLimit,
-}: { title: string, value?: string, onSave?: (val: string) => boolean, multiline?: boolean, disabled?: boolean, charLimit?: number }): JSX.Element => {
+    title, value, onSave, multiline, disabled, charLimit, error, errorMessage,
+}: FormRowProps): JSX.Element => {
     const [editing, setEditing] = useState(false)
     const [editValue, setEditValue] = useState(value)
 
     const handleValueChange: ChangeEventHandler<HTMLInputElement> = (e) => {
         setEditValue(e.target.value)
+    }
+
+    const handleSave = (): void => {
+        if (onSave) {
+            onSave(editValue ?? '').then((success) => setEditing(!success))
+        }
     }
 
     return (
@@ -39,8 +56,8 @@ const FormRow = ({
                                 </InputAdornment>
                             ),
                         }}
-                        error={charLimit !== undefined && editValue !== undefined && editValue.length > charLimit}
-                        helperText={charLimit ? `${(editValue && editValue.length) ?? 0} / ${charLimit}` : undefined}
+                        error={error || (charLimit !== undefined && editValue !== undefined && editValue.length > charLimit)}
+                        helperText={errorMessage || (charLimit ? `${(editValue && editValue.length) ?? 0} / ${charLimit}` : undefined)}
                         sx={{ pr: 0 }}
                         onChange={handleValueChange}
                     />
@@ -52,7 +69,7 @@ const FormRow = ({
                         sx={{ ml: 1 }}
                         title={`Save ${title}`}
                         disabled={disabled || (charLimit !== undefined && editValue !== undefined && editValue.length > charLimit)}
-                        onClick={() => onSave && onSave(editValue ?? '') && setEditing(false)}
+                        onClick={handleSave}
                     >
                         <SaveIcon />
                     </IconButton>

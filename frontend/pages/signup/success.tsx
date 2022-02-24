@@ -1,6 +1,6 @@
 import type { NextPage } from 'next';
 import {
-    Box, Typography, Button, Stack, styled, LinearProgress, Alert, AlertTitle,
+    Box, Typography, Button, Stack, LinearProgress,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { useEffect, useState, ChangeEventHandler } from 'react';
@@ -19,41 +19,21 @@ import 'react-toastify/dist/ReactToastify.min.css'
 import { LENGTH_LIMIT } from '../../src/constants/formLimit';
 import { ReduxStoreType } from '../../src/types/redux';
 import { setCurrentProfile } from '../../src/store';
-import { useUserAccount } from '../../src/api/user/hooks';
-import { updateProfile } from '../../src/api/user/profile';
+import { editProfile } from '../../src/api/user/profile';
 import { TOAST_OPTIONS } from '../../src/constants/toast';
-
-const Input = styled('input')({
-    display: 'none',
-});
 
 const SignupSuccess: NextPage = () => {
     const router = useRouter()
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState(false)
+    const [loadingEditing, setLoadingEditing] = useState(false)
     const [name, setName] = useState('')
     const [bio, setBio] = useState('')
-    const [pfp, setPfp] = useState('')
+    const [profileImg, setProfileImg] = useState('')
 
-    const { username, email } = useSelector((state: ReduxStoreType) => state.user)
+    const { username } = useSelector((state: ReduxStoreType) => state.user)
     const dispatch = useDispatch()
 
-    const { auth } = useUserAccount()
-
-    if (!auth) {
-        router.push('/signup')
-    }
-
     useEffect(() => {
-        toast.success(`Welcome to SAMPLE Text, ${username}!`, {
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            draggable: true,
-            progress: undefined,
-            theme: 'dark',
-            position: toast.POSITION.BOTTOM_RIGHT,
-        })
+        toast.success(`Welcome to SAMPLE Text, ${username}!`, TOAST_OPTIONS)
     }, [username])
 
     const handleSetName: ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -63,23 +43,24 @@ const SignupSuccess: NextPage = () => {
         setBio(e.target.value)
     }
     const handleSetPfp = (image64: string): void => {
-        setPfp(image64)
+        setProfileImg(image64)
     }
 
     const handleFinish = (): void => {
-        setLoading(true)
-        updateProfile({ name, bio, pfp }).then((res) => {
+        setLoadingEditing(true)
+        editProfile({ name, bio, profileImg }).then((res) => {
             if (res.success) {
-                dispatch(setCurrentProfile({ name, bio, pfp }))
-                router.push('/profile')
+                dispatch(setCurrentProfile({ name, bio, profileImg }))
+                router.push(`/profile/${username}`)
             } else {
                 toast.error(res.errorMessage ?? 'Error!', TOAST_OPTIONS)
             }
+            setLoadingEditing(false)
         })
     }
 
     const handleSkip = (): void => {
-        setLoading(true)
+        setLoadingEditing(true)
         router.push('/timeline')
     }
 
@@ -105,10 +86,10 @@ const SignupSuccess: NextPage = () => {
                     {/* TODO: use paper */}
                     <Box sx={{ width: '45vw', maxWidth: '350px', mt: 3 }}>
                         <Box sx={{ mb: 3 }}>
-                            {loading && <LinearProgress />}
+                            {loadingEditing && <LinearProgress />}
                         </Box>
                         <Stack alignItems="center" sx={{ mb: 1.5 }}>
-                            <ProfileAvatar size={75} sx={{ mb: 1 }} picture64={pfp} />
+                            <ProfileAvatar size={75} sx={{ mb: 1 }} picture64={profileImg} />
                             <ImageUpload text="Add Profile Picture" onImageChange={handleSetPfp} />
                         </Stack>
                         <StyledTextField
@@ -142,7 +123,7 @@ const SignupSuccess: NextPage = () => {
                                 variant="contained"
                                 sx={{ my: 2, ml: 'auto' }}
                                 onClick={handleFinish}
-                                loading={loading}
+                                loading={loadingEditing}
                                 endIcon={<CheckIcon />}
                                 disabled={name.length > LENGTH_LIMIT.NAME || bio.length > LENGTH_LIMIT.BIO}
                             >

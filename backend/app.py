@@ -14,7 +14,7 @@ Session(app)
 
 @app.route("/")
 def index():
-	return jsonify("Hello world")
+	return jsonify("welcome to the backend!")
 
 app.register_blueprint(user_blueprint, url_prefix="/api/user")
 

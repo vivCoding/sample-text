@@ -1,9 +1,9 @@
 import type { NextPage } from 'next';
 import {
-    Box, Typography, Button, Stack, LinearProgress, Alert, AlertTitle, Paper, Container,
+    Box, Typography, Button, Stack, LinearProgress, Alert, AlertTitle, Paper, Container, CircularProgress,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { ChangeEventHandler, useState } from 'react';
+import { ChangeEventHandler, useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useDispatch } from 'react-redux';
 import Link from '../../src/components/common/Link';
@@ -12,8 +12,9 @@ import Helmet from '../../src/components/common/Helmet';
 import StyledTextField from '../../src/components/common/StyledTextField';
 import { createUser } from '../../src/api/user';
 import Navbar from '../../src/components/navbar';
-import { setCurrentAccount } from '../../src/store';
-import { useUserAccount } from '../../src/api/user/hooks';
+import { setCurrentUser } from '../../src/store';
+import { UserType } from '../../src/types/user';
+import { getAccount } from '../../src/api/user/account';
 
 interface FormType {
     email: string,
@@ -27,34 +28,52 @@ interface ErrorFormType extends FormType {
 
 const Signup: NextPage = () => {
     const router = useRouter()
+    const dispatch = useDispatch()
     const [form, setFormType] = useState({ email: '', username: '', password: '' } as FormType)
     const [confirmPassword, setConfirm] = useState('')
     const [error, setError] = useState({
         email: '', username: '', password: '', server: '',
     } as ErrorFormType)
-    const [loading, setLoading] = useState(false)
+    const [loadingSignup, setLoadingSignup] = useState(false)
 
-    const dispatch = useDispatch()
-    const { auth } = useUserAccount()
+    const [loading, setLoading] = useState(true)
+    useEffect(() => {
+        getAccount().then((res) => {
+            if (res.success) {
+                router.push('/timeline')
+            }
+            setLoading(false)
+        })
+    }, [router])
 
-    if (!auth) {
-        router.push('/timeline')
+    if (loading) {
+        return (
+            <Box>
+                <Helmet title="Sign Up" />
+                <Navbar />
+                <Box sx={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', height: '90vh',
+                }}
+                >
+                    <CircularProgress />
+                </Box>
+            </Box>
+        )
     }
 
     const handleCreate = (): void => {
-        setLoading(true)
+        setLoadingSignup(true)
         setError({
             email: '', username: '', password: '', server: '',
         })
         createUser(form.username, form.email, form.password).then((res) => {
             if (res.success) {
-                dispatch(setCurrentAccount({ username: form.username, email: form.email }))
+                dispatch(setCurrentUser(res.data as UserType))
                 router.push('/signup/success')
-                setLoading(false)
             } else {
                 setError(res.data as ErrorFormType)
-                setLoading(false)
             }
+            setLoadingSignup(false)
         })
     }
     const emailChange: ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -81,7 +100,7 @@ const Signup: NextPage = () => {
                         width: '55vw', maxWidth: '450px', ml: 'auto', mr: 'auto', textAlign: 'center',
                     }}
                 >
-                    {loading && <LinearProgress /> }
+                    {loadingSignup && <LinearProgress /> }
                     <Box sx={{ p: 4, pt: 6 }}>
                         <Typography variant="h3" sx={{ mb: 4 }}>
                             Sign Up
@@ -145,7 +164,7 @@ const Signup: NextPage = () => {
                                 sx={{ my: 2, ml: 'auto' }}
                                 onClick={handleCreate}
                                 disabled={form.username === '' || form.email === '' || confirmPassword === '' || form.password !== confirmPassword}
-                                loading={loading}
+                                loading={loadingSignup}
                             >
                                 Confirm
                             </LoadingButton>

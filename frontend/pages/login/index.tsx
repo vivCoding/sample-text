@@ -1,9 +1,9 @@
 import type { NextPage } from 'next';
 import {
-    Box, Typography, Button, LinearProgress, Alert, AlertTitle, Paper, Container,
+    Box, Typography, Button, LinearProgress, Alert, AlertTitle, Paper, Container, CircularProgress,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { ChangeEventHandler, useState } from 'react';
+import { ChangeEventHandler, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useDispatch } from 'react-redux';
 import Link from '../../src/components/common/Link';
@@ -12,32 +12,50 @@ import Helmet from '../../src/components/common/Helmet';
 import StyledTextField from '../../src/components/common/StyledTextField';
 import Navbar from '../../src/components/navbar';
 import { setCurrentUser } from '../../src/store';
-import { useUserAccount } from '../../src/api/user/hooks';
-import { loginUser } from '../../src/api/user';
+import { loginUser, getUser } from '../../src/api/user';
 
 const Login: NextPage = () => {
     const router = useRouter()
-    const [loading, setLoading] = useState(false)
+    const dispatch = useDispatch()
+    const [loadingLogin, setLoadingLogin] = useState(false)
     const [loginField, setLoginField] = useState('')
     const [password, setPassword] = useState('')
     const [loginError, setLoginError] = useState('')
 
-    const dispatch = useDispatch()
-    const { auth } = useUserAccount()
+    const [loading, setLoading] = useState(true)
+    useEffect(() => {
+        getUser().then((res) => {
+            if (res.success && res.data) {
+                router.push(`/profile/${res.data.username}`)
+            }
+            setLoading(false)
+        })
+    }, [router])
 
-    if (auth) {
-        router.push('/timeline')
+    if (loading) {
+        return (
+            <Box>
+                <Helmet title="Login" />
+                <Navbar />
+                <Box sx={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', height: '90vh',
+                }}
+                >
+                    <CircularProgress />
+                </Box>
+            </Box>
+        )
     }
 
     const handleLogin = (): void => {
-        setLoading(true)
+        setLoadingLogin(true)
         loginUser(loginField, password).then((res) => {
             if (res.success && res.data !== undefined) {
                 dispatch(setCurrentUser(res.data))
-                router.push('/timeline')
+                router.push(`/profile/${res.data.username}`)
             } else {
                 setLoginError(res.errorMessage ?? 'Error!')
-                setLoading(false)
+                setLoadingLogin(false)
             }
         })
     }
@@ -60,18 +78,18 @@ const Login: NextPage = () => {
                         width: '55vw', maxWidth: '450px', ml: 'auto', mr: 'auto', textAlign: 'center',
                     }}
                 >
-                    {loading && <LinearProgress />}
+                    {loadingLogin && <LinearProgress />}
                     <Box sx={{ p: 4, pt: 6 }}>
                         <Typography variant="h3" sx={{ mb: 4 }}>
                             Login
                         </Typography>
                         {loginError !== ''
-                        && (
-                            <Alert severity="error" sx={{ textAlign: 'left', mb: 2 }}>
-                                <AlertTitle>Error</AlertTitle>
-                                {loginError}
-                            </Alert>
-                        )}
+                                && (
+                                    <Alert severity="error" sx={{ textAlign: 'left', mb: 2 }}>
+                                        <AlertTitle>Error</AlertTitle>
+                                        {loginError}
+                                    </Alert>
+                                )}
                         <StyledTextField
                             label="Username or Email"
                             variant="outlined"
@@ -92,6 +110,7 @@ const Login: NextPage = () => {
                                 variant="contained"
                                 onClick={handleLogin}
                                 disabled={loginField === '' || password === ''}
+                                loading={loadingLogin}
                             >
                                 Login
                             </LoadingButton>

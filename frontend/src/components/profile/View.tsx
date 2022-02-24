@@ -1,27 +1,23 @@
 import {
     Button, Stack, Box, Container, Grid, Typography, Skeleton, CircularProgress,
 } from '@mui/material';
-import { useRouter } from 'next/router';
 import Helmet from '../common/Helmet';
 import UserNavbar from '../navbar/user';
 import ProfileAvatar from '../common/ProfileAvatar';
 import Link from '../common/Link';
-import { useUserProfile } from '../../api/user/hooks';
+import { ProfileType } from '../../types/user';
 
 interface ProfileViewProps {
     username?: string,
-    allowEdit?: false,
+    profile: ProfileType,
+    loading: boolean,
+    allowEdit?: boolean,
 }
 
-const ProfileView = ({ username, allowEdit }: ProfileViewProps): JSX.Element => {
-    const { loading, auth, data } = useUserProfile(username)
-    const router = useRouter()
-
-    if (!auth) {
-        router.push('/401')
-    }
-
-    if (loading) {
+const ProfileView = ({
+    username, profile, loading, allowEdit,
+}: ProfileViewProps): JSX.Element => {
+    if (loading || !username) {
         return (
             <Box>
                 <Helmet title="Profile" />
@@ -33,11 +29,11 @@ const ProfileView = ({ username, allowEdit }: ProfileViewProps): JSX.Element => 
                         </Grid>
                         <Grid item xs={7} container>
                             <Grid item xs={12}>
-                                <Skeleton width={400} height={80} />
-                                <Skeleton width={200} height={40} />
+                                <Skeleton width="40vw" height={80} />
+                                <Skeleton width="20vw" height={40} />
                             </Grid>
                             <Grid item xs={12}>
-                                <Skeleton width={1000} height={200} />
+                                <Skeleton width="50vw" height={200} />
                             </Grid>
                         </Grid>
                     </Grid>
@@ -57,18 +53,18 @@ const ProfileView = ({ username, allowEdit }: ProfileViewProps): JSX.Element => 
                 {/* <Typography variant="h4" fontWeight="light" sx={{ mb: 3 }}>{username}</Typography> */}
                 <Grid spacing={2} container>
                     <Grid item xs={3}>
-                        <ProfileAvatar size={200} picture64={data?.pfp} loading={loading} />
+                        <ProfileAvatar size={200} picture64={profile.profileImg} loading={loading} />
                     </Grid>
                     <Grid item xs={7} container>
                         <Grid item xs={12}>
-                            <Typography variant="h4">{data?.name}</Typography>
+                            <Typography variant="h4">{profile.name}</Typography>
                             <Typography variant="body1" fontWeight="light">
                                 u/
                                 {username}
                             </Typography>
                         </Grid>
                         <Grid item xs={12}>
-                            <Typography variant="body1" fontWeight="normal">{data?.bio}</Typography>
+                            <Typography variant="body1" fontWeight="normal">{profile.bio}</Typography>
                         </Grid>
                         {allowEdit && (
                             <Grid item xs={12}>

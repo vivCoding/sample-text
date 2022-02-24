@@ -2,11 +2,10 @@ import type { NextPage } from 'next';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import {
-    Button, Stack, Grid, Container, Paper, IconButton, Divider, LinearProgress, Skeleton, CircularProgress,
+    Button, Stack, Grid, Container, Paper, IconButton, Divider, LinearProgress, CircularProgress,
 } from '@mui/material';
-import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { ChangeEventHandler, useState } from 'react';
+import { ChangeEventHandler, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -16,23 +15,50 @@ import Helmet from '../../src/components/common/Helmet';
 import UserNavbar from '../../src/components/navbar/user';
 import ProfileAvatar from '../../src/components/common/ProfileAvatar';
 import ImageUpload from '../../src/components/common/ImageUpload';
-import StyledTextField from '../../src/components/common/StyledTextField';
 import { ReduxStoreType } from '../../src/types/redux';
-import { setCurrentAccount, setCurrentProfile } from '../../src/store';
+import {
+    setCurrentAccount, setCurrentProfile, setCurrentUser,
+} from '../../src/store';
 import { LENGTH_LIMIT } from '../../src/constants/formLimit';
-import { useUserAccount } from '../../src/api/user/hooks'
+import { updateEmail, updatePassword, updateUsername } from '../../src/api/user/account'
 import FormRow from '../../src/components/settings/FormRow'
 
 import 'react-toastify/dist/ReactToastify.min.css'
+import { editProfile } from '../../src/api/user/profile';
+import { TOAST_OPTIONS } from '../../src/constants/toast';
+import { deleteUser, getUser } from '../../src/api/user';
+import PasswordField from '../../src/components/common/PasswordField';
 
 const Settings: NextPage = () => {
+    const router = useRouter()
+
     const {
-        username, email, name, bio, pfp,
+        username, email, name, bio, profileImg,
     } = useSelector((state: ReduxStoreType) => state.user)
     const dispatch = useDispatch()
 
-    const [changingPfp, setChangingPfp] = useState(false)
-    const [currentPfp, setCurrentPfp] = useState(pfp)
+    const [loading, setLoading] = useState(username === undefined)
+    useEffect(() => {
+        if (!username) {
+            getUser().then((res) => {
+                if (res.success && res.data) {
+                    dispatch(setCurrentUser(res.data))
+                } else if (res.error === 401) {
+                    router.push('/401')
+                } else {
+                    router.push('/404')
+                }
+                setLoading(false)
+            })
+        }
+    }, [router, dispatch, username])
+
+    const [changingProfileImg, setChangingProfileImg] = useState(false)
+    const [currentProfileImg, setCurrentProfileImg] = useState(profileImg)
+
+    const [usernameError, setUsernameError] = useState('')
+    const [emailError, setEmailError] = useState('')
+    const [passwordError, setPasswordError] = useState('')
 
     const [changingPassword, setChangingPassword] = useState(false)
     const [oldPassword, setOldPassword] = useState('')
@@ -43,68 +69,94 @@ const Settings: NextPage = () => {
     const [accountLoading, setAccountLoading] = useState(false)
     const [passwordLoading, setPasswordLoading] = useState(false)
 
-    const router = useRouter()
-    const { loading, error, auth } = useUserAccount()
-
-    if (!auth) {
-        router.push('/401')
-    }
+    const [deleting, setDeleting] = useState(false)
+    const [confirmDeleting, setConfirmDeleting] = useState('')
+    const [errorDeleting, setErrorDeleting] = useState('')
+    const [loadingDelete, setLoadingDelete] = useState(false)
 
     const handleImageChange = (image64: string): void => {
-        setCurrentPfp(image64)
-        setChangingPfp(true)
+        setCurrentProfileImg(image64)
+        setChangingProfileImg(true)
     }
 
     const handleRemoveImage = (): void => {
-        setCurrentPfp('')
-        setChangingPfp(true)
+        setCurrentProfileImg('')
+        setChangingProfileImg(true)
     }
 
-    const handleSavePfp = (): void => {
-        // TODO: api call
+    const handleSaveProfileImg = (): void => {
         setProfileLoading(true)
-        if (username && email) {
-            dispatch(setCurrentProfile({ name, bio, pfp: currentPfp }))
-        }
-        setChangingPfp(false)
-        setProfileLoading(false)
+        editProfile({ profileImg: currentProfileImg }).then((res) => {
+            if (res.success && res.data) {
+                dispatch(setCurrentProfile(res.data))
+                setChangingProfileImg(false)
+                toast.success('Successfully changed profile picture!', TOAST_OPTIONS)
+            } else {
+                toast.error(res.errorMessage ?? 'Error!', TOAST_OPTIONS)
+            }
+            setProfileLoading(false)
+        })
     }
 
     const handleCancelPfpChange = (): void => {
-        setCurrentPfp(pfp)
-        setChangingPfp(false)
+        setCurrentProfileImg(profileImg)
+        setChangingProfileImg(false)
     }
 
-    const handleSaveName = (val: string): boolean => {
-        // TODO: api call
-        if (username && email) {
-            dispatch(setCurrentProfile({ name: val, bio, pfp }))
+    const handleSaveName = async (val: string): Promise<boolean> => {
+        setProfileLoading(true)
+        const res = await editProfile({ name: val })
+        setProfileLoading(false)
+        if (res.success && res.data) {
+            dispatch(setCurrentProfile(res.data))
+            toast.success('Successfully changed display name!', TOAST_OPTIONS)
+            return true
         }
-        return true
+        toast.error(res.errorMessage ?? 'Error!', TOAST_OPTIONS)
+        return false
     }
 
-    const handleSaveBio = (val: string): boolean => {
-        // TODO: api call
-        if (username && email) {
-            dispatch(setCurrentProfile({ name, bio: val, pfp }))
+    const handleSaveBio = async (val: string): Promise<boolean> => {
+        setProfileLoading(true)
+        const res = await editProfile({ bio: val })
+        setProfileLoading(false)
+        if (res.success && res.data) {
+            dispatch(setCurrentProfile(res.data))
+            toast.success('Successfully changed bio!', TOAST_OPTIONS)
+            return true
         }
-        return true
+        toast.error(res.errorMessage ?? 'Error!', TOAST_OPTIONS)
+        return false
     }
 
-    const handleSaveUsername = (val: string): boolean => {
-        // TODO: api call
-        if (username && email) {
-            dispatch(setCurrentAccount({ username: val, email }))
+    const handleSaveUsername = async (val: string): Promise<boolean> => {
+        setAccountLoading(true)
+        const res = await updateUsername(val)
+        setAccountLoading(false)
+        if (res.success && res.data) {
+            dispatch(setCurrentAccount(res.data))
+            toast.success('Successfully changed username!', TOAST_OPTIONS)
+            setUsernameError('')
+            return true
         }
-        return true
+        toast.error(res.errorMessage ?? 'Error!', TOAST_OPTIONS)
+        setUsernameError(res.errorMessage ?? 'Error!')
+        return false
     }
 
-    const handleSaveEmail = (val: string): boolean => {
-        // TODO: api call
-        if (username && email) {
-            dispatch(setCurrentAccount({ username, email: val }))
+    const handleSaveEmail = async (val: string): Promise<boolean> => {
+        setAccountLoading(true)
+        const res = await updateEmail(val)
+        setAccountLoading(false)
+        if (res.success && res.data) {
+            dispatch(setCurrentAccount(res.data))
+            toast.success('Successfully changed email!', TOAST_OPTIONS)
+            setEmailError('')
+            return true
         }
-        return true
+        toast.error(res.errorMessage ?? 'Error!', TOAST_OPTIONS)
+        setEmailError(res.errorMessage ?? 'Error!')
+        return false
     }
 
     const handleOldPassword: ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -116,20 +168,56 @@ const Settings: NextPage = () => {
     const handleConfirm: ChangeEventHandler<HTMLInputElement> = (e) => {
         setConfirm(e.target.value)
     }
+
     const handleSavePassword = (): void => {
         setAccountLoading(true)
         setPasswordLoading(true)
-        toast.success('Successfully changed password!', {
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            draggable: true,
-            progress: undefined,
-            theme: 'dark',
-            position: toast.POSITION.BOTTOM_RIGHT,
+        updatePassword(oldPassword, newPassword).then((res) => {
+            if (res.success && res.data) {
+                dispatch(setCurrentAccount(res.data))
+                toast.success('Successfully changed password!', TOAST_OPTIONS)
+                setPasswordError('')
+                setChangingPassword(false)
+            } else {
+                toast.error(res.errorMessage ?? 'Error!', TOAST_OPTIONS)
+                setPasswordError(res.errorMessage ?? 'Error!')
+            }
+            setAccountLoading(false)
+            setPasswordLoading(false)
         })
-        setPasswordLoading(false)
-        setAccountLoading(false)
+    }
+
+    const handleCancelSavePassword = (): void => {
+        setChangingPassword(false)
+        setPasswordError('')
+        setOldPassword('')
+        setNewPassword('')
+        setConfirm('')
+    }
+
+    const handleConfirmDelete: ChangeEventHandler<HTMLInputElement> = (e) => {
+        setConfirmDeleting(e.target.value)
+    }
+
+    const handleDelete = (): void => {
+        setAccountLoading(true)
+        setLoadingDelete(true)
+        deleteUser(confirmDeleting).then((res) => {
+            if (res.success) {
+                router.push('/')
+            } else {
+                toast.error(res.errorMessage, TOAST_OPTIONS)
+                setErrorDeleting(res.errorMessage ?? 'Error!')
+            }
+            setAccountLoading(false)
+            setLoadingDelete(false)
+        })
+    }
+
+    const cancelDelete = (): void => {
+        setConfirmDeleting('')
+        setDeleting(false)
+        setErrorDeleting('')
     }
 
     if (loading) {
@@ -176,20 +264,20 @@ const Settings: NextPage = () => {
                             <Grid item xs={5}>
                                 <Stack>
                                     <Stack alignItems="center" direction="row">
-                                        <ProfileAvatar size={75} sx={{ mr: 2 }} picture64={currentPfp} />
+                                        <ProfileAvatar size={75} sx={{ mr: 2 }} picture64={currentProfileImg} />
                                         <ImageUpload text="Change" onImageChange={handleImageChange} />
                                         <Button variant="outlined" sx={{ ml: 2 }} onClick={handleRemoveImage}>Remove</Button>
                                     </Stack>
                                 </Stack>
                             </Grid>
                             <Grid item xs={2}>
-                                {changingPfp
+                                {changingProfileImg
                                 && (
                                     <>
                                         <IconButton sx={{ ml: 1 }} title="Cancel Changes" onClick={handleCancelPfpChange}>
                                             <CancelIcon />
                                         </IconButton>
-                                        <IconButton sx={{ ml: 1 }} title="Save Profile Picture" onClick={handleSavePfp}>
+                                        <IconButton sx={{ ml: 1 }} title="Save Profile Picture" onClick={handleSaveProfileImg}>
                                             <SaveIcon />
                                         </IconButton>
                                     </>
@@ -211,9 +299,16 @@ const Settings: NextPage = () => {
                     <Paper variant="outlined">
                         {accountLoading && <LinearProgress />}
                         <Grid container alignItems="center" justifyContent="center" spacing={3} sx={{ p: 4 }}>
-                            <FormRow title="Username" value={username} disabled={accountLoading} onSave={handleSaveUsername} />
+                            <FormRow
+                                title="Username"
+                                value={username}
+                                disabled={accountLoading}
+                                onSave={handleSaveUsername}
+                                error={usernameError !== ''}
+                                errorMessage={usernameError}
+                            />
                             <Grid item xs={12}><Divider /></Grid>
-                            <FormRow title="Email" value={email} disabled={accountLoading} onSave={handleSaveEmail} />
+                            <FormRow title="Email" value={email} disabled={accountLoading} onSave={handleSaveEmail} error={emailError !== ''} errorMessage={emailError} />
                             <Grid item xs={12}><Divider /></Grid>
                             <Grid item xs={5}>
                                 <Typography variant="h6">Password</Typography>
@@ -222,15 +317,23 @@ const Settings: NextPage = () => {
                                 {changingPassword ? (
                                     <Box>
                                         <Typography variant="h6" sx={{ mb: 1 }}>Change Password</Typography>
-                                        <StyledTextField margin="dense" size="small" label="Old Password" onChange={handleOldPassword} />
-                                        <StyledTextField
+                                        <PasswordField
+                                            margin="dense"
+                                            size="small"
+                                            label="Old Password"
+                                            helperText={passwordError === '' ? undefined : passwordError}
+                                            onChange={handleOldPassword}
+                                            error={passwordError !== ''}
+                                        />
+                                        <PasswordField
                                             margin="dense"
                                             size="small"
                                             label="New Password"
-                                            helperText="Use 8-25 characters with a mix of letters, numbers, and symbols"
+                                            helperText={passwordError === '' ? 'Use 8-25 characters with a mix of letters, numbers, and symbols' : passwordError}
                                             onChange={handleNewPassword}
+                                            error={passwordError !== ''}
                                         />
-                                        <StyledTextField
+                                        <PasswordField
                                             margin="dense"
                                             size="small"
                                             label="Confirm Password"
@@ -238,7 +341,7 @@ const Settings: NextPage = () => {
                                             error={confirm !== '' && newPassword !== confirm}
                                         />
                                         <Stack direction="row" justifyContent="end" sx={{ mt: 2 }}>
-                                            <Button variant="outlined" onClick={() => setChangingPassword(false)}>Cancel</Button>
+                                            <Button variant="outlined" onClick={handleCancelSavePassword}>Cancel</Button>
                                             <LoadingButton
                                                 variant="contained"
                                                 sx={{ ml: 2 }}
@@ -251,6 +354,41 @@ const Settings: NextPage = () => {
                                         </Stack>
                                     </Box>
                                 ) : <Button variant="outlined" onClick={() => setChangingPassword(true)}>Change Password</Button>}
+                            </Grid>
+                            <Grid item xs={12}><Divider /></Grid>
+                            <Grid item xs={6}>
+                                {deleting && (
+                                    <PasswordField
+                                        margin="dense"
+                                        size="small"
+                                        label="Enter Password"
+                                        onChange={handleConfirmDelete}
+                                        error={errorDeleting !== ''}
+                                        helperText={errorDeleting === '' ? undefined : errorDeleting}
+                                    />
+                                )}
+                            </Grid>
+                            <Grid item xs={6}>
+                                <Stack direction="row" alignItems="center" justifyContent="end">
+                                    {deleting && (
+                                        <Button
+                                            variant="outlined"
+                                            sx={{ display: 'block', ml: 'auto' }}
+                                            onClick={cancelDelete}
+                                        >
+                                            Cancel
+                                        </Button>
+                                    )}
+                                    <LoadingButton
+                                        variant="outlined"
+                                        color="error"
+                                        onClick={() => (deleting ? handleDelete() : setDeleting(true))}
+                                        sx={{ ml: 2 }}
+                                        loading={loadingDelete}
+                                    >
+                                        {deleting ? 'Confirm Delete' : 'Delete Account'}
+                                    </LoadingButton>
+                                </Stack>
                             </Grid>
                         </Grid>
                     </Paper>

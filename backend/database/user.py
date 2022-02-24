@@ -4,7 +4,6 @@ class User:
     collection = "users"
 
     def __init__(self, username, email, password, name="", bio="", profile_img="") -> None:
-        # TODO: add other optional profile fields
         self.username = username
         self.email = email
         self.password = password
@@ -18,7 +17,13 @@ class User:
         return False
 
     def to_dict(self):
-        return {"username": self.username, "email": self.email, "name": self.name, "bio": self.bio, "profile_img": self.profile_img}
+        return {
+            "username": self.username,
+            "email": self.email,
+            "name": self.name,
+            "bio": self.bio,
+            "profileImg": self.profile_img
+        }
 
     # Pushes this object to MongoDB, and returns whether it was successful
     def push(self) -> bool:
@@ -93,13 +98,12 @@ class User:
     def update_profile(self, name=None, bio=None, profile_img=None) -> bool:
         if Connection.client is None:
             return False
+        old_name = self.name
+        old_bio = self.bio
+        old_profile_img = self.profile_img
         try: 
             db = Connection.client[Connection.database]
             col = db[User.collection]
-            old_name = self.name
-            old_bio = self.bio
-            old_profile_img = self.profile_img
-            filter = { "username" : self.username }
             if name:
                 self.name = name
             if bio:
@@ -111,7 +115,7 @@ class User:
                 "bio": self.bio,
                 "profile_img": self.profile_img 
             }}
-            col.update_one(filter, new_value)
+            col.update_one({ "username" : self.username }, new_value)
             return True
         except Exception as e:
             print (e)

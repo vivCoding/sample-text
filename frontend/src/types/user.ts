@@ -6,7 +6,7 @@ export interface AccountType {
 export interface ProfileType {
     name?: string,
     bio?: string,
-    pfp?: string,
+    profileImg?: string,
 }
 
 export interface UserType extends AccountType, ProfileType {}
