@@ -29,4 +29,4 @@ ARG PORT
 
 # start up frontend, backend, and nginx server at the same time
 # also replace the listening port in the nginx config to specified port at runtime
-CMD (cd frontend && npm run start-prod) & (cd ./backend && ./server.sh) & (sed -i -e 's/$PORT/'"$PORT"'/g' /etc/nginx/nginx.conf && nginx -g 'daemon off;')
+CMD (cd frontend && npm run start-prod) & (cd ./backend && ./server.sh) & (sleep 20 && sed -i -e 's/$PORT/'"$PORT"'/g' /etc/nginx/nginx.conf && nginx -g 'daemon off;')
