@@ -4,8 +4,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start -p 3000",
-    "start-prod": "pm2-runtime npm -- start",
+    "start": "next start",
+    "start-prod": "pm2-runtime npm -- start -p $PORT",
     "lint": "next lint",
     "fix": "next lint --fix",
     "test": ""
