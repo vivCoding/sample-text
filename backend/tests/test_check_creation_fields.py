@@ -1,5 +1,5 @@
 from database.user import User
-from utils.check_creation_fields import check_creation_fields
+from utils.validate_fields import check_creation_fields
 from utils.generate_random import *
 from runtests import mongodb
 
@@ -7,6 +7,7 @@ good_password_characters = r"""~`!@#$%^&*()_-+={[}]|:;'"<,>.?\/"""
 bad_email = "12345"
 good_pass = "12345678"
 
+# TODO fix
 def test_good_user(mongodb):
     status = check_creation_fields(generate_good_username(), generate_good_email(), good_pass)
     assert status == 0, "Failed test for all valid fields"
