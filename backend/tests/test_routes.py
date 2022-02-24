@@ -127,17 +127,17 @@ def test_delete_account(test_client):
 def test_edit_profile_username(test_client):
     try:
         user = generate_random.generate_user(True)
-        response = test_client.post("/api/user/editprofile", json={
+        response = test_client.post("/api/user/createaccount", json={
             "username": user.username,
             "email": user.email,
             "password": user.password,
         })
 
-        assert response.status_code == 200, "Creating user in update profile test failed"
+        assert response.status_code == 200
         
         new_username = generate_random.generate_user(True).username
 
-        response = test_client.post("/api/user/updateprofile", json={
+        response = test_client.post("/api/user/editprofile", json={
             "username": new_username,
             "email" : user.email,
             "password": user.password

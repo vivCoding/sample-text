@@ -34,11 +34,17 @@ def login():
 	if session.get('username') is data["username"]:
 		return jsonify({ "success": True }), 302	# should go to the user timeline
 	try:
+		print("ZHOPA1")
 		user = User.find_by_credentials(data["username"], hashed_password)
+		print("ZHOPA2")
 		if user is not None:
+			print("ZHOPA3")
 			return_dict = {"success": True}
+			print("ZHOPA4")
 			return_dict.update(user.to_dict)
+			print("ZHOPA5")
 			session["username"] = data["username"]
+			print("ZHOPA6")
 			return jsonify(return_dict), 200
 		else:
 			return jsonify({ "success": True , "error": 1}), 200
