@@ -5,15 +5,12 @@ import {
     Button,
     Stack,
 } from '@mui/material';
-import LoginIcon from '@mui/icons-material/Login';
 import Link from '../src/components/common/Link';
 import Helmet from '../src/components/common/Helmet';
-import Navbar from '../src/components/navbar';
 
 const Home: NextPage = () => (
     <Box>
-        <Helmet title="Sample Text" />
-        <Navbar />
+        <Helmet title="401 | Sample Text" />
         <Stack sx={{
             alignItems: 'center',
             justifyContent: 'center',
@@ -23,13 +20,13 @@ const Home: NextPage = () => (
             <Typography variant="h1">
                 SAMPLE Text
             </Typography>
-            <Typography variant="h6">
-                Simple Social Platform for Everyone
+            <Typography variant="h2" sx={{ mt: 3, mb: 3 }}>
+                401 Unauthorized
             </Typography>
-            <Stack direction="row" alignItems="center" sx={{ mt: 5 }}>
-                <Button variant="outlined" component={Link} noLinkStyle href="/signup">Sign Up</Button>
-                <Button variant="contained" component={Link} noLinkStyle href="/login" sx={{ ml: 3 }} endIcon={<LoginIcon />}>Login</Button>
-            </Stack>
+            <Typography variant="h6">
+                You must be logged in to access this page
+            </Typography>
+            <Button variant="contained" component={Link} sx={{ mt: 7 }} href="/">Return to Home Page</Button>
         </Stack>
     </Box>
 );

@@ -19,6 +19,7 @@
         "@typescript-eslint/no-unused-vars": "warn",
         "@typescript-eslint/ban-ts-comment": "warn",
         "@typescript-eslint/semi": 0,
+        "jsx-a11y/label-has-associated-control": 0,
         "@typescript-eslint/explicit-function-return-type": [
           "warn",
           {
@@ -26,6 +27,7 @@
             "allowConciseArrowFunctionExpressionsStartingWithVoid": true
           }
         ],
+        "no-plusplus": 0,
         "@typescript-eslint/indent": ["error", 4],
         "react/display-name": "off",
         "react/require-default-props": "off",
@@ -34,6 +36,7 @@
         "react-hooks/rules-of-hooks": "error",
         "react-hooks/exhaustive-deps": "warn",
         "react/jsx-props-no-spreading": "off",
+        "no-param-reassign": 0,
         "react/function-component-definition": [
           "error",
           {
