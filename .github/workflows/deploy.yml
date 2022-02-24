@@ -7,43 +7,43 @@ on:
   workflow_dispatch:
 
 jobs:
-  backend-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
+  # backend-tests:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
 
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.10.2
+  #     - name: Setup Python
+  #       uses: actions/setup-python@v2
+  #       with:
+  #         python-version: 3.10.2
 
-      - name: Install dependencies
-        run: cd backend && pip3 install -r requirements.txt
+  #     - name: Install dependencies
+  #       run: cd backend && pip3 install -r requirements.txt
       
-      - name: Run tests
-        env:
-          ATLAS_URL: ${{ secrets.ATLAS_URL }}
-          ENV: ${{ secrets.ENV }}
-        run: cd backend && export ATLAS_URL=$ATLAS_URL && export ENV=$ENV && python runtests.py
+  #     - name: Run tests
+  #       env:
+  #         ATLAS_URL: ${{ secrets.ATLAS_URL }}
+  #         ENV: ${{ secrets.ENV }}
+  #       run: cd backend && export ATLAS_URL=$ATLAS_URL && export ENV=$ENV && python runtests.py
 
-  frontend-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
+  # frontend-tests:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
     
-      - name: Setup NodeJS
-        uses: actions/setup-node@v2
-        with:
-          node-version: '16'
+  #     - name: Setup NodeJS
+  #       uses: actions/setup-node@v2
+  #       with:
+  #         node-version: '16'
       
-      - name: Install dependencies
-        run: cd frontend && npm i
+  #     - name: Install dependencies
+  #       run: cd frontend && npm i
       
-      - name: Run tests
-        run: cd frontend && npm test
+  #     - name: Run tests
+  #       run: cd frontend && npm test
 
   deploy:
-    needs: [backend-tests, frontend-tests]
+    # needs: [backend-tests, frontend-tests]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -62,13 +62,20 @@ jobs:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
           HEROKU_EMAIL: ${{ secrets.HEROKU_EMAIL }}
       
-      - name: Add Heroku remote
-        run: heroku git:remote -a $HEROKU_APP_NAME
+      - name: Add Heroku backend remote
+        run: heroku git:remote -a $HEROKU_BACKEND_APP_NAME
         env:
-          HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
+          HEROKU_BACKEND_APP_NAME: ${{ secrets.HEROKU_BACKEND_APP_NAME }}
       
-      - name: Change Heroku stack to Docker
-        run: heroku stack:set container
+      - name: Push backend to Heroku
+        run: git subtree push --prefix backend heroku main
       
-      - name: Push to Heroku
-        run: git push heroku main
+      - name: Add Heroku frontend remote
+        run: heroku git:remote -a $HEROKU_FRONTEND_APP_NAME
+        env:
+          HEROKU_FRONTEND_APP_NAME: ${{ secrets.HEROKU_FRONTEND_APP_NAME }}
+      
+      - name: Push frontend to Heroku
+        run: git subtree push --prefix frontend heroku main
+
+      
