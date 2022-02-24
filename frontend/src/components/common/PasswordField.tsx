@@ -1,13 +1,9 @@
 import {
-    IconButton, InputAdornment, styled, TextField,
+    IconButton, InputAdornment,
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { ChangeEventHandler, useState } from 'react';
-
-const StyledTextfield = styled(TextField)({
-    width: '350px',
-    maxWidth: '30vw',
-})
+import StyledTextField from './StyledTextField';
 
 interface PasswordFieldProps {
     label: string,
@@ -15,10 +11,13 @@ interface PasswordFieldProps {
     onChange?: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>,
     error?: boolean,
     required?: boolean,
+    size?: 'small' | 'medium',
+    margin?: 'none' | 'normal' | 'dense',
+    sx?: any,
 }
 
 const PasswordField = ({
-    label, helperText, onChange, error, required,
+    label, helperText, onChange, error, required, size, margin, sx,
 }: PasswordFieldProps): JSX.Element => {
     const [viewPassword, setViewPassword] = useState(false)
 
@@ -27,16 +26,17 @@ const PasswordField = ({
     }
 
     return (
-        <StyledTextfield
+        <StyledTextField
             label={label}
             variant="outlined"
-            margin="dense"
+            margin={margin}
             type={viewPassword ? 'text' : 'password'}
-            size="small"
+            size={size}
             onChange={onChange}
             helperText={helperText}
             error={error ?? false}
             required={required ?? false}
+            sx={sx}
             InputProps={{
                 endAdornment: (
                     <InputAdornment position="end">

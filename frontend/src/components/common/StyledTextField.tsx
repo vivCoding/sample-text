@@ -1,8 +1,8 @@
 import { styled, TextField } from '@mui/material';
 
 const StyledTextField = styled(TextField)({
-    width: '350px',
-    maxWidth: '30vw',
+    width: '100%',
+    maxWidth: '100%',
 })
 
 export default StyledTextField

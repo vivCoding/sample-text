@@ -9,13 +9,13 @@ class Connection:
 
     # Initializes MongoDb client (from env), and sets static variable to client
     @staticmethod
-    def init() -> bool:
+    def init(test_database: bool = False) -> bool:
         if Connection.is_initialized(): return True
         ATLAS_URL = getenv("ATLAS_URL", "")
         assert ATLAS_URL != "", "No ATLAS URL specified!"
         try:
             Connection.client = MongoClient(ATLAS_URL)
-            Connection.database += ("-dev" if getenv("ENV", "prod") == "dev" else "")
+            Connection.database += "-test" if test_database else "-" + getenv("ENV", "prod")
             Connection.client[Connection.database]["users"].create_indexes([
                 IndexModel([
                     ("username", ASCENDING),
