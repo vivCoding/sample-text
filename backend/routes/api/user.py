@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request, session
+from utils.encrypt import encrypt
 from utils.validate_fields import check_account_fields, check_email, check_password, check_username
 from database.user import User
 import hashlib
@@ -18,8 +19,8 @@ def create_account():
 		data = request.get_json()
 		status, error_message = check_account_fields(data["username"], data["email"], data["password"])
 		if status == 0:
-			hashed_password = hashlib.sha256(data["password"].encode())
-			new_user = User(data["username"], data["email"], hashed_password.hexdigest())
+			hashed_password =  encrypt(data["password"])
+			new_user = User(data["username"], data["email"], hashed_password)
 			new_user.push()
 			session["username"] = data["username"]
 			return jsonify({ "success": True, "data": new_user.to_dict() }), 200
@@ -37,7 +38,7 @@ def login():
 		return jsonify({ "success": True }), 302
 	try:
 		data = request.get_json()
-		hashed_password = hashlib.sha256(data["password"].encode()).hexdigest()
+		hashed_password = encrypt(data["password"])
 		user = User.find_by_credentials(data["loginField"], hashed_password)
 		if user is not None:
 			session["username"] = user.username
@@ -215,7 +216,7 @@ def edit_password():
 			return jsonify({ "success": False }), 404
 		data = request.get_json()
 		new_password = data["newPassword"]
-		old_password = hashlib.sha256(data['oldPassword'].encode()).hexdigest()
+		old_password = encrypt(data["oldPassword"])
 		if user.password != old_password:
 			return jsonify({
 				"success": False,
@@ -224,7 +225,7 @@ def edit_password():
 			}), 200
 		status, errorMessage = check_password(new_password)
 		if status == 0:
-			user.update_password(hashlib.sha256(new_password.encode()).hexdigest())
+			user.update_password(encrypt(new_password))
 			return jsonify({
 				"success": True,
 				"data": { "username": username, "email": user.email }
@@ -244,7 +245,7 @@ def delete_user():
 		return jsonify({ "success": False }), 401
 	try:
 		data = request.get_json()
-		password = hashlib.sha256(data["password"].encode()).hexdigest()
+		password = encrypt(data["password"])
 		user = User.find_by_username(username)
 		if user is not None:
 			if user.password == password:
@@ -252,7 +253,7 @@ def delete_user():
 				session.pop('username')
 				return jsonify({ "success": True }), 200
 			else:
-				return jsonify({ "success": False, "errorMessage": "Incorrect password!" }), 200
+				return jsonify({ "success": False, "error": 1, "errorMessage": "Incorrect password!" }), 200
 		return jsonify({ "success": False }), 404
 	except Exception as e:
 		print(e)
