@@ -32,7 +32,6 @@ def create_account():
 
 @user_blueprint.route('/login', methods=["POST"])
 def login():
-	print(session.get('username', 'no'))
 	if session.get('username', None) is not None:
 		# already logged in
 		return jsonify({ "success": True }), 302
@@ -42,7 +41,6 @@ def login():
 		user = User.find_by_credentials(data["loginField"], hashed_password)
 		if user is not None:
 			session["username"] = user.username
-			print(session.get('username', 'no'))
 			return jsonify({ "success": True, "data": user.to_dict() }), 200
 		else:
 			return jsonify({ "success": False , "error": 1, "errorMessage": "Invalid username, email or password!"}), 200
