@@ -9,10 +9,12 @@ from app import app
 def mongodb():
     load_dotenv()
     assert Connection.init(), "Connection error!"
+    Connection.set_testing()
 
 @pytest.fixture(scope="session")
 def test_client():
     with app.test_client() as client:
+        Connection.set_testing()
         yield client
 
 if __name__ == "__main__":

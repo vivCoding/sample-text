@@ -45,5 +45,5 @@ def generate_good_email():
 def generate_user(good):
     username = generate_bad_username() if not good else generate_good_username()
     email = f"{username}@gmail.com"
-    password = "password"
+    password = uuid4().hex[0:8]
     return User(username, email, password)
