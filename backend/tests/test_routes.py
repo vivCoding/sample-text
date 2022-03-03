@@ -41,7 +41,7 @@ def test_bad_email(test_client):
     if User.find_by_email(user.email):
         User.delete_by_email(user.email)
     assert response.status_code == 200, "Bad response, got " + str(response.status_code)
-    assert data["success"] == False and (data["error"] == 3), f"Bad Email Assertion failed for: {user.username}, {user.email}, got success {data.get('sucess', None)} and error {data.get('error', None)}"
+    assert data["success"] == False and (data["error"] == 3), f"Bad Email Assertion failed for: {user.username}, {user.email}, got success {data.get('success', None)} and error {data.get('error', None)}"
     test_client.cookie_jar.clear()
 
 def test_create_bad_password(test_client):
@@ -55,7 +55,7 @@ def test_create_bad_password(test_client):
     if User.find_by_email(user.email):
         User.delete_by_email(user.email)
     assert response.status_code == 200, "Bad response, got " + str(response.status_code)
-    assert data["success"] == False and (data["error"] == 4), f"Bad Password Assertion Failed for: {user.password}, got success {data.get('sucess', None)} and error {data.get('error', None)}"
+    assert data["success"] == False and (data["error"] == 4), f"Bad Password Assertion Failed for: {user.password}, got success {data.get('success', None)} and error {data.get('error', None)}"
     test_client.cookie_jar.clear()
 
 def test_login_nonexisting_username(test_client):
@@ -117,7 +117,7 @@ def test_login_existing(test_client):
         data = response.json
 
         assert response.status_code == 200, "Bad login account response, got " + str(response.status_code)
-        assert data["success"] == True, f"Login to existing user test failed for {user.username}, got success {data.get('sucess', None)} and error {data.get('error', None)}"
+        assert data["success"] == True, f"Login to existing user test failed for {user.username}, got success {data.get('success', None)} and error {data.get('error', None)}"
         assert user.username == session.get("username", None), f"Username {user.username} not added to session"
     finally:
         if User.find_by_email(user.email):
@@ -144,7 +144,7 @@ def test_delete_account(test_client):
         data = response.json
         
         assert response.status_code == 200, "Deletion response with status " + str(response.status_code)
-        assert data["success"] == True, f"Delete user test failed for user {user.username}, got success {data.get('sucess', None)} and error {data.get('error', None)}"
+        assert data["success"] == True, f"Delete user test failed for user {user.username}, got success {data.get('success', None)} and error {data.get('error', None)}"
         deleted_user = User.find_by_email(user.email)
         assert deleted_user is None, f"User deletion failed for {user.username}, still in database!"
     finally:
@@ -175,7 +175,7 @@ def test_edit_account_username(test_client):
         dbuser = User.find_by_username(new_username)
         
         assert response.status_code == 200, "Bad response for edit username " + str(response.status_code)
-        assert data["success"] == True, f"Updating username test failed for {user.username} -> {new_username}, got success {data.get('sucess', None)} and error {data.get('error', None)}"
+        assert data["success"] == True, f"Updating username test failed for {user.username} -> {new_username}, got success {data.get('success', None)} and error {data.get('error', None)}"
         assert session['username'] == new_username, f"Session username mismatch for {user.username} -> {new_username}"
         assert dbuser is not None, f"Mismatch in db and new user for {user.username} -> {new_username}"
 
@@ -207,7 +207,7 @@ def test_edit_account_password(test_client):
         dbuser = User.find_by_username(user.username)
         
         assert response.status_code == 200, "Bad response for edit password " + str(response.status_code)
-        assert data["success"] == True, f"Updating password test failed for {user.password} -> {new_user_pass}, got success {data.get('sucess', None)} and error {data.get('error', None)}"
+        assert data["success"] == True, f"Updating password test failed for {user.password} -> {new_user_pass}, got success {data.get('success', None)} and error {data.get('error', None)}"
         assert dbuser is not None and dbuser.password == encrypt(new_user_pass), f"Mismatch in db and new passowrd"
 
     finally:
@@ -239,7 +239,7 @@ def test_edit_account_email(test_client):
         dbuser = User.find_by_email(new_user_email)
 
         assert response.status_code == 200, "Bad response for edit email " + str(response.status_code)
-        assert data["success"] == True, f"Updating email test failed for {user.email} -> {new_user_email}, got success {data.get('sucess', None)} and error {data.get('error', None)}"
+        assert data["success"] == True, f"Updating email test failed for {user.email} -> {new_user_email}, got success {data.get('success', None)} and error {data.get('error', None)}"
         assert dbuser is not None, f"Database info mismatch for {user.email} -> {new_user_email}"
 
     finally:
@@ -268,7 +268,7 @@ def test_edit_profile(test_client):
         data = response.json
         
         assert response.status_code == 200, "Bad response for editing profile " + str(response.status_code)
-        assert data["success"] == True, f"Updating user profile test failed, got success {data.get('sucess', None)} and error {data.get('error', None)}"
+        assert data["success"] == True, f"Updating user profile test failed, got success {data.get('success', None)} and error {data.get('error', None)}"
 
         new_user = User.find_by_username(user.username)
         assert new_user is not None, "User does not exist"
