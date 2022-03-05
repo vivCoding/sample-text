@@ -1,5 +1,6 @@
 import hashlib
 from database.user import User
+from database.post import Post
 from runtests import mongodb
 from utils.generate_random import generate_user
 
@@ -70,3 +71,7 @@ def test_delete_user_by_email(mongodb):
         good_user.push()
     User.delete_by_email(good_user.email)
     assert User.find_by_email(good_user.email) is None, "User was not deleted"
+
+def test_create_post(mongodb):
+    post = Post(title="My first post", topics=["Sports", "Olympics"], user_id=123)
+    post.push()
