@@ -51,6 +51,20 @@ class Post:
         except Exception as e:
             print (e)
             return False
+
+    # Updates this object's likes in MongoDB, and returns whether it was successful
+    def update_likes(self) -> bool:
+        try: 
+            db = Connection.client[Connection.database]
+            col = db[Post.collection]
+            filter = { "post_id" : self.post_id }
+            new_value = { "$set": { "likes": (self.likes + 1) } }
+            col.update_one(filter, new_value)
+            self.likes += 1
+            return True
+        except Exception as e:
+            print (e)
+            return False
     
     # Static method that finds and returns a specific post from the collection based on post id
     @staticmethod
@@ -76,7 +90,7 @@ class Post:
         except Exception as e:
             print (e)
             return None
-        
+
     # Static method that deletes a specific post from the collection based on post id
     @staticmethod
     def delete(post_id: str):
