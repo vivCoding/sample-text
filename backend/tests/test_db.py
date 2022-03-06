@@ -79,8 +79,10 @@ def test_post(mongodb):
     assert post.post_id == Post.find(post.post_id).post_id, "Could not find post"
     # test update likes
     likes = post.likes
-    post.update_likes()
+    post.like()
     assert Post.find(post.post_id).likes == likes + 1, "Likes was not updated"
+    # test add comment
+    post.add_comment("xqcow1", "epic post!!!")
     # test post deletion
-    Post.delete(post.post_id)
-    assert Post.find(post.post_id) is None, "Post was not deleted"
+    #Post.delete(post.post_id)
+    #assert Post.find(post.post_id) is None, "Post was not deleted"
