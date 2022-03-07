@@ -1,7 +1,7 @@
 import hashlib
 from database.user import User
 from runtests import mongodb
-from utils.generate_random import generate_topic, generate_user
+from utils.generate_random import generate_good_topic, generate_topic, generate_user
 
 good_user = generate_user(good=True)
 bad_user = generate_user(good=False)
@@ -74,3 +74,6 @@ def test_delete_user_by_email(mongodb):
 
 def test_push_topic(mongodb):
     assert good_topic.push(), "Push new topic failed"
+
+def test_add_post_to_topic(mongodb):
+    assert good_topic.add_post(generate_good_topic()), "Adding post to topic failed"
