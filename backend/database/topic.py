@@ -50,7 +50,7 @@ class Topic:
             db = Connection.client[Connection.database]
             col = db[Topic.collection]
             filter = { "name": self.name }
-            new_value = {"$push": {"posts": post_id}}
+            new_value = { "$push": { "posts": post_id } }
             col.update_one(filter, new_value)
             self.posts.append(post_id)
             return True
