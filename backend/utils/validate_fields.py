@@ -50,3 +50,8 @@ def check_password(password) -> Tuple[int, str]:
     if good_password.fullmatch(password) is None:
         return 5, "Password length contains invalid characters!"
     return 0, ""
+
+def check_comment(comment) -> Tuple[int, str]:
+    if len(comment) == 0 or len(comment) > 500:
+        return 1, "Comment length is invalid"
+    return 0, ""
