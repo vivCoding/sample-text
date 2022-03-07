@@ -1,4 +1,5 @@
 import hashlib
+from tkinter import N
 from database.user import User
 from database.post import Post
 from runtests import mongodb
@@ -74,7 +75,7 @@ def test_delete_user_by_email(mongodb):
 
 def test_post(mongodb):
     # test post creation
-    post = Post(title="My second post", topics=["Games", "Streaming"], user_id=168)
+    post = Post(title="My second post", topics=["Games", "Streaming"], username="esl-csgo")
     post.push()
     assert post.post_id == Post.find(post.post_id).post_id, "Could not find post"
     # test update likes
@@ -82,7 +83,9 @@ def test_post(mongodb):
     post.like()
     assert Post.find(post.post_id).likes == likes + 1, "Likes was not updated"
     # test add comment
-    post.add_comment("xqcow1", "epic post!!!")
+    pair = ["xqcow1", "epic post dude! wow!"]
+    post.add_comment(username=pair[0], comment=pair[1])
+    assert pair in post.comments, "Comment was not added"
     # test post deletion
-    #Post.delete(post.post_id)
-    #assert Post.find(post.post_id) is None, "Post was not deleted"
+    Post.delete(post.post_id)
+    assert Post.find(post.post_id) is None, "Post was not deleted"

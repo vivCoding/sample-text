@@ -5,12 +5,12 @@ from datetime import datetime
 class Post:
     collection = "posts"
 
-    def __init__(self, title, topics, user_id, img="", caption="", anonymous=False, 
+    def __init__(self, title, topics, username, img="", caption="", anonymous=False, 
     likes=0, comments=[], date=datetime.now().strftime("%m/%d/%Y, %H:%M"), post_id=""
     ) -> None:
         self.title = title
         self.topics = topics
-        self.user_id = user_id
+        self.username = username
         self.img = img
         self.caption = caption
         self.anonymous = anonymous
@@ -24,7 +24,7 @@ class Post:
             "post_id": self.post_id,
             "title" : self.title,
             "topics" : self.topics,
-            "user_id": self.user_id,
+            "username": self.username,
             "img": self.img,
             "caption": self.caption,
             "anonymous": self.anonymous,
@@ -73,7 +73,8 @@ class Post:
             col = db[Post.collection]
             filter = { "post_id" : self.post_id }
             pair = [username, comment]
-            new_value = { "$push": {"comments": [{'username': {"username": username}}, {"comment": {"comment": comment}}]} }
+            #new_value = { "$push": {"comments": [{'username': {"username": username}}, {"comment": {"comment": comment}}]} }
+            new_value = { "$push": {"comments": [{'username': username}, {"comment": comment}]} }
             col.update_one(filter, new_value, upsert=True)
             self.comments.append(pair)
             return True
@@ -93,7 +94,7 @@ class Post:
             return Post(
                 res["title"],
                 res["topics"],
-                res["user_id"],
+                res["username"],
                 res["img"],
                 res["caption"],
                 res["anonymous"],
