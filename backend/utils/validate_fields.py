@@ -51,7 +51,27 @@ def check_password(password) -> Tuple[int, str]:
         return 5, "Password length contains invalid characters!"
     return 0, ""
 
+def check_post_fields(title, caption) -> Tuple[int, str]:
+    title_result = check_title(title)
+    caption_result = check_caption(caption)
+    if title_result[0] != 0:
+        return title_result
+    if caption_result[0] != 0:
+        return caption_result
+    return 0, ""
+
+def check_title(title) -> Tuple[int, str]:
+    if len(title) == 0 or len(title) > 200:
+        return 1, "Title length is invalid"
+    return 0, ""
+
+def check_caption(caption) -> Tuple[int, str]:
+    if len(caption) > 2000:
+        return 1, "Caption is too long"
+    return 0, ""
+
 def check_comment(comment) -> Tuple[int, str]:
     if len(comment) == 0 or len(comment) > 500:
         return 1, "Comment length is invalid"
     return 0, ""
+    

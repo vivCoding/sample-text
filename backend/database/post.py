@@ -38,6 +38,7 @@ class Post:
         if Connection.client is None:
             return False
         try: 
+            # TODO: add this post to a list for user with this username
             db = Connection.client[Connection.database]
             col = db[Post.collection]
             doc = self.to_dict()
