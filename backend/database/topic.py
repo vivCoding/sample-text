@@ -31,9 +31,7 @@ class Topic:
             col = db[Topic.collection]
             res = col.find_one(filters)
             if res is None:
-                topic = Topic(filters["name"])
-                topic.push()
-                return topic
+                return None
             return Topic(res["name"], res["posts"])
         except Exception as e:
             print(e)
