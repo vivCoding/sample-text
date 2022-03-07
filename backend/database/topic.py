@@ -6,7 +6,7 @@ class Topic:
     def __init__(self, name, posts = None) -> None:
         self.name = name
         if posts is None:
-            self.posts = list[str]
+            self.posts = []
 
     def push(self) -> bool:
         if Connection.client is None:
