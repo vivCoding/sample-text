@@ -73,7 +73,6 @@ class Post:
             col = db[Post.collection]
             filter = { "post_id" : self.post_id }
             pair = [username, comment]
-            #new_value = { "$push": {"comments": [{'username': {"username": username}}, {"comment": {"comment": comment}}]} }
             new_value = { "$push": {"comments": [{'username': username}, {"comment": comment}]} }
             col.update_one(filter, new_value, upsert=True)
             self.comments.append(pair)
