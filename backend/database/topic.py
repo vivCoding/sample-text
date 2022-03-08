@@ -5,7 +5,8 @@ class Topic:
 
     def __init__(self, name, posts = None) -> None:
         self.name = name
-        if posts is None:
+        self.posts = posts
+        if self.posts is None:
             self.posts = []
 
     def push(self) -> bool:
@@ -15,8 +16,8 @@ class Topic:
             db = Connection.client[Connection.database]
             col = db[Topic.collection]
             doc = {
-                "name" : self.name,
-                "posts" : self.posts
+                "name": self.name,
+                "posts": self.posts
             }
             col.insert_one(doc)
             return True
@@ -41,7 +42,7 @@ class Topic:
     def find_by_name(name: str):
         return Topic.find({"name": name})
 
-    def add_post(self, post_id) -> bool:
+    def add_post(self, post_id: str) -> bool:
         if Connection.client is None:
             return False
         try:
@@ -50,7 +51,7 @@ class Topic:
             db = Connection.client[Connection.database]
             col = db[Topic.collection]
             filter = { "name": self.name }
-            new_value = { "$push": { "posts": post_id } }
+            new_value = { "$push": { "posts": post_id}}
             col.update_one(filter, new_value)
             self.posts.append(post_id)
             return True

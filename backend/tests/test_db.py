@@ -2,10 +2,12 @@ import hashlib
 from database.user import User
 from runtests import mongodb
 from utils.generate_random import generate_good_topic, generate_topic, generate_user
+from database.topic import Topic
 
 good_user = generate_user(good=True)
 bad_user = generate_user(good=False)
 good_topic = generate_topic(good=True)
+post_id = generate_good_topic()
 
 def test_push_user(mongodb):
     hashed_password = hashlib.md5(good_user.password.encode()).hexdigest()
@@ -73,7 +75,9 @@ def test_delete_user_by_email(mongodb):
     assert User.find_by_email(good_user.email) is None, "User was not deleted"
 
 def test_push_topic(mongodb):
-    assert good_topic.push(), "Push new topic failed"
+    good_topic.push()
+    assert Topic.find_by_name(good_topic.name) is not None, "Push new topic failed"
 
 def test_add_post_to_topic(mongodb):
-    assert good_topic.add_post(generate_good_topic()), "Adding post to topic failed"
+    good_topic.add_post(post_id)
+    assert post_id in good_topic.posts, "Failed to add post"
