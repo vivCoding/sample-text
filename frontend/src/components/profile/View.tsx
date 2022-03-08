@@ -1,6 +1,8 @@
 import {
-    Button, Stack, Box, Container, Grid, Typography, Skeleton, CircularProgress,
+    Button, Stack, Box, Container, Grid, Typography, Skeleton, CircularProgress, Fab,
 } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import { useRouter } from 'next/router';
 import Helmet from '../common/Helmet';
 import UserNavbar from '../navbar/user';
 import ProfileAvatar from '../common/ProfileAvatar';
@@ -17,6 +19,12 @@ interface ProfileViewProps {
 const ProfileView = ({
     username, profile, loading, allowEdit,
 }: ProfileViewProps): JSX.Element => {
+    const router = useRouter()
+
+    const handleCreatePost = (): void => {
+        router.push('/post/create')
+    }
+
     if (loading || !username) {
         return (
             <Box>
@@ -49,13 +57,10 @@ const ProfileView = ({
         <Box>
             <Helmet title={`${username}'s Profile`} />
             <UserNavbar />
-            <Container sx={{ mt: 5 }}>
-                {/* <Typography variant="h4" fontWeight="light" sx={{ mb: 3 }}>{username}</Typography> */}
-                <Grid spacing={2} container>
-                    <Grid item xs={3}>
-                        <ProfileAvatar size={200} picture64={profile.profileImg} loading={loading} />
-                    </Grid>
-                    <Grid item xs={7} container>
+            <Container sx={{ mt: 5, width: '90vw' }}>
+                <Stack direction="row">
+                    <ProfileAvatar size={200} picture64={profile.profileImg} loading={loading} />
+                    <Grid rowSpacing={2} container sx={{ ml: 5 }}>
                         <Grid item xs={12}>
                             <Typography variant="h4">{profile.name}</Typography>
                             <Typography variant="body1" fontWeight="light">
@@ -72,7 +77,12 @@ const ProfileView = ({
                             </Grid>
                         )}
                     </Grid>
-                </Grid>
+                </Stack>
+                {allowEdit && (
+                    <Fab color="primary" aria-label="add" sx={{ position: 'absolute', bottom: 50, right: 50 }} onClick={handleCreatePost}>
+                        <AddIcon />
+                    </Fab>
+                )}
             </Container>
         </Box>
     )
