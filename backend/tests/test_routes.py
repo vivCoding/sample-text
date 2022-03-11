@@ -1,7 +1,9 @@
 import hashlib
+from pydoc_data.topics import topics
 from flask import session
 from runtests import test_client
 from database.user import User
+from database.post import Post
 from utils import generate_random
 from utils.encrypt import encrypt
 
@@ -276,6 +278,44 @@ def test_edit_profile(test_client):
     finally:
         if User.find_by_username(user.username):
             User.delete_by_username(user.username)
+        if "username" in session:
+            session.pop("username")
+        test_client.cookie_jar.clear()
+
+def test_post_creation(test_client):
+    try:
+        user = generate_random.generate_user(True)
+        response = test_client.post("/api/user/createaccount", json={
+            "username": user.username,
+            "email": user.email,
+            "password": user.password
+            })
+        data = response.json
+        assert response.status_code == 200, "Bad response, got " + str(response.status_code)
+        assert data["success"] == True, f"User creation test failed for: {str(user.to_dict())}, error: {data.get('error', None)}"
+        assert user.username == session.get("username", None), "User session not added for: " + user.username
+
+        post = Post(title="My second post", topics=["Games", "Streaming"], username="esl-csgo")
+        response = test_client.post("/api/post/createpost", json={
+            "title": post.title,
+            "topics": post.topics,
+            "username": post.username,
+            "img": post.img,
+            "caption": post.caption,
+            "anonymous": post.anonymous,
+            "likes": post.likes,
+            "comments": post.comments,
+            "date": post.date,
+            "post_id": post.post_id
+            })
+        data = response.json
+        assert response.status_code == 201, "Bad response, got " + str(response.status_code)
+        assert data["success"] == True, f"Post creation test failed for: {str(post.to_dict())}, error: {data.get('error', None)}"
+    finally:
+        if User.find_by_email(user.email):
+            User.delete_by_email(user.email)
+        if Post.find(post.post_id):
+            Post.delete(post.post_id)
         if "username" in session:
             session.pop("username")
         test_client.cookie_jar.clear()

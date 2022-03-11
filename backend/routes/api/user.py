@@ -258,3 +258,4 @@ def delete_user():
 	except Exception as e:
 		print(e)
 		return jsonify({"success": False }), 500
+		
