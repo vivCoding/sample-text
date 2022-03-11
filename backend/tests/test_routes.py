@@ -1,4 +1,4 @@
-import hashlib
+import json
 from pydoc_data.topics import topics
 from flask import session
 from runtests import test_client
@@ -309,8 +309,56 @@ def test_post_creation(test_client):
             "post_id": post.post_id
             })
         data = response.json
-        assert response.status_code == 201, "Bad response, got " + str(response.status_code)
+        post.post_id = data['data']['post_id']
+        assert response.status_code == 200, "Bad response, got " + str(response.status_code)
         assert data["success"] == True, f"Post creation test failed for: {str(post.to_dict())}, error: {data.get('error', None)}"
+    finally:
+        if User.find_by_email(user.email):
+            User.delete_by_email(user.email)
+        if Post.find(post.post_id):
+            Post.delete(post.post_id)
+        if "username" in session:
+            session.pop("username")
+        test_client.cookie_jar.clear()
+
+def test_post_deletion(test_client):
+    try:
+        # simulate logged in user
+        user = generate_random.generate_user(True)
+        response = test_client.post("/api/user/createaccount", json={
+            "username": user.username,
+            "email": user.email,
+            "password": user.password,
+        })
+        assert response.status_code == 200, "Bad create account reponse " + str(response.status_code)
+        # user creates a post
+        post = Post(title="My second post", topics=["Games", "Streaming"], username="esl-csgo")
+        response = test_client.post("/api/post/createpost", json={
+            "title": post.title,
+            "topics": post.topics,
+            "username": post.username,
+            "img": post.img,
+            "caption": post.caption,
+            "anonymous": post.anonymous,
+            "likes": post.likes,
+            "comments": post.comments,
+            "date": post.date,
+            "post_id": post.post_id
+            })
+        data = response.json
+        post.post_id = data['data']['post_id']
+        assert response.status_code == 200, "Bad response, got " + str(response.status_code)
+        assert data["success"] == True, f"Post creation test failed for: {str(post.to_dict())}, error: {data.get('error', None)}"
+        assert Post.find(post.post_id) is not None, "Post was not found in database"
+        # user deletes a post
+        response = test_client.post("/api/post/deletepost", json={
+            "post_id": post.post_id
+            })
+        data = response.json
+        assert response.status_code == 200, "Deletion response with status " + str(response.status_code) + " " + post.post_id + "POG"
+        assert data["success"] == True, f"Delete post test failed for user {post.post_id}, got success {data.get('success', None)} and error {data.get('error', None)}"
+        deleted_post = Post.find(post.post_id)
+        assert deleted_post is None, f"Post deletion failed for {post.post_id}, still in database!"
     finally:
         if User.find_by_email(user.email):
             User.delete_by_email(user.email)

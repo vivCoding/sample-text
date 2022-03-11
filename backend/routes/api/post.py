@@ -46,3 +46,21 @@ def create_post():
 		print (e)
 		return jsonify({"success": False }), 500
 
+@post_blueprint.route('/deletepost', methods=["POST"])
+def delete_post():
+	# do not proceed if user is not logged in
+	# if they are logged in, they should have their username in their session cookie
+	if session.get('username') is None:
+		return jsonify({ "success": False }), 401
+	try:
+		data = request.get_json()
+		post_id = data["post_id"]
+		post = Post.find(post_id)
+		if post is not None:
+			Post.delete(post_id)
+			return jsonify({ "success": True }), 200
+		return jsonify({ "success": False }), 404
+	except Exception as e:
+		print(e)
+		return jsonify({"success": False }), 500
+		
