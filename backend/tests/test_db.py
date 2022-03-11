@@ -79,9 +79,11 @@ def test_post(mongodb):
     post.push()
     assert post.post_id == Post.find(post.post_id).post_id, "Could not find post"
     # test update likes
-    likes = post.likes
-    post.like()
-    assert Post.find(post.post_id).likes == likes + 1, "Likes was not updated"
+    likeCount = len(post.likes)
+    post.like("emiru")
+    post.like("emiru")
+    post.like("tyler1")
+    assert len(Post.find(post.post_id).likes) == likeCount + 2, "Likes was not updated correctly"
     # test add comment
     pair = ["xqcow1", "epic post dude! wow!"]
     post.add_comment(username=pair[0], comment=pair[1])

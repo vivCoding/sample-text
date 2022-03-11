@@ -6,7 +6,7 @@ class Post:
     collection = "posts"
 
     def __init__(self, title, topics, username, img="", caption="", anonymous=False, 
-    likes=0, comments=[], date=datetime.now().strftime("%m/%d/%Y, %H:%M"), post_id=""
+    likes=[], comments=[], date=datetime.now().strftime("%m/%d/%Y, %H:%M"), post_id=""
     ) -> None:
         self.title = title
         self.topics = topics
@@ -54,14 +54,15 @@ class Post:
             return False
 
     # Updates this object's likes in MongoDB, and returns whether it was successful
-    def like(self) -> bool:
+    def like(self, username: str) -> bool:
         try: 
             db = Connection.client[Connection.database]
             col = db[Post.collection]
             filter = { "post_id" : self.post_id }
-            new_value = { "$set": { "likes": self.likes + 1 } }
-            col.update_one(filter, new_value)
-            self.likes += 1
+            new_value = { "$addToSet": { "likes": username } }
+            col.update_one(filter, new_value, upsert=True)
+            if username not in self.likes:
+                self.likes.append(username)
             return True
         except Exception as e:
             print (e)
