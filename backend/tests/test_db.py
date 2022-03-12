@@ -75,9 +75,14 @@ def test_delete_user_by_email(mongodb):
     assert User.find_by_email(good_user.email) is None, "User was not deleted"
 
 def test_push_topic(mongodb):
-    good_topic.push()
-    assert Topic.find_by_name(good_topic.name) is not None, "Push new topic failed"
+    assert good_topic.push() and Topic.find_by_name(good_topic.name) is not None, "Push new topic failed"
 
 def test_add_post_to_topic(mongodb):
-    good_topic.add_post(post_id)
-    assert post_id in good_topic.posts, "Failed to add post"
+    assert good_topic.add_post(post_id) and post_id in good_topic.posts, "Failed to add post"
+
+def test_remove_post_from_topic(mongodb):
+    assert good_topic.remove_post(post_id) and post_id not in good_topic.posts, "Failed to delete post"
+
+def test_delete_topic(mongodb):
+    Topic.delete(good_topic.name)
+    assert Topic.find_by_name(good_topic.name) is None, "Topic was not deleted"
