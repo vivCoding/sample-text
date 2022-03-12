@@ -1,6 +1,9 @@
 from calendar import c
+
+from jinja2 import pass_eval_context
 from .connect import Connection
 from datetime import datetime
+from database.user import User
 
 class Post:
     collection = "posts"
@@ -38,7 +41,6 @@ class Post:
         if Connection.client is None:
             return False
         try: 
-            # TODO: add this post to a list for user with this username
             db = Connection.client[Connection.database]
             col = db[Post.collection]
             doc = self.to_dict()
@@ -48,6 +50,13 @@ class Post:
             filter = { "_id" : _id }
             new_value = { "$set": { "post_id": self.post_id } }
             col.update_one(filter, new_value)
+            # add this post to a list for user with this username
+            user = User.find_by_username(self.username)
+            if user is not None:
+                user.add_post(self.post_id)
+            else:
+                print("Cannot find the user who made this post")
+                return False
             return True
         except Exception as e:
             print (e)

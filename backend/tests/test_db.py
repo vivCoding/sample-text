@@ -75,9 +75,12 @@ def test_delete_user_by_email(mongodb):
 
 def test_post(mongodb):
     # test post creation
-    post = Post(title="My second post", topics=["Games", "Streaming"], username="esl-csgo")
+    if User.find_by_username(good_user.email) is None:
+        good_user.push()
+    post = Post(title="My first post", topics=["Games", "Streaming"], username=good_user.username)
     post.push()
     assert post.post_id == Post.find(post.post_id).post_id, "Could not find post"
+    assert post.post_id in User.find_by_username(good_user.username).posts, "Post was not added to the user"
     # test update likes
     likeCount = len(post.likes)
     post.like("emiru")
@@ -91,3 +94,4 @@ def test_post(mongodb):
     # test post deletion
     Post.delete(post.post_id)
     assert Post.find(post.post_id) is None, "Post was not deleted"
+    User.delete_by_username(good_user.username)
