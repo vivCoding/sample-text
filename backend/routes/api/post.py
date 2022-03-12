@@ -64,6 +64,28 @@ def delete_post():
 		print(e)
 		return jsonify({"success": False }), 500
 
+@post_blueprint.route('/getpost', methods=["POST"])
+def get_post():
+	# do not proceed if user is not logged in
+	# if they are logged in, they should have their username in their session cookie
+	username = session.get('username', None)
+	if username is None:
+		return jsonify({ "success": False }), 401
+	try:
+		data = request.get_json()
+		post_id = data["post_id"]
+		post = Post.find(post_id)
+		if post is not None:
+			return jsonify({
+				"success": True,
+				"data": post.to_dict()
+			}), 200
+		else:
+			return jsonify({ "success": False }), 404
+	except Exception as e:
+		print (e)
+		return jsonify({"success": False }), 500
+
 @post_blueprint.route('/likepost', methods=["POST"])
 def like_post():
 	# do not proceed if user is not logged in
@@ -86,3 +108,25 @@ def like_post():
 		print(e)
 		return jsonify({"success": False }), 500
 
+@post_blueprint.route('/commentonpost', methods=["POST"])
+def comment_on_post():
+	# do not proceed if user is not logged in
+	# if they are logged in, they should have their username in their session cookie
+	username = session.get('username', None)
+	if session.get('username') is None:
+		return jsonify({ "success": False }), 401
+	try:
+		data = request.get_json()
+		post_id = data["post_id"]
+		comment = data["comment"]
+		post = Post.find(post_id)
+		if post is not None:
+			post.add_comment(username, comment)
+			return jsonify({
+				"success": True,
+				"data": { "comments": post.comments }
+			}), 200
+		return jsonify({ "success": False }), 404
+	except Exception as e:
+		print(e)
+		return jsonify({"success": False }), 500

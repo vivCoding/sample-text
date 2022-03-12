@@ -368,7 +368,7 @@ def test_post_deletion(test_client):
             session.pop("username")
         test_client.cookie_jar.clear()
 
-def test_post_like(test_client):
+def test_like_post(test_client):
     try:
         # simulate logged in user
         user = generate_random.generate_user(True)
@@ -414,3 +414,39 @@ def test_post_like(test_client):
         if "username" in session:
             session.pop("username")
         test_client.cookie_jar.clear()
+
+def test_comment_on_post(test_client):
+    # simulate logged in user
+    user = generate_random.generate_user(True)
+    response = test_client.post("/api/user/createaccount", json={
+        "username": user.username,
+        "email": user.email,
+        "password": user.password,
+    })
+    assert response.status_code == 200, "Bad create account reponse " + str(response.status_code)
+    # user creates a post
+    post = Post(title="My second post", topics=["Games", "Streaming"], username="esl-csgo")
+    response = test_client.post("/api/post/createpost", json={
+        "title": post.title,
+        "topics": post.topics,
+        "username": post.username,
+        "img": post.img,
+        "caption": post.caption,
+        "anonymous": post.anonymous,
+        "likes": post.likes,
+        "comments": post.comments,
+        "date": post.date,
+        "post_id": post.post_id
+        })
+    data = response.json
+    post.post_id = data['data']['post_id']
+    assert response.status_code == 200, "Bad response, got " + str(response.status_code)
+    assert data["success"] == True, f"Post creation test failed for: {str(post.to_dict())}, error: {data.get('error', None)}"
+    assert Post.find(post.post_id) is not None, "Post was not found in database"
+    # comment on a post
+    response = test_client.post("/api/post/commentonpost", json={
+        "post_id": post.post_id,
+        "comment": "This is a test comment"
+        })
+    data = response.json
+    assert [user.username, "This is a test comment"] in data["data"]["comments"], "Comment was not added correctly"
