@@ -443,10 +443,22 @@ def test_comment_on_post(test_client):
     assert response.status_code == 200, "Bad response, got " + str(response.status_code)
     assert data["success"] == True, f"Post creation test failed for: {str(post.to_dict())}, error: {data.get('error', None)}"
     assert Post.find(post.post_id) is not None, "Post was not found in database"
-    # comment on a post
+    # valid comment on a post
+    comment = "This is a valid comment"
     response = test_client.post("/api/post/commentonpost", json={
         "post_id": post.post_id,
-        "comment": "This is a test comment"
+        "comment": comment
         })
     data = response.json
-    assert [user.username, "This is a test comment"] in data["data"]["comments"], "Comment was not added correctly"
+    assert response.status_code == 200, "Bad response, got " + str(response.status_code)
+    assert data["success"] == True, f"Comment on post test failed for: {comment}, error: {data.get('errorMessage', None)}"
+    assert [user.username, comment] in data["data"]["comments"], "Comment was not added correctly"
+    # invalid comment on a post
+    comment = ""
+    response = test_client.post("/api/post/commentonpost", json={
+        "post_id": post.post_id,
+        "comment": comment
+        })
+    data = response.json
+    assert response.status_code == 200, "Bad response, got " + str(response.status_code)
+    assert data["success"] == False, f"Comment on post test succeeded for: {comment}, error: {data.get('errorMessage', None)}"
