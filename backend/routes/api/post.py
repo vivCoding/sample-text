@@ -117,16 +117,20 @@ def comment_on_post():
 		return jsonify({ "success": False }), 401
 	try:
 		data = request.get_json()
-		post_id = data["post_id"]
-		comment = data["comment"]
-		post = Post.find(post_id)
-		if post is not None:
-			post.add_comment(username, comment)
-			return jsonify({
-				"success": True,
-				"data": { "comments": post.comments }
-			}), 200
-		return jsonify({ "success": False }), 404
+		status, error_message = check_comment(data["comment"])
+		if status == 0:
+			post_id = data["post_id"]
+			comment = data["comment"]
+			post = Post.find(post_id)
+			if post is not None:
+				post.add_comment(username, comment)
+				return jsonify({
+					"success": True,
+					"data": { "comments": post.comments }
+				}), 200
+			return jsonify({ "success": False }), 404
+		else:
+			return jsonify({ "success": False,"error": status, "errorMessage": error_message }), 200
 	except Exception as e:
 		print(e)
 		return jsonify({"success": False }), 500
