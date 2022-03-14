@@ -40,7 +40,13 @@ def create_post():
 				new_post.push()
 				# add this post under its topic in the database
 				parent_topic = Topic.find_by_name(new_post.topic)
-				parent_topic.add_post(new_post.post_id)
+				if parent_topic is None:
+					# create the topic and add the post to it
+					parent_topic = Topic(new_post.topic, [new_post.post_id])
+					parent_topic.push()
+				else:
+					# topic exists, so add the post to it
+					parent_topic.add_post(new_post.post_id)
 				return jsonify({ "success": True, "data": new_post.to_dict() }), 200
 			else:
 				return jsonify({ "success": False,"error": status, "errorMessage": error_message }), 200
