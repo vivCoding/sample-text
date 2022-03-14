@@ -9,6 +9,12 @@ class Topic:
         if self.posts is None:
             self.posts = []
 
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "posts": self.posts
+        }
+
     def push(self) -> bool:
         if Connection.client is None:
             return False
