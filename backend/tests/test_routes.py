@@ -341,7 +341,7 @@ def test_topic_creation(test_client):
         if Topic.find_by_name(topic.topic_name):
             Topic.delete(topic.topic_name)
 
-def test_topic_find(test_client):
+def test_find_topic(test_client):
     try:
         topic = generate_random.generate_topic(True)
         response = test_client.post("/api/topic/createtopic", json={
