@@ -295,3 +295,24 @@ def test_topic_creation(test_client):
     finally:
         if Topic.find_by_name(topic.name):
             Topic.delete(topic.name)
+
+def test_topic_find(test_client):
+    try:
+        topic = generate_random.generate_topic(True)
+        response = test_client.post("/api/topic/createtopic", json={
+            "name": topic.name,
+            "posts": topic.posts
+        })
+
+        assert response.status_code == 200, "Bad create topic response, got " + str(response.status_code)
+
+        response = test_client.post("/api/topic/findtopic", json={
+            "name": topic.name
+        })
+        data = response.json
+
+        assert response.status_code == 200, "Bad finding topic response, got " + str(response.status_code)
+        assert data["success"] == True, f"Finding existing topic failed for {topic.name}, got success {data.get('success', None)} and error {data.get('error', None)}"
+    finally:
+        if Topic.find_by_name(topic.name):
+            Topic.delete(topic.name)
