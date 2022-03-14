@@ -3,6 +3,7 @@ from utils.encrypt import encrypt
 from utils.validate_fields import check_post_fields, check_comment
 from database.user import User
 from database.post import Post
+from database.topic import Topic
 
 post_blueprint = Blueprint("post", __name__)
 
@@ -37,6 +38,9 @@ def create_post():
 					data["post_id"]
 				)
 				new_post.push()
+				# add this post under its topic in the database
+				parent_topic = Topic.find_by_name(new_post.topic)
+				parent_topic.add_post(new_post.post_id)
 				return jsonify({ "success": True, "data": new_post.to_dict() }), 200
 			else:
 				return jsonify({ "success": False,"error": status, "errorMessage": error_message }), 200
