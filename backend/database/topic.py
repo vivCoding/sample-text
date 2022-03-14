@@ -3,15 +3,15 @@ from .connect import Connection
 class Topic:
     collection = "topics"
 
-    def __init__(self, name, posts = None) -> None:
-        self.name = name
+    def __init__(self, topic_name, posts = None) -> None:
+        self.topic_name = topic_name
         self.posts = posts
         if self.posts is None:
             self.posts = []
 
     def to_dict(self):
         return {
-            "name": self.name,
+            "topic_name": self.topic_name,
             "posts": self.posts
         }
 
@@ -22,7 +22,7 @@ class Topic:
             db = Connection.client[Connection.database]
             col = db[Topic.collection]
             doc = {
-                "name": self.name,
+                "topic_name": self.topic_name,
                 "posts": self.posts
             }
             col.insert_one(doc)
@@ -39,21 +39,21 @@ class Topic:
             res = col.find_one(filters)
             if res is None:
                 return None
-            return Topic(res["name"], res["posts"])
+            return Topic(res["topic_name"], res["posts"])
         except Exception as e:
             print(e)
             return None
 
     @staticmethod
-    def find_by_name(name: str):
-        return Topic.find({"name": name})
+    def find_by_name(topic_name: str):
+        return Topic.find({"topic_name": topic_name})
 
     @staticmethod
-    def delete(name: str):
+    def delete(topic_name: str):
         try:
             db = Connection.client[Connection.database]
             col = db[Topic.collection]
-            res = col.find_one({"name": name})
+            res = col.find_one({"topic_name": topic_name})
             col.delete_one(res)
         except Exception as e:
             print(e)
@@ -67,7 +67,7 @@ class Topic:
                 return True
             db = Connection.client[Connection.database]
             col = db[Topic.collection]
-            filter = { "name": self.name }
+            filter = { "topic_name": self.topic_name }
             new_value = { "$push": { "posts": post_id}}
             col.update_one(filter, new_value)
             self.posts.append(post_id)
@@ -84,7 +84,7 @@ class Topic:
                 return True
             db = Connection.client[Connection.database]
             col = db[Topic.collection]
-            filter = { "name": self.name }
+            filter = { "topic_name": self.topic_name }
             new_value = { "$pull": { "posts": post_id}}
             col.update_one(filter, new_value)
             self.posts.remove(post_id)
