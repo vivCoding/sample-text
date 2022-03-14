@@ -278,7 +278,7 @@ def follow_user():
 		return jsonify({"success": False }), 500
 
 @user_blueprint.route('/unfollowuser', methods=["POST"])
-def follow_user():
+def unfollow_user():
 	id = session.get('id', None)
 	if id is None:
 		return jsonify({ "success": False }), 401
