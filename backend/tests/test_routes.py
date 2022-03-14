@@ -2,6 +2,7 @@ import hashlib
 from flask import session
 from runtests import test_client
 from database.user import User
+from database.topic import Topic
 from utils import generate_random
 from utils.encrypt import encrypt
 
@@ -279,3 +280,18 @@ def test_edit_profile(test_client):
         if "username" in session:
             session.pop("username")
         test_client.cookie_jar.clear()
+
+def test_topic_creation(test_client):
+    try:
+        topic = generate_random.generate_topic(True)
+        response = test_client.post("/api/topic/createtopic", json={
+            "name": topic.name,
+            "posts": topic.posts
+            })
+        data = response.json
+
+        assert response.status_code == 200, "Bad response, got " + str(response.status_code)
+        assert data["success"] == True, f"Topic creation test failed for: {str(topic.to_dict())}, error: {data.get('error', None)}"
+    finally:
+        if Topic.find_by_name(topic.name):
+            Topic.delete(topic.name)
