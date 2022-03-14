@@ -83,6 +83,14 @@ def test_add_post_to_topic(mongodb):
 def test_remove_post_from_topic(mongodb):
     assert good_topic.remove_post(post_id) and post_id not in good_topic.posts, "Failed to delete post"
 
+def test_follow_topic(mongodb):
+    if User.find_by_email(good_user.email) is None:
+        good_user.push()
+    assert good_user.follow_topic(good_topic.name) and good_topic.name in good_user.followed_topics, "Failed to follow topic"
+
+def test_unfollow_topic(mongodb):
+    assert good_user.unfollow_topic(good_topic.name) and good_topic.name not in good_user.followed_topics, "Failed to unfollow topic"
+
 def test_delete_topic(mongodb):
     Topic.delete(good_topic.name)
     assert Topic.find_by_name(good_topic.name) is None, "Topic was not deleted"
