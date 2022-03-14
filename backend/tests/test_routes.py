@@ -1,5 +1,4 @@
 import json
-from pydoc_data.topics import topics
 from flask import session
 from runtests import test_client
 from database.user import User
@@ -295,10 +294,10 @@ def test_post_creation(test_client):
         assert data["success"] == True, f"User creation test failed for: {str(user.to_dict())}, error: {data.get('error', None)}"
         assert user.username == session.get("username", None), "User session not added for: " + user.username
 
-        post = Post(title="My second post", topics=["Games", "Streaming"], username="esl-csgo")
+        post = Post(title="My second post", topic="Games", username="esl-csgo")
         response = test_client.post("/api/post/createpost", json={
             "title": post.title,
-            "topics": post.topics,
+            "topic": post.topic,
             "username": post.username,
             "img": post.img,
             "caption": post.caption,
@@ -332,10 +331,10 @@ def test_post_deletion(test_client):
         })
         assert response.status_code == 200, "Bad create account reponse " + str(response.status_code)
         # user creates a post
-        post = Post(title="My second post", topics=["Games", "Streaming"], username="esl-csgo")
+        post = Post(title="My second post", topic="Games", username="esl-csgo")
         response = test_client.post("/api/post/createpost", json={
             "title": post.title,
-            "topics": post.topics,
+            "topic": post.topic,
             "username": post.username,
             "img": post.img,
             "caption": post.caption,
@@ -379,10 +378,10 @@ def test_like_post(test_client):
         })
         assert response.status_code == 200, "Bad create account reponse " + str(response.status_code)
         # user creates a post
-        post = Post(title="My second post", topics=["Games", "Streaming"], username="esl-csgo")
+        post = Post(title="My second post", topic="Games", username="esl-csgo")
         response = test_client.post("/api/post/createpost", json={
             "title": post.title,
-            "topics": post.topics,
+            "topic": post.topic,
             "username": post.username,
             "img": post.img,
             "caption": post.caption,
@@ -425,10 +424,10 @@ def test_comment_on_post(test_client):
     })
     assert response.status_code == 200, "Bad create account reponse " + str(response.status_code)
     # user creates a post
-    post = Post(title="My second post", topics=["Games", "Streaming"], username="esl-csgo")
+    post = Post(title="My second post", topic="Games", username="esl-csgo")
     response = test_client.post("/api/post/createpost", json={
         "title": post.title,
-        "topics": post.topics,
+        "topic": post.topic,
         "username": post.username,
         "img": post.img,
         "caption": post.caption,

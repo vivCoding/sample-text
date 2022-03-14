@@ -26,7 +26,7 @@ def create_post():
 			if status == 0:
 				new_post = Post(
 					data["title"],
-					data["topics"],
+					data["topic"],
 					data["username"],
 					data["img"],
 					data["caption"],

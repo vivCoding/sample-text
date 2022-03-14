@@ -8,11 +8,11 @@ from database.user import User
 class Post:
     collection = "posts"
 
-    def __init__(self, title, topics, username, img="", caption="", anonymous=False, 
+    def __init__(self, title, topic, username, img="", caption="", anonymous=False, 
     likes=[], comments=[], date=datetime.now().strftime("%m/%d/%Y, %H:%M"), post_id=""
     ) -> None:
         self.title = title
-        self.topics = topics
+        self.topic = topic
         self.username = username
         self.img = img
         self.caption = caption
@@ -26,7 +26,7 @@ class Post:
         return {
             "post_id": self.post_id,
             "title" : self.title,
-            "topics" : self.topics,
+            "topic" : self.topic,
             "username": self.username,
             "img": self.img,
             "caption": self.caption,
@@ -103,7 +103,7 @@ class Post:
                 return None
             return Post(
                 res["title"],
-                res["topics"],
+                res["topic"],
                 res["username"],
                 res["img"],
                 res["caption"],
