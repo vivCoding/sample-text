@@ -279,7 +279,7 @@ def follow_topic():
 
 @user_blueprint.route('/unfollowtopic', methods=["POST"])
 def unfollow_topic():
-	username = session.get('uesrname', None)
+	username = session.get('username', None)
 	if session.get('username') is None:
 		return jsonify({ "success": False }), 401
 	try:

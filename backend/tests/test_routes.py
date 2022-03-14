@@ -281,7 +281,7 @@ def test_edit_profile(test_client):
             session.pop("username")
         test_client.cookie_jar.clear()
 
-def test_follow_topic(test_client):
+def test_topic_followunfollow(test_client):
     try:
         user = generate_random.generate_user(True)
         response = test_client.post('api/user/createaccount', json={
@@ -309,6 +309,16 @@ def test_follow_topic(test_client):
         assert data["success"], f"Following topic test failed, got success {data.get('success', None)}"
 
         assert topic.topic_name in user.followed_topics, "Mismatch between db!"
+
+        response = test_client.post('api/user/unfollowtopic', json={
+            "topic_name": topic.topic_name
+        })
+        data = response.json
+
+        assert response.status_code == 200, "Bad response for unfollowing a topic " + str(response.status_code)
+        assert data["success"], f"Unfollowing topic test failed, got success {data.get('success', None)}"
+
+        assert topic.topic_name not in user.followed_topics, "Mismatch between db!"
     finally:
         if User.find_by_username(user.username):
             User.delete_by_username(user.username)
