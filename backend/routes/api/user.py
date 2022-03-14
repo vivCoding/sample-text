@@ -258,3 +258,39 @@ def delete_user():
 	except Exception as e:
 		print(e)
 		return jsonify({"success": False }), 500
+
+@user_blueprint.route('/followtopic', methods=["POST"])
+def follow_topic():
+	username = session.get('username', None)
+	if session.get('username') is None:
+		return jsonify({ "success": False }), 401
+	try:
+		data = request.get_json()
+		user = User.find_by_username(username)
+		if user is not None:
+			if user.follow_topic(data["topic_name"]):
+				return jsonify({ "success": True }), 200
+			else:
+				return jsonify({ "success": False }), 200
+		return jsonify({ "success": False }), 404
+	except Exception as e:
+		print(e)
+		return jsonify({ "success": False }), 500
+
+@user_blueprint.route('/unfollowtopic', methods=["POST"])
+def unfollow_topic():
+	username = session.get('uesrname', None)
+	if session.get('username') is None:
+		return jsonify({ "success": False }), 401
+	try:
+		data = request.get_json()
+		user = User.find_by_username(username)
+		if user is not None:
+			if user.unfollow_topic(data["topic_name"]):
+				return jsonify({ "success": True }), 200
+			else:
+				return jsonify({ "success": False }), 200
+		return jsonify({ "Success": False }), 404
+	except Exception as e:
+		print(e)
+		return jsonify({ "success": False }), 500

@@ -127,6 +127,7 @@ class User:
             self.profile_img = old_profile_img
             return False
 
+    # Tries following a topic, returns whether it was successful
     def follow_topic(self, topic_name) -> bool:
         if Connection.client is None:
             return False
@@ -144,6 +145,7 @@ class User:
             print(e)
             return False
         
+    # Tries unfollowing a topic, returns whether it was successful
     def unfollow_topic(self, topic_name) -> bool:
         if Connection.client is None:
             return False
