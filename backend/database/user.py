@@ -4,7 +4,7 @@ from bson.objectid import ObjectId
 class User:
     collection = "users"
 
-    def __init__(self, username, email, password, id=None, name="", bio="", profile_img="") -> None:
+    def __init__(self, username, email, password, id=None, name="", bio="", profile_img="", following=[], followers=[]) -> None:
         self.id = id
         self.username = username
         self.email = email
@@ -12,8 +12,8 @@ class User:
         self.name = name
         self.bio = bio
         self.profile_img = profile_img
-        self.following = []
-        self.followers = []
+        self.following = following
+        self.followers = followers
 
     def __eq__(self, other) -> bool:
         if isinstance(other, User):
@@ -26,7 +26,9 @@ class User:
             "email": self.email,
             "name": self.name,
             "bio": self.bio,
-            "profileImg": self.profile_img
+            "profileImg": self.profile_img,
+            "followers": self.followers,
+            "following": self.following
         }
 
     # Pushes this object to MongoDB, and returns whether it was successful
@@ -203,7 +205,7 @@ class User:
             res = col.find_one(filters)
             if res is None:
                 return None
-            return User(res["username"], res["email"], res["password"], str(res["_id"]), res["name"], res["bio"], res["profile_img"])
+            return User(res["username"], res["email"], res["password"], str(res["_id"]), res["name"], res["bio"], res["profile_img"], res["following"], res["followers"])
         except Exception as e:
             print (e)
             return None
