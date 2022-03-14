@@ -131,6 +131,9 @@ class User:
         if Connection.client is None:
             return False
         try:
+            if topic_name in self.followed_topics:
+                return True
+                
             db = Connection.client[Connection.database]
             col = db[User.collection]
             new_value = { "$push": { "followed_topics": topic_name } }
