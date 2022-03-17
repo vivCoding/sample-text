@@ -91,6 +91,9 @@ def test_post(mongodb):
     pair = ["xqcow1", "epic post dude! wow!"]
     post.add_comment(username=pair[0], comment=pair[1])
     assert pair in post.comments, "Comment was not added"
+    # test save post
+    good_user.save_post(post.post_id)
+    assert post.post_id in good_user.saved_posts, "Post was not saved"
     # test post deletion
     Post.delete(post.post_id)
     assert Post.find(post.post_id) is None, "Post was not deleted"

@@ -461,3 +461,50 @@ def test_comment_on_post(test_client):
     data = response.json
     assert response.status_code == 200, "Bad response, got " + str(response.status_code)
     assert data["success"] == False, f"Comment on post test succeeded for: {comment}, error: {data.get('errorMessage', None)}"
+
+def test_save_post(test_client):
+    try:
+        user = generate_random.generate_user(True)
+        response = test_client.post("/api/user/createaccount", json={
+            "username": user.username,
+            "email": user.email,
+            "password": user.password
+            })
+        data = response.json
+        assert response.status_code == 200, "Bad response, got " + str(response.status_code)
+        assert data["success"] == True, f"User creation test failed for: {str(user.to_dict())}, error: {data.get('error', None)}"
+        assert user.username == session.get("username", None), "User session not added for: " + user.username
+
+        post = Post(title="My second post", topic="Games", username="esl-csgo")
+        response = test_client.post("/api/post/createpost", json={
+            "title": post.title,
+            "topic": post.topic,
+            "username": post.username,
+            "img": post.img,
+            "caption": post.caption,
+            "anonymous": post.anonymous,
+            "likes": post.likes,
+            "comments": post.comments,
+            "date": post.date,
+            "post_id": post.post_id
+            })
+        data = response.json
+        post.post_id = data['data']['post_id']
+        assert response.status_code == 200, "Bad response, got " + str(response.status_code)
+        assert data["success"] == True, f"Post creation test failed for: {str(post.to_dict())}, error: {data.get('error', None)}"
+        # try saving this post
+        response = test_client.post("/api/post/savepost", json={
+            "post_id": post.post_id,
+            })
+        data = response.json
+        assert response.status_code == 200, "Bad response, got " + str(response.status_code)
+        assert data["success"] == True, f"Save post test failed for: {post.post_id}, error: {data.get('errorMessage', None)}"
+        assert post.post_id in data["data"]["saved_posts"], "Post was not saved correctly"
+    finally:
+        if User.find_by_email(user.email):
+            User.delete_by_email(user.email)
+        if Post.find(post.post_id):
+            Post.delete(post.post_id)
+        if "username" in session:
+            session.pop("username")
+        test_client.cookie_jar.clear()

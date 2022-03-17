@@ -3,7 +3,7 @@ from .connect import Connection
 class User:
     collection = "users"
 
-    def __init__(self, username, email, password, name="", bio="", profile_img="", posts=[]) -> None:
+    def __init__(self, username, email, password, name="", bio="", profile_img="", posts=[], saved_posts=[]) -> None:
         self.username = username
         self.email = email
         self.password = password
@@ -11,6 +11,7 @@ class User:
         self.bio = bio
         self.profile_img = profile_img
         self.posts = posts
+        self.saved_posts = saved_posts
 
     def __eq__(self, other) -> bool:
         if isinstance(other, User):
@@ -24,7 +25,8 @@ class User:
             "name": self.name,
             "bio": self.bio,
             "profileImg": self.profile_img,
-            "posts": self.posts
+            "posts": self.posts,
+            "saved_posts": self.saved_posts
         }
 
     # Pushes this object to MongoDB, and returns whether it was successful
@@ -41,7 +43,8 @@ class User:
                 "name": self.name,
                 "bio": self.bio,
                 "profile_img": self.profile_img,
-                "posts": self.posts
+                "posts": self.posts,
+                "saved_posts": self.saved_posts
             }
             col.insert_one(doc)
             return True
@@ -93,6 +96,23 @@ class User:
             col.update_one(filter, new_value, upsert=True)
             if post_id not in self.posts:
                 self.posts.append(post_id)
+            return True
+        except Exception as e:
+            print (e)
+            return False
+
+    # Adds a post to this object's list of saved posts in MongoDB, and returns whether it was successful
+    def save_post(self, post_id) -> bool:
+        if Connection.client is None:
+            return False
+        try: 
+            db = Connection.client[Connection.database]
+            col = db[User.collection]
+            filter = { "username" : self.username }
+            new_value = { "$addToSet": { "saved_posts": post_id } }
+            col.update_one(filter, new_value, upsert=True)
+            if post_id not in self.saved_posts:
+                self.saved_posts.append(post_id)
             return True
         except Exception as e:
             print (e)
@@ -153,7 +173,7 @@ class User:
             res = col.find_one(filters)
             if res is None:
                 return None
-            return User(res["username"], res["email"], res["password"], res["name"], res["bio"], res["profile_img"], res["posts"])
+            return User(res["username"], res["email"], res["password"], res["name"], res["bio"], res["profile_img"], res["posts"], res["saved_posts"])
         except Exception as e:
             print (e)
             return None
