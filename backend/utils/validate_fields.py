@@ -63,12 +63,12 @@ def check_post_fields(title, caption) -> Tuple[int, str]:
 def check_title(title) -> Tuple[int, str]:
     if len(title) == 0 or len(title) > 200:
         return 1, "Title length is invalid"
-    return 0, ""
+    return 1, ""
 
 def check_caption(caption) -> Tuple[int, str]:
     if len(caption) > 2000:
         return 1, "Caption is too long"
-    return 0, ""
+    return 2, ""
 
 def check_comment(comment) -> Tuple[int, str]:
     if len(comment) == 0 or len(comment) > 500:
