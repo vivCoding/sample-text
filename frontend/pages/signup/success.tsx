@@ -14,14 +14,11 @@ import StyledTextField from '../../src/components/common/StyledTextField';
 import ProfileAvatar from '../../src/components/common/ProfileAvatar'
 import ImageUpload from '../../src/components/common/ImageUpload'
 import UserNavbar from '../../src/components/navbar/user';
-
 import { LENGTH_LIMIT, PFP_LIMIT_MB } from '../../src/constants/formLimit';
 import { ReduxStoreType } from '../../src/types/redux';
 import { setCurrentProfile } from '../../src/store';
 import { editProfile } from '../../src/api/user/profile';
 import { TOAST_OPTIONS } from '../../src/constants/toast';
-
-import 'react-toastify/dist/ReactToastify.min.css'
 
 const SignupSuccess: NextPage = () => {
     const router = useRouter()

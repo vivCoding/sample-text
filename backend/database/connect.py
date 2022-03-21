@@ -1,4 +1,3 @@
-from http import client
 from pymongo import MongoClient, IndexModel, ASCENDING
 from os import getenv
 

@@ -28,6 +28,7 @@ import { editProfile } from '../../src/api/user/profile';
 import { TOAST_OPTIONS } from '../../src/constants/toast';
 import { deleteUser, getUser } from '../../src/api/user';
 import PasswordField from '../../src/components/common/PasswordField';
+import BackButton from '../../src/components/common/BackButton';
 
 const Settings: NextPage = () => {
     const router = useRouter()
@@ -241,13 +242,14 @@ const Settings: NextPage = () => {
             <Helmet title="Settings" />
             <UserNavbar />
             <Container maxWidth="md" sx={{ mt: 6, mb: 20 }}>
+                <BackButton />
                 <Typography variant="h3" fontWeight="300" sx={{ mr: 1, textAlign: 'center', width: '100%' }}>
                     Settings
                 </Typography>
                 <Container maxWidth="md" sx={{ mt: 6 }}>
                     <Typography
                         variant="h4"
-                        sx={{ mt: 5, mb: 3, ml: 0.5 }}
+                        sx={{ mt: 5, mb: 3 }}
                         fontWeight="light"
                     >
                         Profile
@@ -288,7 +290,7 @@ const Settings: NextPage = () => {
                     </Paper>
                     <Typography
                         variant="h4"
-                        sx={{ mt: 10, mb: 3, ml: 0.5 }}
+                        sx={{ mt: 10, mb: 3 }}
                         fontWeight="light"
                     >
                         Account

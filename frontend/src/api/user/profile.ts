@@ -5,7 +5,7 @@ import { userFetcher } from '.'
 import { setCurrentProfile } from '../../store'
 import { ProfileFetcherResponseType, ProfileHookResponseType, ProfileResponseType } from '../../types/api/user'
 import { ProfileType } from '../../types/user'
-import client from '../httpClient'
+import client from '../client'
 import { useUserAccount } from './account'
 
 export const getProfile = async (username: string): Promise<ProfileResponseType> => {

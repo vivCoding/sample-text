@@ -4,8 +4,8 @@ export const LENGTH_LIMIT = {
         BIO: 60,
     },
     POST: {
-        TITLE: 25,
-        BODY: 900,
+        TITLE: 200,
+        BODY: 2000,
     },
 }
 

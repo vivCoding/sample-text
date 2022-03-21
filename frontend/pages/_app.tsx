@@ -9,6 +9,8 @@ import theme from '../src/theme';
 import createEmotionCache from '../src/createEmotionCache';
 import { store } from '../src/store'
 
+import 'react-toastify/dist/ReactToastify.min.css'
+
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
 

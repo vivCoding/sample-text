@@ -1,0 +1,1 @@
+import { PostType } from '../post'

@@ -7,7 +7,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect, ChangeEventHandler } from 'react';
 import { useRouter } from 'next/router';
-import { ToastContainer } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import { LoadingButton } from '@mui/lab';
 import Helmet from '../../src/components/common/Helmet';
 import UserNavbar from '../../src/components/navbar/user';
@@ -17,6 +17,7 @@ import { setCurrentUser } from '../../src/store';
 import StyledTextField from '../../src/components/common/StyledTextField';
 import { LENGTH_LIMIT, IMG_LIMIT_MB } from '../../src/constants/formLimit';
 import ImageUploadForm from '../../src/components/common/ImageUpload';
+import { createPost } from '../../src/api/post';
 
 interface FormType {
     title: string,
@@ -70,7 +71,9 @@ const CreatePostPage: NextPage = () => {
 
     const handleCreateButton = (): void => {
         setCreateLoading(true)
-        setCreateLoading(false)
+        createPost({ title: postValue.title, caption: postValue.body, img: postValue.image }).then((res) => {
+            setCreateLoading(false)
+        })
     }
 
     if (loading) {

@@ -4,7 +4,7 @@ import { userFetcher } from '.'
 import { setCurrentAccount } from '../../store'
 import { AccountFetchResponseType, AccountHookResponseType, AccountResponseType } from '../../types/api/user'
 import { ReduxStoreType } from '../../types/redux'
-import client from '../httpClient'
+import client from '../client'
 
 export const getAccount = async (): Promise<AccountResponseType> => {
     const response = await client.post('/user/getaccount').catch(() => ({ status: 404, data: undefined }))
