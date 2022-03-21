@@ -4,6 +4,7 @@ from database.connect import Connection
 from flask import Flask, jsonify
 from flask_session import Session
 from routes.api.user import user_blueprint
+from routes.api.topic import topic_blueprint
 from flask_cors import CORS
 
 load_dotenv()
@@ -19,6 +20,7 @@ def index():
 	return jsonify("welcome to the backend!")
 
 app.register_blueprint(user_blueprint, url_prefix="/api/user")
+app.register_blueprint(topic_blueprint, url_prefix="/api/topic")
 
 if __name__ == "__main__":
 	print ("Server running on port 5000!\n", "=" * 50)
