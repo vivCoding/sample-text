@@ -15,13 +15,13 @@ def test_post_creation(test_client):
         data = response.json
         assert response.status_code == 200, "Bad response, got " + str(response.status_code)
         assert data["success"] == True, f"User creation test failed for: {str(user.to_dict())}, error: {data.get('error', None)}"
-        assert user.username == session.get("username", None), "User session not added for: " + user.username
+        assert session.get("user_id", None) is not None, "User session not added for: " + user.username
 
-        post = Post(title="My second post", topic="Games", username="esl-csgo")
+        post = Post(title="My second post", topic="Games", author_id=data["data"]["userId"])
         response = test_client.post("/api/post/createpost", json={
             "title": post.title,
             "topic": post.topic,
-            "username": post.username,
+            "author_id": post.author_id,
             "img": post.img,
             "caption": post.caption,
             "anonymous": post.anonymous,
@@ -32,17 +32,15 @@ def test_post_creation(test_client):
             })
         assert response.status_code == 200, "Bad response, got " + str(response.status_code)
         data = response.json
-        print(str(post.to_dict()))
-        print(data)
-        assert data["success"] == True, f"Post creation test failed for: {str(post.to_dict())}, error: {data.get('error', None)}"
         post.post_id = data['data']['post_id']
+        assert data["success"] == True, f"Post creation test failed for: {str(post.to_dict())}, error: {data.get('error', None)}"
     finally:
         if User.find_by_email(user.email):
             User.delete_by_email(user.email)
         if Post.find(post.post_id):
             Post.delete(post.post_id)
-        if "username" in session:
-            session.pop("username")
+        if "user_id" in session:
+            session.pop("user_id")
         test_client.cookie_jar.clear()
 
 
@@ -57,11 +55,12 @@ def test_post_deletion(test_client):
         })
         assert response.status_code == 200, "Bad create account reponse " + str(response.status_code)
         # user creates a post
-        post = Post(title="My second post", topic="Games", username="esl-csgo")
+        data = response.json
+        post = Post(title="My second post", topic="Games", author_id=data["data"]["userId"])
         response = test_client.post("/api/post/createpost", json={
             "title": post.title,
             "topic": post.topic,
-            "username": post.username,
+            "author_id": post.author_id,
             "img": post.img,
             "caption": post.caption,
             "anonymous": post.anonymous,
@@ -76,9 +75,7 @@ def test_post_deletion(test_client):
         assert data["success"] == True, f"Post creation test failed for: {str(post.to_dict())}, error: {data.get('error', None)}"
         assert Post.find(post.post_id) is not None, "Post was not found in database"
         # user deletes a post
-        response = test_client.post("/api/post/deletepost", json={
-            "post_id": post.post_id
-            })
+        response = test_client.post("/api/post/deletepost", json={ "post_id": post.post_id })
         data = response.json
         assert response.status_code == 200, "Deletion response with status " + str(response.status_code)
         assert data["success"] == True, f"Delete post test failed for user {post.post_id}, got success {data.get('success', None)} and error {data.get('error', None)}"
@@ -103,11 +100,12 @@ def test_like_post(test_client):
         })
         assert response.status_code == 200, "Bad create account reponse " + str(response.status_code)
         # user creates a post
-        post = Post(title="My second post", topic="Games", username="esl-csgo")
+        data = response.json
+        post = Post(title="My second post", topic="Games", author_id=data["data"]["userId"])
         response = test_client.post("/api/post/createpost", json={
             "title": post.title,
             "topic": post.topic,
-            "username": post.username,
+            "author_id": post.author_id,
             "img": post.img,
             "caption": post.caption,
             "anonymous": post.anonymous,
@@ -135,8 +133,6 @@ def test_like_post(test_client):
             User.delete_by_email(user.email)
         if Post.find(post.post_id):
             Post.delete(post.post_id)
-        if "username" in session:
-            session.pop("username")
         test_client.cookie_jar.clear()
 
 
@@ -150,11 +146,12 @@ def test_comment_on_post(test_client):
     })
     assert response.status_code == 200, "Bad create account reponse " + str(response.status_code)
     # user creates a post
-    post = Post(title="My second post", topic="Games", username="esl-csgo")
+    user_data = response.json
+    post = Post(title="My second post", topic="Games", author_id=user_data["data"]["userId"])
     response = test_client.post("/api/post/createpost", json={
         "title": post.title,
         "topic": post.topic,
-        "username": post.username,
+        "author_id": post.author_id,
         "img": post.img,
         "caption": post.caption,
         "anonymous": post.anonymous,
@@ -177,7 +174,7 @@ def test_comment_on_post(test_client):
     data = response.json
     assert response.status_code == 200, "Bad response, got " + str(response.status_code)
     assert data["success"] == True, f"Comment on post test failed for: {comment}, error: {data.get('errorMessage', None)}"
-    assert [user.username, comment] in data["data"]["comments"], "Comment was not added correctly"
+    assert [user_data["data"]["userId"], comment] in data["data"]["comments"], "Comment was not added correctly"
     # invalid comment on a post
     comment = ""
     response = test_client.post("/api/post/commentonpost", json={
