@@ -30,7 +30,7 @@ class User:
             "bio": self.bio,
             "profileImg": self.profile_img,
             "followers": self.followers,
-            "following": self.following
+            "following": self.following,
             "followed_topics": self.followed_topics
         }
 
