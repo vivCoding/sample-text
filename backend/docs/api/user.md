@@ -259,3 +259,41 @@ Updates the user's password for user logged in
 - Error 8: Old password does not match password in database
 - Response status 401 if user is not authorized (e.g. does not have valid session cookie)
 - Response status 404 if username in session cookie cannot be found
+
+## POST /api/user/followtopic
+
+Follows a specific topic
+
+### Request Body
+```json
+{
+    "topic_name": string
+}
+```
+### Response Types
+```json
+{
+    "success": boolean
+}
+```
+- Response status 401 if user is not authorized (e.g. does not have valid session cookie)
+- Response status 404 if username in session cookie cannot be found
+
+## POST /api/user/unfollowtopic
+
+Unfollows a specific topic
+
+### Request Body
+```json
+{
+    "topic_name": string
+}
+```
+### Response Types
+```json
+{
+    "success": boolean
+}
+```
+- Response status 401 if user is not authorized (e.g. does not have valid session cookie)
+- Response status 404 if username in session cookie cannot be found

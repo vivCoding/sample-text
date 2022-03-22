@@ -1,6 +1,3 @@
-from calendar import c
-
-from jinja2 import pass_eval_context
 from .connect import Connection
 from datetime import datetime
 from database.user import User
@@ -9,7 +6,7 @@ class Post:
     collection = "posts"
 
     def __init__(self, title, topic, username, img="", caption="", anonymous=False, 
-    likes=[], comments=[], date=datetime.now().strftime("%m/%d/%Y, %H:%M"), post_id=""
+        likes=[], comments=[], date=datetime.now().strftime("%m/%d/%Y, %H:%M"), post_id=""
     ) -> None:
         self.title = title
         self.topic = topic

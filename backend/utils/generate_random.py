@@ -1,9 +1,12 @@
 import random
 from uuid import uuid4
+from database.topic import Topic
 from database.user import User
 
 good_username_characters = "-_."
 bad_username_characters = r"""~`!@#$%^&*()+={[}]|:;'"<,>?\/"""
+good_topic_characters = "-"
+bad_topic_characters = r"""~_.`!@#$%^&*()+={[}]|:;'"<,>?\/"""
 
 def generate_good_username():
     sze = random.randint(1, 20)
@@ -47,3 +50,37 @@ def generate_user(good):
     email = (".-" if not good else "") + generate_good_email()
     password = uuid4().hex[0:8]
     return User(username, email, password)
+
+def generate_good_topic():
+    sze = random.randint(1, 25)
+    ret = ""
+    for i in range(sze):
+        c = random.randrange(36 + len(good_topic_characters))
+        if (c <= 25):
+            ret += chr(ord('a')+c)
+        elif c <= 35:
+            ret += chr(ord('0')+c-26)
+        else:
+            ret += good_topic_characters[c-36]
+    return ret
+
+def generate_bad_topic():
+    sze = random.randint(0, 50)
+    ret = ""
+    for i in range(sze):
+        c = random.randrange(36 + len(good_topic_characters) + len(bad_topic_characters))
+        if (c <= 25):
+            ret += chr(ord('a')+c)
+        elif c <= 35:
+            ret += chr(ord('0')+c-26)
+        elif c <= 35 + len(good_topic_characters):
+            ret += good_topic_characters[c-36]
+        else:
+            ret += bad_topic_characters[c-36-len(good_topic_characters)]
+    if sze > 0:
+        ret += bad_topic_characters[random.randrange(0, len(bad_topic_characters))]
+    return ret
+
+def generate_topic(good):
+    name = generate_bad_topic() if not good else generate_good_topic()
+    return Topic(name)
