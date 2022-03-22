@@ -49,7 +49,7 @@ class User:
                 "bio": self.bio,
                 "profile_img": self.profile_img,         
                 "following": self.following,
-                "followers": self.followers
+                "followers": self.followers,
                 "followed_topics": self.followed_topics
             }
             result = col.insert_one(doc)
