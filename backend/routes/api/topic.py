@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request, session
 from itsdangerous import json
 from database.topic import Topic
+from utils.validate_fields import check_topic
 
 topic_blueprint = Blueprint("topic", __name__)
 
