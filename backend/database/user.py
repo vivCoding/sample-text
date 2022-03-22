@@ -4,7 +4,8 @@ from bson.objectid import ObjectId
 class User:
     collection = "users"
 
-    def __init__(self, username, email, password, id=None, name="", bio="", profile_img="", following=[], followers=[]) -> None:
+
+    def __init__(self, username, email, password, name="", bio="", profile_img="", following=[], followers=[], followed_topics = []) -> None:
         self.id = id
         self.username = username
         self.email = email
@@ -14,6 +15,7 @@ class User:
         self.profile_img = profile_img
         self.following = following
         self.followers = followers
+        self.followed_topics = followed_topics
 
     def __eq__(self, other) -> bool:
         if isinstance(other, User):
@@ -29,6 +31,7 @@ class User:
             "profileImg": self.profile_img,
             "followers": self.followers,
             "following": self.following
+            "followed_topics": self.followed_topics
         }
 
     # Pushes this object to MongoDB, and returns whether it was successful
@@ -44,9 +47,10 @@ class User:
                 "password": self.password,
                 "name": self.name,
                 "bio": self.bio,
-                "profile_img": self.profile_img,
+                "profile_img": self.profile_img,         
                 "following": self.following,
                 "followers": self.followers
+                "followed_topics": self.followed_topics
             }
             result = col.insert_one(doc)
             return str(result.inserted_id)
@@ -195,6 +199,42 @@ class User:
             print (e)
             return 0
 
+
+    # Tries following a topic, returns whether it was successful
+    def follow_topic(self, topic_name) -> bool:
+        if Connection.client is None:
+            return False
+        try:
+            if topic_name in self.followed_topics:
+                return True
+                
+            db = Connection.client[Connection.database]
+            col = db[User.collection]
+            new_value = { "$push": { "followed_topics": topic_name } }
+            col.update_one({ "username": self.username }, new_value)
+            self.followed_topics.append(topic_name)
+            return True
+        except Exception as e:
+            print(e)
+            return False
+        
+    # Tries unfollowing a topic, returns whether it was successful
+    def unfollow_topic(self, topic_name) -> bool:
+        if Connection.client is None:
+            return False
+        try:
+            if topic_name not in self.followed_topics:
+                return True
+            
+            db = Connection.client[Connection.database]
+            col = db[User.collection]
+            new_value = { "$pull": { "followed_topics": topic_name } }
+            col.update_one({ "username": self.username }, new_value)
+            self.followed_topics.remove(topic_name)
+            return True
+        except Exception as e:
+            print(e)
+            return False
 
     # Static method that finds and returns a specific user from the collection based on filters
     @staticmethod
