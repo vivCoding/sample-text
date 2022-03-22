@@ -10,6 +10,7 @@ export interface ProfileType {
     name?: string,
     bio?: string,
     profileImg?: string,
+    posts: ID[],
 }
 
 export interface UserType extends AccountType, ProfileType {

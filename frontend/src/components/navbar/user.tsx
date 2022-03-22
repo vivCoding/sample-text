@@ -109,7 +109,7 @@ const Navbar = (): JSX.Element => {
                                 </Badge>
                             </IconButton>
                         </Tooltip>
-                        <Tooltip title="Notifications" sx={{ mx: 1 }}>
+                        <Tooltip title="Create Post" sx={{ mx: 1 }}>
                             <IconButton onClick={handleGoCreate}>
                                 <AddBoxIcon />
                             </IconButton>

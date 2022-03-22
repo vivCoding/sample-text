@@ -2,7 +2,7 @@ import {
     Button, styled,
 } from '@mui/material';
 import { ChangeEventHandler } from 'react'
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import { convertToBase64, getMb } from '../../utils/image';
 
 import 'react-toastify/dist/ReactToastify.min.css'
@@ -57,7 +57,6 @@ const ImageUploadForm = ({ text, onImageChange, sizeLimit }: PropsType): JSX.Ele
             <Button variant="outlined" component="span">
                 {text}
             </Button>
-            <ToastContainer />
         </label>
     )
 }

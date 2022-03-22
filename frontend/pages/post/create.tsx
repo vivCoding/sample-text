@@ -2,7 +2,7 @@ import type { NextPage } from 'next';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import {
-    Button, Stack, Container, CircularProgress,
+    Button, Stack, Container, CircularProgress, FormControlLabel, Switch,
 } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect, ChangeEventHandler } from 'react';
@@ -13,11 +13,12 @@ import Helmet from '../../src/components/common/Helmet';
 import UserNavbar from '../../src/components/navbar/user';
 import { ReduxStoreType } from '../../src/types/redux';
 import { getUser } from '../../src/api/user';
-import { setCurrentUser } from '../../src/store';
+import { setCurrentProfile, setCurrentUser } from '../../src/store';
 import StyledTextField from '../../src/components/common/StyledTextField';
 import { LENGTH_LIMIT, IMG_LIMIT_MB } from '../../src/constants/formLimit';
 import ImageUploadForm from '../../src/components/common/ImageUpload';
 import { createPost } from '../../src/api/post';
+import { TOAST_OPTIONS } from '../../src/constants/toast';
 
 interface FormType {
     title: string,
@@ -67,6 +68,10 @@ const CreatePostPage: NextPage = () => {
         setPostValue({ ...postValue, img: '' })
     }
 
+    const handleToggleAnonymous = (): void => {
+        setPostValue({ ...postValue, anonymous: !postValue.anonymous })
+    }
+
     const handleCancelButton = (): void => {
         router.back()
     }
@@ -76,8 +81,9 @@ const CreatePostPage: NextPage = () => {
         createPost(postValue).then((res) => {
             if (res.success && res.data) {
                 router.push(`/post/${res.data.postId}`)
+                toast.success('Successfully created post!', TOAST_OPTIONS)
             } else {
-                toast.error(`Could not create post: ${res.errorMessage ?? ''}!`)
+                toast.error(`Could not create post: ${res.errorMessage ?? ''}!`, TOAST_OPTIONS)
             }
             setCreateLoading(false)
         })
@@ -102,7 +108,6 @@ const CreatePostPage: NextPage = () => {
         <Box>
             <Helmet title="Create Post" />
             <UserNavbar />
-            <ToastContainer />
             <Container maxWidth="md" sx={{ mt: 6, mb: 20 }}>
                 <Typography variant="h3" fontWeight="300" sx={{ mr: 1, textAlign: 'center', width: '100%' }}>
                     Create Post
@@ -125,7 +130,6 @@ const CreatePostPage: NextPage = () => {
                         onChange={handleCaptionChange}
                         sx={{ mt: 2 }}
                     />
-                    {/* TODO: make toggle anonymous button */}
                     <Box sx={{ mt: 2 }}>
                         {postValue.img !== '' && (
                             // eslint-disable-next-line @next/next/no-img-element
@@ -137,6 +141,7 @@ const CreatePostPage: NextPage = () => {
                         </Stack>
                     </Box>
                     <Stack direction="row" sx={{ mt: 1, width: '100%' }} justifyContent="flex-end">
+                        <FormControlLabel control={<Switch onChange={handleToggleAnonymous} />} label="Post Anonymously" sx={{ mr: 'auto' }} />
                         <Button onClick={handleCancelButton}>Cancel</Button>
                         <LoadingButton
                             variant="contained"

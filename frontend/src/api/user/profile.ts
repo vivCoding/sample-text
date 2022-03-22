@@ -9,8 +9,8 @@ import { ProfileType } from '../../types/user'
 import client from '../client'
 import { useUserAccount } from './account'
 
-export const getProfile = async ({ username, userId }: { username?: string, userId?: ID }): Promise<ProfileResponseType> => {
-    const response = await client.post('/user/getprofile', { username, userId }).catch(() => ({ status: 404, data: undefined }))
+export const getProfile = async (usernameOrId: string): Promise<ProfileResponseType> => {
+    const response = await client.post('/user/getprofile', { username_or_id: usernameOrId }).catch(() => ({ status: 404, data: undefined }))
     if (response.status === 404) {
         return { success: false, error: 404, errorMessage: 'User does not exist!' }
     }

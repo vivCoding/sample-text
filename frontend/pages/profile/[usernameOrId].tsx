@@ -1,5 +1,5 @@
 import {
-    Button, Stack, Box, Container, Grid, Typography, Skeleton, CircularProgress, Divider,
+    Button, Stack, Box, Container, Grid, Typography, Skeleton, CircularProgress, Divider, Card,
 } from '@mui/material';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -20,7 +20,7 @@ const UserProfilePage: NextPage = () => {
     const { query } = useRouter()
     const dispatch = useDispatch()
     const {
-        userId, username, name, bio, profileImg,
+        userId, username, name, bio, profileImg, posts,
     } = useSelector((state: ReduxStoreType) => state.user)
 
     const [loadingUser, setLoadingUser] = useState(userId === undefined)
@@ -49,9 +49,9 @@ const UserProfilePage: NextPage = () => {
 
     useEffect(() => {
         if (query.usernameOrId) {
-            if (isSelf && username) {
+            if (isSelf && username && posts) {
                 setProfile({
-                    username, name, bio, profileImg,
+                    username, name, bio, profileImg, posts,
                 })
                 setLoadingProfile(false)
             } else {
@@ -116,17 +116,17 @@ const UserProfilePage: NextPage = () => {
 
     return (
         <Box>
-            <Helmet title={`${username}'s Profile`} />
+            <Helmet title={`${profile.username}'s Profile`} />
             <UserNavbar />
             <Container sx={{ mt: 5, width: '90vw' }}>
-                <Stack direction="row">
+                <Stack direction="row" sx={{ mb: 5 }}>
                     <ProfileAvatar size={200} picture64={profile.profileImg} />
                     <Grid rowSpacing={2} container sx={{ ml: 5 }}>
                         <Grid item xs={12}>
                             <Typography variant="h4">{profile.name}</Typography>
                             <Typography variant="body1" fontWeight="light">
                                 u/
-                                {username}
+                                {profile.username}
                             </Typography>
                         </Grid>
                         <Grid item xs={12}>
@@ -138,8 +138,20 @@ const UserProfilePage: NextPage = () => {
                             </Grid>
                         )}
                     </Grid>
-                    <Divider />
-                    {/* TODO show user posts */}
+                </Stack>
+                <Divider />
+                {/* TODO show user posts */}
+                <Stack>
+                    {profile.posts.length === 0
+                        ? <Typography variant="h6">No posts made</Typography>
+                        : (
+                            profile.posts.map((post) => (
+                                <Stack key={post} direction="row" alignItems="center">
+                                    <Typography variant="body1">{post}</Typography>
+                                    <Button onClick={() => router.push(`/post/${post}`)}>Go to post</Button>
+                                </Stack>
+                            ))
+                        )}
                 </Stack>
             </Container>
         </Box>

@@ -27,7 +27,7 @@ const SignupSuccess: NextPage = () => {
     const [bio, setBio] = useState('')
     const [profileImg, setProfileImg] = useState('')
 
-    const { username } = useSelector((state: ReduxStoreType) => state.user)
+    const { username, posts } = useSelector((state: ReduxStoreType) => state.user)
     const dispatch = useDispatch()
 
     useEffect(() => {
@@ -47,9 +47,9 @@ const SignupSuccess: NextPage = () => {
     const handleFinish = (): void => {
         setLoadingEditing(true)
         editProfile({ name, bio, profileImg }).then((res) => {
-            if (res.success && username) {
+            if (res.success && username && posts) {
                 dispatch(setCurrentProfile({
-                    username, name, bio, profileImg,
+                    username, name, bio, profileImg, posts,
                 }))
                 router.push(`/profile/${username}`)
             } else {
@@ -66,7 +66,6 @@ const SignupSuccess: NextPage = () => {
 
     return (
         <Box>
-            <ToastContainer />
             <Helmet title="Sign Up" />
             <UserNavbar />
             <Box sx={{ height: '90vh', mt: 4 }}>

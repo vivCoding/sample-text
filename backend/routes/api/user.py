@@ -90,11 +90,13 @@ def get_profile():
 		return jsonify({ "success": False }), 401
 	try:
 		data = request.get_json()
-		user_id = data["user_id"]
-		user = User.find_by_id(user_id)
+		username_or_id = data["username_or_id"]
+		try: user = User.find_by_id(username_or_id)
+		except: user = None
+		if user is None:
+			user = User.find_by_username(username_or_id)
 		if user is not None:
 			return_dict = user.to_dict()
-			return_dict.pop("username")
 			return_dict.pop("email")
 			return jsonify({ "success": True, "data": return_dict }), 200
 		else:
@@ -143,7 +145,6 @@ def edit_profile():
 			new_bio = data.get("bio", None)
 			user.update_profile(new_name, new_bio, new_profile_img)
 		return_dict = user.to_dict()
-		return_dict.pop("username")
 		return_dict.pop("email")
 		return jsonify({ "success": True, "data": return_dict }), 200
 	except Exception as e:

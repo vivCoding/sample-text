@@ -16,7 +16,6 @@ app = Flask(__name__)
 CORS(app, methods=["OPTIONS", "GET", "POST"], supports_credentials=True)
 app.config.from_object("config.Config")
 Session(app)
-print(app.config["SESSION_COOKIE_SECURE"])
 
 @app.route("/")
 def index():

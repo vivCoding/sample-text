@@ -238,7 +238,6 @@ const Settings: NextPage = () => {
 
     return (
         <Box>
-            <ToastContainer />
             <Helmet title="Settings" />
             <UserNavbar />
             <Container maxWidth="md" sx={{ mt: 6, mb: 20 }}>

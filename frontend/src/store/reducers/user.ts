@@ -9,13 +9,27 @@ export const userSlice = createSlice({
     initialState,
     reducers: {
         setCurrentUser: (state, action: PayloadAction<UserType>) => {
-            state = { ...state, ...action.payload }
+            const {
+                userId, username, email, name, bio, profileImg, posts,
+            } = action.payload
+            state.userId = userId
+            state.username = username
+            state.email = email
+            state.name = name
+            state.bio = bio
+            state.profileImg = profileImg
+            state.posts = posts
         },
         setCurrentAccount: (state, action: PayloadAction<AccountType>) => {
-            state = { ...state, ...action.payload }
+            const { username, email } = action.payload
+            state.username = username
+            state.email = email
         },
         setCurrentProfile: (state, action: PayloadAction<ProfileType>) => {
-            state = { ...state, ...action.payload }
+            const { name, bio, profileImg } = action.payload
+            state.name = name
+            state.bio = bio
+            state.profileImg = profileImg
         },
         clearUser: (state) => {
             state.userId = undefined
