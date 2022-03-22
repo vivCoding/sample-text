@@ -23,19 +23,19 @@ def create_post():
 		if user is not None:
 			# create a post
 			data = request.get_json()
-			status, error_message = check_post_fields(data["title"], data["caption"])
+			status, error_message = check_post_fields(data.get("title", ""), data.get("caption", ""))
 			if status == 0:
 				new_post = Post(
-					data["title"],
-					data["topic"],
+					data.get("title", ""),
+					data.get("topic", ""),
 					user_id,
-					data["img"],
-					data["caption"],
-					data["anonymous"],
-					data["likes"],
-					data["comments"],
-					data["date"],
-					data["post_id"]
+					data.get("img", ""),
+					data.get("caption", ""),
+					data.get("anonymous", ""),
+					data.get("likes", ""),
+					data.get("comments", ""),
+					data.get("date", ""),
+					data.get("post_id", "")
 				)
 				new_post.push()
 				# add this post under its topic in the database
@@ -90,9 +90,12 @@ def get_post():
 		post_id = data["post_id"]
 		post = Post.find(post_id)
 		if post is not None:
+			return_dict = post.to_dict()
+			if post.anonymous and user_id != post.author_id:
+				return_dict.pop("author_id")
 			return jsonify({
 				"success": True,
-				"data": post.to_dict()
+				"data": return_dict
 			}), 200
 		else:
 			return jsonify({ "success": False }), 404

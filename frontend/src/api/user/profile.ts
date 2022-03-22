@@ -4,19 +4,19 @@ import useSWR from 'swr'
 import { userFetcher } from '.'
 import { setCurrentProfile } from '../../store'
 import { ProfileFetcherResponseType, ProfileHookResponseType, ProfileResponseType } from '../../types/api/user'
+import { ID } from '../../types/misc'
 import { ProfileType } from '../../types/user'
-import client from '../httpClient'
+import client from '../client'
 import { useUserAccount } from './account'
 
-export const getProfile = async (username: string): Promise<ProfileResponseType> => {
-    const response = await client.post('/user/getprofile', { username }).catch(() => ({ status: 404, data: undefined }))
+export const getProfile = async (usernameOrId: string): Promise<ProfileResponseType> => {
+    const response = await client.post('/user/getprofile', { username_or_id: usernameOrId }).catch(() => ({ status: 404, data: undefined }))
     if (response.status === 404) {
         return { success: false, error: 404, errorMessage: 'User does not exist!' }
     }
     if (response.status === 401) {
         return { success: false, error: 401 }
     }
-    // TODO: should prob rename everything to profile_img
     return response.data as ProfileResponseType
 }
 
@@ -31,6 +31,7 @@ export const editProfile = async (
     return response.data as ProfileResponseType
 }
 
+// unused swr stuff, ignore
 export const useUserProfile = (username?: string): ProfileHookResponseType => {
     const { username: currentUsername, auth: accountAuth } = useUserAccount()
     const dispatch = useDispatch()

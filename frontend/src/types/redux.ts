@@ -1,8 +1,13 @@
-import { ProfileType } from './user';
+import { ID } from './misc';
 
-export interface UserSliceType extends ProfileType {
+export interface UserSliceType {
+    userId?: ID,
     username?: string,
-    email?: string
+    email?: string,
+    name?: string,
+    bio?: string,
+    profileImg?: string,
+    posts?: ID[],
 }
 
 export interface ReduxStoreType {

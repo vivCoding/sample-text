@@ -7,6 +7,7 @@ from routes.api.user import user_blueprint
 from routes.api.post import post_blueprint
 from routes.api.topic import topic_blueprint
 from flask_cors import CORS
+import os
 
 load_dotenv()
 Connection.init()

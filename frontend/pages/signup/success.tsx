@@ -1,6 +1,6 @@
 import type { NextPage } from 'next';
 import {
-    Box, Typography, Button, Stack, LinearProgress,
+    Box, Typography, Button, Stack, LinearProgress, CircularProgress,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { useEffect, useState, ChangeEventHandler } from 'react';
@@ -14,9 +14,7 @@ import StyledTextField from '../../src/components/common/StyledTextField';
 import ProfileAvatar from '../../src/components/common/ProfileAvatar'
 import ImageUpload from '../../src/components/common/ImageUpload'
 import UserNavbar from '../../src/components/navbar/user';
-
-import 'react-toastify/dist/ReactToastify.min.css'
-import { LENGTH_LIMIT } from '../../src/constants/formLimit';
+import { LENGTH_LIMIT, PFP_LIMIT_MB } from '../../src/constants/formLimit';
 import { ReduxStoreType } from '../../src/types/redux';
 import { setCurrentProfile } from '../../src/store';
 import { editProfile } from '../../src/api/user/profile';
@@ -29,7 +27,7 @@ const SignupSuccess: NextPage = () => {
     const [bio, setBio] = useState('')
     const [profileImg, setProfileImg] = useState('')
 
-    const { username } = useSelector((state: ReduxStoreType) => state.user)
+    const { username, posts } = useSelector((state: ReduxStoreType) => state.user)
     const dispatch = useDispatch()
 
     useEffect(() => {
@@ -49,8 +47,10 @@ const SignupSuccess: NextPage = () => {
     const handleFinish = (): void => {
         setLoadingEditing(true)
         editProfile({ name, bio, profileImg }).then((res) => {
-            if (res.success) {
-                dispatch(setCurrentProfile({ name, bio, profileImg }))
+            if (res.success && username && posts) {
+                dispatch(setCurrentProfile({
+                    username, name, bio, profileImg, posts,
+                }))
                 router.push(`/profile/${username}`)
             } else {
                 toast.error(res.errorMessage ?? 'Error!', TOAST_OPTIONS)
@@ -66,7 +66,6 @@ const SignupSuccess: NextPage = () => {
 
     return (
         <Box>
-            <ToastContainer />
             <Helmet title="Sign Up" />
             <UserNavbar />
             <Box sx={{ height: '90vh', mt: 4 }}>
@@ -90,7 +89,7 @@ const SignupSuccess: NextPage = () => {
                         </Box>
                         <Stack alignItems="center" sx={{ mb: 1.5 }}>
                             <ProfileAvatar size={75} sx={{ mb: 1 }} picture64={profileImg} />
-                            <ImageUpload text="Add Profile Picture" onImageChange={handleSetPfp} />
+                            <ImageUpload text="Add Profile Picture" onImageChange={handleSetPfp} sizeLimit={PFP_LIMIT_MB} />
                         </Stack>
                         <StyledTextField
                             label="Name"
@@ -99,8 +98,8 @@ const SignupSuccess: NextPage = () => {
                             size="medium"
                             placeholder="Your display name"
                             onChange={handleSetName}
-                            error={name.length > LENGTH_LIMIT.NAME}
-                            helperText={name.length === 0 ? undefined : `Characters: ${name.length} / ${LENGTH_LIMIT.NAME}`}
+                            error={name.length > LENGTH_LIMIT.USER.NAME}
+                            helperText={name.length === 0 ? undefined : `Characters: ${name.length} / ${LENGTH_LIMIT.USER.NAME}`}
                         />
                         <StyledTextField
                             label="Bio"
@@ -111,8 +110,8 @@ const SignupSuccess: NextPage = () => {
                             multiline
                             minRows={3}
                             onChange={handleSetBio}
-                            error={bio.length > LENGTH_LIMIT.BIO}
-                            helperText={bio.length === 0 ? undefined : `Characters: ${bio.length} / ${LENGTH_LIMIT.BIO}`}
+                            error={bio.length > LENGTH_LIMIT.USER.BIO}
+                            helperText={bio.length === 0 ? undefined : `Characters: ${bio.length} / ${LENGTH_LIMIT.USER.BIO}`}
                         />
                         <Box sx={{
                             display: 'flex', alignItems: 'center', alignContent: 'space-between', width: '100%',
@@ -125,7 +124,7 @@ const SignupSuccess: NextPage = () => {
                                 onClick={handleFinish}
                                 loading={loadingEditing}
                                 endIcon={<CheckIcon />}
-                                disabled={name.length > LENGTH_LIMIT.NAME || bio.length > LENGTH_LIMIT.BIO}
+                                disabled={name.length > LENGTH_LIMIT.USER.NAME || bio.length > LENGTH_LIMIT.USER.BIO}
                             >
                                 Finish
                             </LoadingButton>
