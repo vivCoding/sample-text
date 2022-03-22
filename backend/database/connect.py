@@ -22,7 +22,7 @@ class Connection:
                     ("email", ASCENDING)
                 ], unique=True)
             ])
-            # TODO: add other collections
+            # TODO: add other collections that need to be indexed
             return True
         except Exception as e:
             print (e)
