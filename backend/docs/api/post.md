@@ -8,7 +8,7 @@ Creates a post, validates given parameters, and stores into MongoDB. Returns the
 {
     "title": string,
     "topic": string,
-    "username": string,
+    "author_id": string,
     "img": string,
     "caption": string,
     "anonymous": string,
@@ -27,7 +27,7 @@ Creates a post, validates given parameters, and stores into MongoDB. Returns the
     "data": {
         "title": string,
         "topic": string,
-        "username": string,
+        "author_id": string,
         "img": string,
         "caption": string,
         "anonymous": string,
@@ -82,7 +82,7 @@ Returns info of requested post
     "data": {
         "title": string,
         "topic": string,
-        "username": string,
+        "author_id": string,
         "img": string,
         "caption": string,
         "anonymous": string,

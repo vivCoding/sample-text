@@ -16,14 +16,13 @@ def test_user_creation(test_client):
 
         assert response.status_code == 200, "Bad response, got " + str(response.status_code)
         assert data["success"] == True, f"User creation test failed for: {str(user.to_dict())}, error: {data.get('error', None)}"
-        assert user.username == session.get("username", None), "User session not added for: " + user.username
+        assert session.get("user_id", None) is not None, "User session not added for: " + user.username
     finally:
         if User.find_by_email(user.email):
             User.delete_by_email(user.email)
-        if "username" in session:
-            session.pop("username")
         test_client.cookie_jar.clear()
     
+
 def test_bad_email(test_client):
     user = generate_random.generate_user(True)
     response = test_client.post("/api/user/createaccount", json={
@@ -39,6 +38,7 @@ def test_bad_email(test_client):
     assert data["success"] == False and (data["error"] == 3), f"Bad Email Assertion failed for: {user.username}, {user.email}, got success {data.get('success', None)} and error {data.get('error', None)}"
     test_client.cookie_jar.clear()
 
+
 def test_create_bad_password(test_client):
     user = generate_random.generate_user(True)
     response = test_client.post("/api/user/createaccount", json={
@@ -53,6 +53,7 @@ def test_create_bad_password(test_client):
     assert data["success"] == False and (data["error"] == 4), f"Bad Password Assertion Failed for: {user.password}, got success {data.get('success', None)} and error {data.get('error', None)}"
     test_client.cookie_jar.clear()
 
+
 def test_login_nonexisting_username(test_client):
     user = generate_random.generate_user(True)
     response = test_client.post("/api/user/login", json={
@@ -65,6 +66,7 @@ def test_login_nonexisting_username(test_client):
     assert data["success"] == False and data["error"] == 1, f"Login nonexisting user failed for {user.username}, got success {data.get('success', None)} and error {data.get('error', None)}"
     
     test_client.cookie_jar.clear()
+
 
 def test_login_wrong_password(test_client):
     try:
@@ -93,6 +95,7 @@ def test_login_wrong_password(test_client):
             session.pop("username")
         test_client.cookie_jar.clear()
 
+
 def test_login_existing(test_client):
     try:
         user = generate_random.generate_user(True)
@@ -113,12 +116,10 @@ def test_login_existing(test_client):
 
         assert response.status_code == 200, "Bad login account response, got " + str(response.status_code)
         assert data["success"] == True, f"Login to existing user test failed for {user.username}, got success {data.get('success', None)} and error {data.get('error', None)}"
-        assert user.username == session.get("username", None), f"Username {user.username} not added to session"
+        assert session.get("user_id", None) is not None, "User session not added for: " + user.username
     finally:
         if User.find_by_email(user.email):
             User.delete_by_email(user.email)
-        if "username" in session:
-            session.pop("username")
         test_client.cookie_jar.clear()
 
 
@@ -145,8 +146,6 @@ def test_delete_account(test_client):
     finally:
         if User.find_by_email(user.email):
             User.delete_by_email(user.email)
-        if "username" in session:
-            session.pop("username")
         test_client.cookie_jar.clear()
 
 def test_edit_account_username(test_client):
@@ -171,14 +170,11 @@ def test_edit_account_username(test_client):
         
         assert response.status_code == 200, "Bad response for edit username " + str(response.status_code)
         assert data["success"] == True, f"Updating username test failed for {user.username} -> {new_username}, got success {data.get('success', None)} and error {data.get('error', None)}"
-        assert session['username'] == new_username, f"Session username mismatch for {user.username} -> {new_username}"
         assert dbuser is not None, f"Mismatch in db and new user for {user.username} -> {new_username}"
 
     finally:
         if User.find_by_email(user.email):
             User.delete_by_email(user.email)
-        if user.username in session:
-            session.pop(user.username)
         test_client.cookie_jar.clear()
 
 def test_edit_account_password(test_client):
@@ -208,8 +204,6 @@ def test_edit_account_password(test_client):
     finally:
         if User.find_by_email(user.email):
             User.delete_by_email(user.email)
-        if "username" in session:
-            session.pop("username")
         test_client.cookie_jar.clear()
         
 
@@ -240,8 +234,6 @@ def test_edit_account_email(test_client):
     finally:
         if User.find_by_username(user.username):
             User.delete_by_username(user.username)
-        if "username" in session:
-            session.pop("username")
         test_client.cookie_jar.clear()
 
 def test_edit_profile(test_client):
@@ -271,6 +263,4 @@ def test_edit_profile(test_client):
     finally:
         if User.find_by_username(user.username):
             User.delete_by_username(user.username)
-        if "username" in session:
-            session.pop("username")
         test_client.cookie_jar.clear()

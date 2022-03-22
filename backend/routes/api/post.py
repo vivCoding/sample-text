@@ -14,12 +14,12 @@ def index():
 @post_blueprint.route('/createpost', methods=["POST"])
 def create_post():
 	# do not proceed if user is not logged in
-	# if they are logged in, they should have their username in their session cookie
-	username = session.get('username', None)
-	if username is None:
+	# if they are logged in, they should have their user_id in their session cookie
+	user_id = session.get('user_id', None)
+	if user_id is None:
 		return jsonify({ "success": False }), 401
 	try:
-		user = User.find_by_username(username)
+		user = User.find_by_id(user_id)
 		if user is not None:
 			# create a post
 			data = request.get_json()
@@ -28,7 +28,7 @@ def create_post():
 				new_post = Post(
 					data["title"],
 					data["topic"],
-					data["username"],
+					user_id,
 					data["img"],
 					data["caption"],
 					data["anonymous"],
@@ -59,8 +59,9 @@ def create_post():
 @post_blueprint.route('/deletepost', methods=["POST"])
 def delete_post():
 	# do not proceed if user is not logged in
-	# if they are logged in, they should have their username in their session cookie
-	if session.get('username') is None:
+	# if they are logged in, they should have their user_id in their session cookie
+	user_id = session.get('user_id', None)
+	if user_id is None:
 		return jsonify({ "success": False }), 401
 	try:
 		data = request.get_json()
@@ -80,9 +81,9 @@ def delete_post():
 @post_blueprint.route('/getpost', methods=["POST"])
 def get_post():
 	# do not proceed if user is not logged in
-	# if they are logged in, they should have their username in their session cookie
-	username = session.get('username', None)
-	if username is None:
+	# if they are logged in, they should have their user_id in their session cookie
+	user_id = session.get('user_id', None)
+	if user_id is None:
 		return jsonify({ "success": False }), 401
 	try:
 		data = request.get_json()
@@ -102,16 +103,16 @@ def get_post():
 @post_blueprint.route('/likepost', methods=["POST"])
 def like_post():
 	# do not proceed if user is not logged in
-	# if they are logged in, they should have their username in their session cookie
-	username = session.get('username', None)
-	if session.get('username') is None:
+	# if they are logged in, they should have their user_id in their session cookie
+	user_id = session.get('user_id', None)
+	if user_id is None:
 		return jsonify({ "success": False }), 401
 	try:
 		data = request.get_json()
 		post_id = data["post_id"]
 		post = Post.find(post_id)
 		if post is not None:
-			post.like(username)
+			post.like(user_id)
 			return jsonify({
 				"success": True,
 				"data": { "likeCount": len(post.likes) }
@@ -125,8 +126,8 @@ def like_post():
 def comment_on_post():
 	# do not proceed if user is not logged in
 	# if they are logged in, they should have their username in their session cookie
-	username = session.get('username', None)
-	if session.get('username') is None:
+	user_id = session.get('user_id', None)
+	if user_id is None:
 		return jsonify({ "success": False }), 401
 	try:
 		data = request.get_json()
@@ -136,7 +137,7 @@ def comment_on_post():
 			comment = data["comment"]
 			post = Post.find(post_id)
 			if post is not None:
-				post.add_comment(username, comment)
+				post.add_comment(user_id, comment)
 				return jsonify({
 					"success": True,
 					"data": { "comments": post.comments }

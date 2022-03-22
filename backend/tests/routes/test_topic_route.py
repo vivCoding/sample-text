@@ -53,10 +53,18 @@ def test_topic_followunfollow(test_client):
 
 def test_topic_creation(test_client):
     try:
+        user = generate_user(True)
+        response = test_client.post('api/user/createaccount', json={
+            "username": user.username,
+            "email": user.email,
+            "password": user.password,
+        })
+        assert response.status_code == 200, "Bad response for account creation " + str(response.status_code)
+
         topic = generate_topic(True)
         response = test_client.post("/api/topic/createtopic", json={
-            "topic_name": topic.topic_name,
-            "posts": topic.posts
+                "topic_name": topic.topic_name,
+                "posts": topic.posts
             })
         data = response.json
 
@@ -70,6 +78,14 @@ def test_topic_creation(test_client):
 
 def test_find_topic(test_client):
     try:
+        user = generate_user(True)
+        response = test_client.post('api/user/createaccount', json={
+            "username": user.username,
+            "email": user.email,
+            "password": user.password,
+        })
+        assert response.status_code == 200, "Bad response for account creation " + str(response.status_code)
+
         topic = generate_topic(True)
         response = test_client.post("/api/topic/createtopic", json={
             "topic_name": topic.topic_name,
