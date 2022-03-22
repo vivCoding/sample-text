@@ -10,7 +10,10 @@ good_topic = generate_topic(good=True)
 post_id = generate_good_topic()
 
 def test_push_topic(mongodb):
-    assert good_topic.push() and Topic.find_by_name(good_topic.topic_name) is not None, "Push new topic failed"
+    assert good_topic.push(), "Push new topic failed"
+
+def test_find_topic(mongodb):
+    assert Topic.find_by_name(good_topic.topic_name) is not None, "Finding topic failed"
 
 def test_nonexisting_topic(mongodb):
     tmp_topic = generate_topic(True)
