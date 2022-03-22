@@ -12,7 +12,7 @@ def index():
 
 @user_blueprint.route('/createaccount', methods=["POST"])
 def create_account():
-	if session.get('id') is not None:
+	if session.get('user_id') is not None:
 		# already logged in
 		return jsonify({ "success": True }), 302
 	try:
@@ -21,8 +21,8 @@ def create_account():
 		if status == 0:
 			hashed_password =  encrypt(data["password"])
 			new_user = User(data["username"], data["email"], hashed_password)
-			id = new_user.push()
-			session["id"] = id
+			user_id = new_user.push()
+			session["user_id"] = user_id
 			return jsonify({ "success": True, "data": new_user.to_dict() }), 200
 		else:
 			return jsonify({ "success": False,"error": status, "errorMessage": error_message }), 200
@@ -33,7 +33,7 @@ def create_account():
 
 @user_blueprint.route('/login', methods=["POST"])
 def login():
-	if session.get('id', None) is not None:
+	if session.get('user_id', None) is not None:
 		# already logged in
 		return jsonify({ "success": True }), 302
 	try:
@@ -41,7 +41,7 @@ def login():
 		hashed_password = encrypt(data["password"])
 		user = User.find_by_credentials(data["loginField"], hashed_password)
 		if user is not None:
-			session["id"] = user.id
+			session["user_id"] = user.user_id
 			return jsonify({ "success": True, "data": user.to_dict() }), 200
 		else:
 			return jsonify({ "success": False , "error": 1, "errorMessage": "Invalid username, email or password!"}), 200
@@ -52,8 +52,8 @@ def login():
 @user_blueprint.route('/logout', methods=["POST"])
 def logout():
 	try:
-		if session.get('id', None) is not None:
-			session.pop('id')
+		if session.get('user_id', None) is not None:
+			session.pop('user_id')
 			return jsonify({ "success": True }), 200
 		else:
 			return jsonify({ "success": False }), 401
@@ -65,12 +65,12 @@ def logout():
 @user_blueprint.route('/getuser', methods=["POST"])
 def get_user():
 	# do not proceed if user is not logged in
-	# if they are logged in, they should have their id in their session cookie
-	id = session.get('id', None)
-	if id is None:
+	# if they are logged in, they should have their user_id in their session cookie
+	user_id = session.get('user_id', None)
+	if user_id is None:
 		return jsonify({ "success": False }), 401
 	try:
-		user = User.find_by_id(id)
+		user = User.find_by_id(user_id)
 		if user is not None:
 			return jsonify({
 				"success": True,
@@ -82,16 +82,16 @@ def get_user():
 		print (e)
 		return jsonify({"success": False }), 500
 
-# returns user profile given any id 
+# returns user profile given any user_id 
 @user_blueprint.route('/getprofile', methods=["POST"])
 def get_profile():
 	# do not proceed if user is not logged in
-	if session.get('id', None) is None:
+	if session.get('user_id', None) is None:
 		return jsonify({ "success": False }), 401
 	try:
 		data = request.get_json()
-		id = data["id"]
-		user = User.find_by_id(id)
+		user_id = data["user_id"]
+		user = User.find_by_id(user_id)
 		if user is not None:
 			return_dict = user.to_dict()
 			return_dict.pop("username")
@@ -107,12 +107,12 @@ def get_profile():
 @user_blueprint.route('/getaccount', methods=["POST"])
 def get_account():
 	# do not proceed if user is not logged in
-	# if they are logged in, they should have their id in their session cookie
-	id = session.get('id', None)
-	if id is None:
+	# if they are logged in, they should have their user_id in their session cookie
+	user_id = session.get('user_id', None)
+	if user_id is None:
 		return jsonify({ "success": False }), 401
 	try:
-		user = User.find_by_id(id)
+		user = User.find_by_id(user_id)
 		if user is not None:
 			return jsonify({
 				"success": True,
@@ -127,12 +127,12 @@ def get_account():
 @user_blueprint.route('/editprofile', methods=["POST"])
 def edit_profile():
 	# do not proceed if user is not logged in
-	# if they are logged in, they should have their id in their session cookie
-	id = session.get('id', None)
-	if id is None:
+	# if they are logged in, they should have their user_id in their session cookie
+	user_id = session.get('user_id', None)
+	if user_id is None:
 		return jsonify({ "success": False }), 401
 	try:
-		user = User.find_by_id(id)
+		user = User.find_by_id(user_id)
 		if user is None:
 			return jsonify({ "success": False }), 404
 		# TODO: should probably check for field validity
@@ -155,11 +155,11 @@ def edit_profile():
 def edit_username():
 	# do not proceed if user is not logged in
 	# if they are logged in, they should have their username in their session cookie
-	id = session.get('id', None)
-	if id is None:
+	user_id = session.get('user_id', None)
+	if user_id is None:
 		return jsonify({ "success": True , "error": 8}), 401
 	try:
-		user = User.find_by_id(id)
+		user = User.find_by_id(user_id)
 		if user is None:
 			return jsonify({ "success": False }), 404
 		data = request.get_json()
@@ -181,11 +181,11 @@ def edit_username():
 def edit_email():
 	# do not proceed if user is not logged in
 	# if they are logged in, they should have their username in their session cookie
-	id = session.get('id', None)
-	if id is None:
+	user_id = session.get('user_id', None)
+	if user_id is None:
 		return jsonify({ "success": True , "error": 8}), 401
 	try:
-		user = User.find_by_id(id)
+		user = User.find_by_id(user_id)
 		if user is None:
 			return jsonify({ "success": False }), 404
 		data = request.get_json()
@@ -208,11 +208,11 @@ def edit_email():
 def edit_password():
 	# do not proceed if user is not logged in
 	# if they are logged in, they should have their username in their session cookie
-	id = session.get('id', None)
-	if id is None:
+	user_id = session.get('user_id', None)
+	if user_id is None:
 		return jsonify({ "success": False }), 401
 	try:
-		user = User.find_by_id(id)
+		user = User.find_by_id(user_id)
 		if user is None:
 			return jsonify({ "success": False }), 404
 		data = request.get_json()
@@ -240,18 +240,18 @@ def edit_password():
 @user_blueprint.route('/deleteuser', methods=["POST"])
 def delete_user():
 	# do not proceed if user is not logged in
-	# if they are logged in, they should have their id in their session cookie
-	id = session.get('id', None)
-	if id is None:
+	# if they are logged in, they should have their user_id in their session cookie
+	user_id = session.get('user_id', None)
+	if user_id is None:
 		return jsonify({ "success": False }), 401
 	try:
 		data = request.get_json()
 		password = encrypt(data["password"])
-		user = User.find_by_id(id)
+		user = User.find_by_id(user_id)
 		if user is not None:
 			if user.password == password:
-				User.delete_by_id(id)
-				session.pop('id')
+				User.delete_by_id(user_id)
+				session.pop('user_id')
 				return jsonify({ "success": True }), 200
 			else:
 				return jsonify({ "success": False, "error": 1, "errorMessage": "Incorrect password!" }), 200
@@ -262,14 +262,14 @@ def delete_user():
 
 @user_blueprint.route('/followuser', methods=["POST"])
 def follow_user():
-	id = session.get('id', None)
-	if id is None:
+	user_id = session.get('user_id', None)
+	if user_id is None:
 		return jsonify({ "success": False }), 401
 	try:
 		data = request.get_json()
-		user = User.find_by_id(id)
+		user = User.find_by_id(user_id)
 		if user is not None:
-			status = user.follow(data['id'])
+			status = user.follow(data['user_id'])
 			return jsonify({ "success": True, "status": status }), 200
 		else:
 			return jsonify({ "success": False }), 404
@@ -279,14 +279,14 @@ def follow_user():
 
 @user_blueprint.route('/unfollowuser', methods=["POST"])
 def unfollow_user():
-	id = session.get('id', None)
-	if id is None:
+	user_id = session.get('user_id', None)
+	if user_id is None:
 		return jsonify({ "success": False }), 401
 	try:
 		data = request.get_json()
-		user = User.find_by_id(id)
+		user = User.find_by_id(user_id)
 		if user is not None:
-			status = user.unfollow(data['id'])
+			status = user.unfollow(data['user_id'])
 			return jsonify({ "success": True, "status": status }), 200
 		else:
 			return jsonify({ "success": False }), 404
@@ -296,12 +296,12 @@ def unfollow_user():
 
 @user_blueprint.route('/followtopic', methods=["POST"])
 def follow_topic():
-	username = session.get('username', None)
-	if session.get('username') is None:
+	user_id = session.get('user_id', None)
+	if user_id is None:
 		return jsonify({ "success": False }), 401
 	try:
 		data = request.get_json()
-		user = User.find_by_username(username)
+		user = User.find_by_id(user_id)
 		if user is not None:
 			if user.follow_topic(data["topic_name"]):
 				return jsonify({ "success": True }), 200
@@ -314,12 +314,12 @@ def follow_topic():
 
 @user_blueprint.route('/unfollowtopic', methods=["POST"])
 def unfollow_topic():
-	username = session.get('username', None)
-	if session.get('username') is None:
+	user_id = session.get('user_id', None)
+	if user_id is None:
 		return jsonify({ "success": False }), 401
 	try:
 		data = request.get_json()
-		user = User.find_by_username(username)
+		user = User.find_by_id(user_id)
 		if user is not None:
 			if user.unfollow_topic(data["topic_name"]):
 				return jsonify({ "success": True }), 200

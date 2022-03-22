@@ -5,8 +5,8 @@ class User:
     collection = "users"
 
 
-    def __init__(self, username, email, password, name="", bio="", profile_img="", following=[], followers=[], followed_topics = []) -> None:
-        self.id = id
+    def __init__(self, username, email, password, name="", bio="", profile_img="", following=[], followers=[], followed_topics = [], posts=[], user_id="") -> None:
+        self.user_id = user_id
         self.username = username
         self.email = email
         self.password = password
@@ -15,6 +15,7 @@ class User:
         self.profile_img = profile_img
         self.following = following
         self.followers = followers
+        self.posts = posts
         self.followed_topics = followed_topics
 
     def __eq__(self, other) -> bool:
@@ -24,6 +25,7 @@ class User:
 
     def to_dict(self):
         return {
+            "userId": self.user_id,
             "username": self.username,
             "email": self.email,
             "name": self.name,
@@ -31,11 +33,12 @@ class User:
             "profileImg": self.profile_img,
             "followers": self.followers,
             "following": self.following,
+            "posts": self.posts,
             "followed_topics": self.followed_topics
         }
 
-    # Pushes this object to MongoDB, and returns whether it was successful
-    def push(self) -> bool:
+    # Pushes this object to MongoDB, and returns the user id if it was successful. If error, return None
+    def push(self):
         if Connection.client is None:
             return False
         try: 
@@ -50,10 +53,12 @@ class User:
                 "profile_img": self.profile_img,         
                 "following": self.following,
                 "followers": self.followers,
+                "posts": self.posts,
                 "followed_topics": self.followed_topics
             }
             result = col.insert_one(doc)
-            return str(result.inserted_id)
+            self.user_id = str(result.inserted_id)
+            return self.user_id
         except Exception as e:
             print (e)
             return None
@@ -86,6 +91,23 @@ class User:
             new_value = { "$set": { "email": email } }
             col.update_one(filter, new_value)
             self.email = email
+            return True
+        except Exception as e:
+            print (e)
+            return False
+
+    # Adds a post to this object's list of posts in MongoDB, and returns whether it was successful
+    def add_post(self, post_id) -> bool:
+        if Connection.client is None:
+            return False
+        try: 
+            db = Connection.client[Connection.database]
+            col = db[User.collection]
+            filter = { "username" : self.username }
+            new_value = { "$addToSet": { "posts": post_id } }
+            col.update_one(filter, new_value, upsert=True)
+            if post_id not in self.posts:
+                self.posts.append(post_id)
             return True
         except Exception as e:
             print (e)
@@ -128,7 +150,7 @@ class User:
                 "bio": self.bio,
                 "profile_img": self.profile_img 
             }}
-            col.update_one({ "username" : self.username }, new_value)
+            col.update_one({ "username" : self.username }, new_value).modified_count
             return True
         except Exception as e:
             print (e)
@@ -189,7 +211,7 @@ class User:
             user_to_unfollow.followers.remove(self.id)
 
             new_value = { "$set": { "following": self.following } }
-            col.update_one({ "_id" : ObjectId(self.id) }, new_value)
+            col.update_one({ "_id" : ObjectId(self.user) }, new_value)
 
             new_value = { "$set": { "followers": user_to_unfollow.followers } }
             col.update_one({ "_id" : ObjectId(id) }, new_value)
@@ -245,7 +267,18 @@ class User:
             res = col.find_one(filters)
             if res is None:
                 return None
-            return User(res["username"], res["email"], res["password"], str(res["_id"]), res["name"], res["bio"], res["profile_img"], res["following"], res["followers"])
+            return User(
+                username=res["username"],
+                email=res["email"],
+                password=res["password"],
+                name=res["name"],
+                bio=res["bio"],
+                profile_img=res["profile_img"],
+                following=res["following"],
+                followers=res["followers"],
+                posts=res["posts"],
+                user_id= str(res["_id"])
+            )
         except Exception as e:
             print (e)
             return None
@@ -257,10 +290,9 @@ class User:
             found_user = User.find({ "email": username, "password": hashed_password })
         return found_user
 
-
     @staticmethod
-    def find_by_id(id: str):
-        return User.find({ "_id":  ObjectId(id) })
+    def find_by_id(user_id: str):
+        return User.find({ "_id":  ObjectId(user_id) })
 
     @staticmethod
     def find_by_username(username: str):
@@ -285,6 +317,10 @@ class User:
     @staticmethod
     def delete_by_id(id: str):
         User.delete({ "_id": ObjectId(id) })
+
+    @staticmethod
+    def delete_by_username(username: str):
+        User.delete({ "username": username })
 
     @staticmethod
     def delete_by_email(email: str):
