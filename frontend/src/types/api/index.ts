@@ -8,6 +8,7 @@ export interface GeneralResponseType extends BaseResponseType {
     data?: any,
 }
 
+// unused SWR stuff, ignore
 export interface FetcherResponseType {
     status: number,
     data?: any

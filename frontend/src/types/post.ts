@@ -1,6 +1,8 @@
+import { ID } from './misc';
+
 export interface PostType {
-    postId: string,
-    author: string,
+    postId: ID,
+    authorId: ID,
     title: string,
     caption: string,
     img: string,

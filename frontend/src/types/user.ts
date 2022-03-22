@@ -6,12 +6,12 @@ export interface AccountType {
 }
 
 export interface ProfileType {
+    username: string,
     name?: string,
     bio?: string,
     profileImg?: string,
 }
 
 export interface UserType extends AccountType, ProfileType {
-    // TODO: implement user id
     userId: ID,
 }

@@ -26,10 +26,12 @@ const Login: NextPage = () => {
     useEffect(() => {
         getUser().then((res) => {
             if (res.success && res.data) {
+                dispatch(setCurrentUser(res.data))
                 router.push(`/profile/${res.data.username}`)
             }
             setLoading(false)
         })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router])
 
     if (loading) {

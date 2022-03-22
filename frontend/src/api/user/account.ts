@@ -43,7 +43,7 @@ export const updatePassword = async (oldPassword: string, newPassword: string): 
     }
     return response.data as AccountResponseType
 }
-
+// unused swr stuff, ignore
 export const useUserAccount = (): AccountHookResponseType => {
     const { username } = useSelector((state: ReduxStoreType) => state.user)
     const dispatch = useDispatch()

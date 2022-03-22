@@ -21,8 +21,9 @@ import { createPost } from '../../src/api/post';
 
 interface FormType {
     title: string,
-    body: string,
-    image: string,
+    caption: string,
+    img: string,
+    anonymous: boolean
 }
 
 const CreatePostPage: NextPage = () => {
@@ -30,8 +31,9 @@ const CreatePostPage: NextPage = () => {
     const dispatch = useDispatch()
     const router = useRouter()
     const [loading, setLoading] = useState(username === undefined)
-    const [error, setError] = useState({ title: '', body: '' } as FormType)
-    const [postValue, setPostValue] = useState({ title: '', body: '', image: '' } as FormType)
+    const [postValue, setPostValue] = useState({
+        title: '', caption: '', img: '', anonymous: false,
+    } as FormType)
     const [createLoading, setCreateLoading] = useState(false)
 
     useEffect(() => {
@@ -53,16 +55,16 @@ const CreatePostPage: NextPage = () => {
         setPostValue({ ...postValue, title: e.target.value })
     }
 
-    const handleBodyChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-        setPostValue({ ...postValue, body: e.target.value })
+    const handleCaptionChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+        setPostValue({ ...postValue, caption: e.target.value })
     }
 
-    const handleImageChange = (image: string): void => {
-        setPostValue({ ...postValue, image })
+    const handleImageChange = (img: string): void => {
+        setPostValue({ ...postValue, img })
     }
 
     const handleRemoveImage = (): void => {
-        setPostValue({ ...postValue, image: '' })
+        setPostValue({ ...postValue, img: '' })
     }
 
     const handleCancelButton = (): void => {
@@ -71,7 +73,12 @@ const CreatePostPage: NextPage = () => {
 
     const handleCreateButton = (): void => {
         setCreateLoading(true)
-        createPost({ title: postValue.title, caption: postValue.body, img: postValue.image }).then((res) => {
+        createPost(postValue).then((res) => {
+            if (res.success && res.data) {
+                router.push(`/post/${res.data.postId}`)
+            } else {
+                toast.error(`Could not create post: ${res.errorMessage ?? ''}!`)
+            }
             setCreateLoading(false)
         })
     }
@@ -103,29 +110,30 @@ const CreatePostPage: NextPage = () => {
                 <Container maxWidth="md" sx={{ mt: 6 }}>
                     <StyledTextField
                         label="Title"
-                        placeholder="Title your post something bold!"
-                        error={error.title !== '' || postValue.title.length > LENGTH_LIMIT.POST.TITLE}
-                        helperText={`${error.title !== '' ? `${error.title} ` : ''}${postValue.title.length} / ${LENGTH_LIMIT.POST.TITLE}`}
+                        placeholder="Title your post something memorable"
+                        error={postValue.title.length > LENGTH_LIMIT.POST.TITLE}
+                        helperText={`${postValue.title.length} / ${LENGTH_LIMIT.POST.TITLE}`}
                         onChange={handleTitleChange}
                     />
                     <StyledTextField
                         label="Body"
-                        placeholder="Give your post a story!"
-                        error={error.body !== '' || postValue.body.length > LENGTH_LIMIT.POST.BODY}
-                        helperText={`${error.body !== '' ? `${error.body} ` : ' '}${postValue.body.length} / ${LENGTH_LIMIT.POST.BODY}`}
+                        placeholder="Give your post a story"
+                        error={postValue.caption.length > LENGTH_LIMIT.POST.BODY}
+                        helperText={`${postValue.caption.length} / ${LENGTH_LIMIT.POST.BODY}`}
                         multiline
                         minRows={6}
-                        onChange={handleBodyChange}
+                        onChange={handleCaptionChange}
                         sx={{ mt: 2 }}
                     />
+                    {/* TODO: make toggle anonymous button */}
                     <Box sx={{ mt: 2 }}>
-                        {postValue.image !== '' && (
+                        {postValue.img !== '' && (
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src={postValue.image} style={{ maxWidth: '100%', maxHeight: '20em' }} alt="Uploaded" />
+                            <img src={postValue.img} style={{ maxWidth: '100%', maxHeight: '20em' }} alt="Uploaded" />
                         )}
                         <Stack direction="row" sx={{ mt: 1 }}>
                             <ImageUploadForm text="Attach Image" onImageChange={handleImageChange} sizeLimit={IMG_LIMIT_MB} />
-                            {postValue.image !== '' && <Button sx={{ ml: 2 }} onClick={handleRemoveImage}>Remove</Button>}
+                            {postValue.img !== '' && <Button sx={{ ml: 2 }} onClick={handleRemoveImage}>Remove</Button>}
                         </Stack>
                     </Box>
                     <Stack direction="row" sx={{ mt: 1, width: '100%' }} justifyContent="flex-end">
@@ -135,7 +143,7 @@ const CreatePostPage: NextPage = () => {
                             sx={{ ml: 2 }}
                             loading={createLoading}
                             onClick={handleCreateButton}
-                            disabled={postValue.title.length === 0 || postValue.title.length > LENGTH_LIMIT.POST.TITLE || postValue.body.length > LENGTH_LIMIT.POST.BODY}
+                            disabled={postValue.title.length === 0 || postValue.title.length > LENGTH_LIMIT.POST.TITLE || postValue.caption.length > LENGTH_LIMIT.POST.BODY}
                         >
                             Create
                         </LoadingButton>

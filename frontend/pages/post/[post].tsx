@@ -6,13 +6,14 @@ import {
 } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
-import { useState, useEffect } from 'react';
+import {
+    useState, useEffect, useMemo,
+} from 'react';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
 import AddCommentIcon from '@mui/icons-material/AddComment';
 import ShareIcon from '@mui/icons-material/Share';
 import { toast, ToastContainer } from 'react-toastify';
-import DeleteIcon from '@mui/icons-material/Delete';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import Helmet from '../../src/components/common/Helmet';
 import UserNavbar from '../../src/components/navbar/user';
@@ -20,7 +21,7 @@ import { ReduxStoreType } from '../../src/types/redux';
 import { setCurrentUser } from '../../src/store';
 import { getUser } from '../../src/api/user';
 import { PostType } from '../../src/types/post';
-import { getPost } from '../../src/api/post';
+import { deletePost, getPost } from '../../src/api/post';
 import { TOAST_OPTIONS } from '../../src/constants/toast';
 import BackButton from '../../src/components/common/BackButton';
 
@@ -36,14 +37,16 @@ const StyledChip = styled(Chip)({
 const PostPage: NextPage = () => {
     const router = useRouter()
     const dispatch = useDispatch()
-    const { username } = useSelector((state: ReduxStoreType) => state.user)
+    const { userId } = useSelector((state: ReduxStoreType) => state.user)
 
-    const [loading, setLoading] = useState(username === undefined)
+    const [loading, setLoading] = useState(userId === undefined)
     const [post, setPost]: [PostType | undefined, any] = useState({} as PostType)
     const [postLoading, setPostLoading] = useState(true)
 
+    const isSelfPost = useMemo(() => userId && post.authorId && post.authorId === userId, [userId, post])
+
     useEffect(() => {
-        if (!username) {
+        if (!userId) {
             getUser().then((res) => {
                 if (res.success && res.data) {
                     dispatch(setCurrentUser(res.data))
@@ -55,24 +58,30 @@ const PostPage: NextPage = () => {
                 }
             })
         }
-    }, [router, dispatch, username])
+    }, [router, dispatch, userId])
 
     useEffect(() => {
-        if (username) {
+        if (userId && !loading) {
             const postId = router.query.post;
-            setTimeout(() => setPostLoading(false), 2000)
-            // getPost(postId).then((res) => {
-            //     setPostLoading(false)
-            // })
+            getPost(postId as string).then((res) => {
+                if (res.success && res.data) {
+                    setPost(res.data)
+                    setPostLoading(false)
+                } else if (res.error === 401) {
+                    router.push('/401')
+                } else {
+                    router.push('/404')
+                }
+            })
         }
-    }, [username])
+    }, [userId, loading, router])
 
     const handleLike = (): void => {
-
+        // TODO implement
     }
 
     const handleComment = (): void => {
-
+        // TODO implement
     }
 
     const handleShare = (): void => {
@@ -82,7 +91,15 @@ const PostPage: NextPage = () => {
     }
 
     const handleDelete = (): void => {
-
+        if (isSelfPost) {
+            deletePost(post.postId).then((res) => {
+                if (res.success) {
+                    router.push(`/profile/${userId}`)
+                } else {
+                    toast.error('There was a problem deleting your post!', TOAST_OPTIONS)
+                }
+            })
+        }
     }
 
     if (loading) {
@@ -148,6 +165,7 @@ const PostPage: NextPage = () => {
                         <Typography variant="h3" fontWeight="300" sx={{ mt: 1 }}>
                             Post Title
                         </Typography>
+                        {/* TODO: show author */}
                         <Typography sx={{ my: 2 }}>
                             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
                             tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
@@ -164,8 +182,6 @@ const PostPage: NextPage = () => {
                             <Stack direction="row" flexWrap="wrap" sx={{ mr: 'auto' }}>
                                 {/* TODO: insert tagged topics here as chips */}
                                 <StyledChip label="topic 1" />
-                                <StyledChip label="topic 2" />
-                                <StyledChip label="topic 3" />
                             </Stack>
                             <Stack direction="row" spacing={1} sx={{ mt: 1, mb: 2 }}>
                                 <Tooltip title="Like Post">
@@ -184,13 +200,13 @@ const PostPage: NextPage = () => {
                                         <ShareIcon />
                                     </IconButton>
                                 </Tooltip>
-                                {/* TODO check if author matches */}
-                                {/* {post.authorId ===} */}
-                                <Tooltip title="Delete Post">
-                                    <IconButton onClick={handleDelete} color="error">
-                                        <DeleteOutlineIcon />
-                                    </IconButton>
-                                </Tooltip>
+                                {isSelfPost && (
+                                    <Tooltip title="Delete Post">
+                                        <IconButton onClick={handleDelete} color="error">
+                                            <DeleteOutlineIcon />
+                                        </IconButton>
+                                    </Tooltip>
+                                )}
                             </Stack>
                         </Stack>
                         <Divider sx={{ mb: 4 }} />

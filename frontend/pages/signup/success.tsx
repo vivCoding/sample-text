@@ -1,6 +1,6 @@
 import type { NextPage } from 'next';
 import {
-    Box, Typography, Button, Stack, LinearProgress,
+    Box, Typography, Button, Stack, LinearProgress, CircularProgress,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { useEffect, useState, ChangeEventHandler } from 'react';
@@ -47,8 +47,10 @@ const SignupSuccess: NextPage = () => {
     const handleFinish = (): void => {
         setLoadingEditing(true)
         editProfile({ name, bio, profileImg }).then((res) => {
-            if (res.success) {
-                dispatch(setCurrentProfile({ name, bio, profileImg }))
+            if (res.success && username) {
+                dispatch(setCurrentProfile({
+                    username, name, bio, profileImg,
+                }))
                 router.push(`/profile/${username}`)
             } else {
                 toast.error(res.errorMessage ?? 'Error!', TOAST_OPTIONS)
