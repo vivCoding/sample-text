@@ -6,7 +6,7 @@ class Post:
     collection = "posts"
 
     def __init__(self, title, topic, author_id, img="", caption="", anonymous=False, 
-        likes=[], comments=[], date=datetime.now().strftime("%m/%d/%Y, %H:%M"), post_id=""
+        likes=[], comments=[], date=datetime.now().strftime("%Y/%m/%d, %H:%M:%S"), post_id=""
     ) -> None:
         self.title = title
         self.topic = topic
