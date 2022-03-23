@@ -4,7 +4,7 @@ import { userFetcher } from '.'
 import { setCurrentAccount } from '../../store'
 import { AccountFetchResponseType, AccountHookResponseType, AccountResponseType } from '../../types/api/user'
 import { ReduxStoreType } from '../../types/redux'
-import client from '../httpClient'
+import client from '../client'
 
 export const getAccount = async (): Promise<AccountResponseType> => {
     const response = await client.post('/user/getaccount').catch(() => ({ status: 404, data: undefined }))
@@ -43,7 +43,7 @@ export const updatePassword = async (oldPassword: string, newPassword: string): 
     }
     return response.data as AccountResponseType
 }
-
+// unused swr stuff, ignore
 export const useUserAccount = (): AccountHookResponseType => {
     const { username } = useSelector((state: ReduxStoreType) => state.user)
     const dispatch = useDispatch()

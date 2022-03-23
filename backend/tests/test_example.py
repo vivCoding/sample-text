@@ -1,7 +1,5 @@
 from database.user import User
-from runtests import mongodb
-from runtests import test_client
-from flask.testing import FlaskClient
+from runtests import test_client, mongodb
 
 # Example test functions (delete afterwards)
 # NOTE: ALL TEST FUNCTIONS MUST START WITH PREFIX `test_`
@@ -18,8 +16,10 @@ def test_string():
 def test_db(mongodb):
     if User.find_by_username("bob") is None:
         user = User("bob", "frankieray12345@gmail.com", "password")
-        assert user.push(), "Could not push bob!"
+        assert user.push() is not None, "Could not push bob!"
     assert User.find_by_username("bob") is not None, "Could not find bob!"
+    # make sure you clean up resources afterwards!
+    User.delete_by_username("bob")
 
 # To test flask, import `test_client` fixture from runtests and pass parameter like so
 def test_index_route(test_client):
@@ -27,6 +27,8 @@ def test_index_route(test_client):
     # https://flask.palletsprojects.com/en/2.0.x/testing/
     result = test_client.get("/")
     assert result.status_code == 200, "Could not get index route!"
-    assert test_client.get("/api/user/").status_code == 200, "Could not get user index route!"
+    # it would be wise to clean up cookies after a test.
+    # Also you can clear cookies during the middle of a test, like creating account, clear cookie, then test logging in
+    test_client.cookie_jar.clear()
 
-# TODO: Add test functions to run starting with 'test_'
+# Add test functions to run starting with 'test_'

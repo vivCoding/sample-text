@@ -1,12 +1,11 @@
 import {
-    Button, Stack, Grid, Container, styled,
+    Button, styled,
 } from '@mui/material';
-import { useState, ChangeEventHandler } from 'react'
-import { ToastContainer, toast } from 'react-toastify';
+import { ChangeEventHandler } from 'react'
+import { toast } from 'react-toastify';
 import { convertToBase64, getMb } from '../../utils/image';
 
 import 'react-toastify/dist/ReactToastify.min.css'
-import { PFP_LIMIT_MB } from '../../constants/formLimit';
 
 const Input = styled('input')({
     display: 'none',
@@ -14,14 +13,15 @@ const Input = styled('input')({
 
 interface PropsType {
     text: string,
-    onImageChange?: (img: string) => void
+    onImageChange?: (img: string) => void,
+    sizeLimit: number,
 }
 
-const ImageUploadForm = ({ text, onImageChange }: PropsType): JSX.Element => {
+const ImageUploadForm = ({ text, onImageChange, sizeLimit }: PropsType): JSX.Element => {
     const handleUpload: ChangeEventHandler<HTMLInputElement> = (e): void => {
         if (e.target.files) {
             const file = e.target.files[0]
-            if (getMb(file) < PFP_LIMIT_MB) {
+            if (getMb(file) < sizeLimit) {
                 convertToBase64(file, (res) => {
                     if (onImageChange) {
                         onImageChange(res)
@@ -34,7 +34,7 @@ const ImageUploadForm = ({ text, onImageChange }: PropsType): JSX.Element => {
                         <br />
                         Must be
                         {' '}
-                        {PFP_LIMIT_MB}
+                        {sizeLimit}
                         MB or less
                     </>,
                     {
@@ -57,7 +57,6 @@ const ImageUploadForm = ({ text, onImageChange }: PropsType): JSX.Element => {
             <Button variant="outlined" component="span">
                 {text}
             </Button>
-            <ToastContainer />
         </label>
     )
 }

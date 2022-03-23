@@ -9,7 +9,7 @@ import { ChangeEventHandler, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import { useRouter } from 'next/router';
 import Helmet from '../../src/components/common/Helmet';
 import UserNavbar from '../../src/components/navbar/user';
@@ -19,7 +19,7 @@ import { ReduxStoreType } from '../../src/types/redux';
 import {
     setCurrentAccount, setCurrentProfile, setCurrentUser,
 } from '../../src/store';
-import { LENGTH_LIMIT } from '../../src/constants/formLimit';
+import { LENGTH_LIMIT, PFP_LIMIT_MB } from '../../src/constants/formLimit';
 import { updateEmail, updatePassword, updateUsername } from '../../src/api/user/account'
 import FormRow from '../../src/components/settings/FormRow'
 
@@ -28,6 +28,7 @@ import { editProfile } from '../../src/api/user/profile';
 import { TOAST_OPTIONS } from '../../src/constants/toast';
 import { deleteUser, getUser } from '../../src/api/user';
 import PasswordField from '../../src/components/common/PasswordField';
+import BackButton from '../../src/components/common/BackButton';
 
 const Settings: NextPage = () => {
     const router = useRouter()
@@ -237,20 +238,17 @@ const Settings: NextPage = () => {
 
     return (
         <Box>
-            <ToastContainer />
             <Helmet title="Settings" />
             <UserNavbar />
             <Container maxWidth="md" sx={{ mt: 6, mb: 20 }}>
-                <Stack direction="row" alignItems="center" justifyContent="center">
-                    <Typography variant="h3" fontWeight="300" sx={{ mr: 1 }}>
-                        Settings
-                    </Typography>
-                    {/* <SettingsOutlinedIcon sx={{ fontSize: 50 }} /> */}
-                </Stack>
+                <BackButton />
+                <Typography variant="h3" fontWeight="300" sx={{ mr: 1, textAlign: 'center', width: '100%' }}>
+                    Settings
+                </Typography>
                 <Container maxWidth="md" sx={{ mt: 6 }}>
                     <Typography
                         variant="h4"
-                        sx={{ mt: 5, mb: 3, ml: 0.5 }}
+                        sx={{ mt: 5, mb: 3 }}
                         fontWeight="light"
                     >
                         Profile
@@ -265,7 +263,7 @@ const Settings: NextPage = () => {
                                 <Stack>
                                     <Stack alignItems="center" direction="row">
                                         <ProfileAvatar size={75} sx={{ mr: 2 }} picture64={currentProfileImg} />
-                                        <ImageUpload text="Change" onImageChange={handleImageChange} />
+                                        <ImageUpload text="Change" onImageChange={handleImageChange} sizeLimit={PFP_LIMIT_MB} />
                                         <Button variant="outlined" sx={{ ml: 2 }} onClick={handleRemoveImage}>Remove</Button>
                                     </Stack>
                                 </Stack>
@@ -284,14 +282,14 @@ const Settings: NextPage = () => {
                                 )}
                             </Grid>
                             <Grid item xs={12}><Divider /></Grid>
-                            <FormRow title="Display Name" value={name} disabled={profileLoading} onSave={handleSaveName} charLimit={LENGTH_LIMIT.NAME} />
+                            <FormRow title="Display Name" value={name} disabled={profileLoading} onSave={handleSaveName} charLimit={LENGTH_LIMIT.USER.NAME} />
                             <Grid item xs={12}><Divider /></Grid>
-                            <FormRow title="Biography" value={bio} multiline disabled={profileLoading} onSave={handleSaveBio} charLimit={LENGTH_LIMIT.BIO} />
+                            <FormRow title="Biography" value={bio} multiline disabled={profileLoading} onSave={handleSaveBio} charLimit={LENGTH_LIMIT.USER.BIO} />
                         </Grid>
                     </Paper>
                     <Typography
                         variant="h4"
-                        sx={{ mt: 10, mb: 3, ml: 0.5 }}
+                        sx={{ mt: 10, mb: 3 }}
                         fontWeight="light"
                     >
                         Account

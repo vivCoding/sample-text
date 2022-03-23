@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { ID } from '../../types/misc'
 import { UserSliceType } from '../../types/redux'
 import { ProfileType, AccountType, UserType } from '../../types/user'
 
@@ -10,13 +11,15 @@ export const userSlice = createSlice({
     reducers: {
         setCurrentUser: (state, action: PayloadAction<UserType>) => {
             const {
-                username, email, name, bio, profileImg,
+                userId, username, email, name, bio, profileImg, posts,
             } = action.payload
+            state.userId = userId
             state.username = username
             state.email = email
             state.name = name
             state.bio = bio
             state.profileImg = profileImg
+            state.posts = posts
         },
         setCurrentAccount: (state, action: PayloadAction<AccountType>) => {
             const { username, email } = action.payload
@@ -24,22 +27,40 @@ export const userSlice = createSlice({
             state.email = email
         },
         setCurrentProfile: (state, action: PayloadAction<ProfileType>) => {
-            const { name, bio, profileImg } = action.payload
-            if (name) state.name = name
-            if (bio) state.bio = bio
-            if (profileImg) state.profileImg = profileImg
+            const {
+                name, bio, profileImg, posts,
+            } = action.payload
+            state.name = name
+            state.bio = bio
+            state.profileImg = profileImg
+            state.posts = posts
         },
         clearUser: (state) => {
+            state.userId = undefined
             state.username = undefined
             state.email = undefined
             state.name = undefined
             state.bio = undefined
             state.profileImg = undefined
+            state.posts = undefined
+        },
+        setPostIds: (state, action: PayloadAction<ID[]>) => {
+            state.posts = action.payload
+        },
+        addPostId: (state, action: PayloadAction<ID>) => {
+            if (state.posts) {
+                state.posts.push(action.payload)
+            }
+        },
+        removePostId: (state, action: PayloadAction<ID>) => {
+            if (state.posts) {
+                state.posts = state.posts.filter((postId) => postId !== action.payload)
+            }
         },
     },
 })
 
 export const {
-    setCurrentUser, setCurrentAccount, setCurrentProfile, clearUser,
+    setCurrentUser, setCurrentAccount, setCurrentProfile, clearUser, setPostIds, addPostId, removePostId,
 } = userSlice.actions
 export default userSlice.reducer

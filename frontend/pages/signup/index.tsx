@@ -10,7 +10,7 @@ import Link from '../../src/components/common/Link';
 import PasswordField from '../../src/components/common/PasswordField';
 import Helmet from '../../src/components/common/Helmet';
 import StyledTextField from '../../src/components/common/StyledTextField';
-import { createUser } from '../../src/api/user';
+import { createUser, getUser } from '../../src/api/user';
 import Navbar from '../../src/components/navbar';
 import { setCurrentUser } from '../../src/store';
 import { UserType } from '../../src/types/user';
@@ -38,8 +38,9 @@ const Signup: NextPage = () => {
 
     const [loading, setLoading] = useState(true)
     useEffect(() => {
-        getAccount().then((res) => {
-            if (res.success) {
+        getUser().then((res) => {
+            if (res.success && res.data) {
+                dispatch(setCurrentUser(res.data))
                 router.push('/timeline')
             }
             setLoading(false)
@@ -48,6 +49,7 @@ const Signup: NextPage = () => {
 
     if (loading) {
         return (
+            // TODO move to component
             <Box>
                 <Helmet title="Sign Up" />
                 <Navbar />
