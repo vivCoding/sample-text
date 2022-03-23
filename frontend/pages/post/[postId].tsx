@@ -1,32 +1,29 @@
-import type { NextPage } from 'next';
-import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
-import {
-    Button, Stack, Container, IconButton, ButtonGroup, Divider, Skeleton, CircularProgress, Chip, styled, Tooltip,
-} from '@mui/material';
-import { useDispatch, useSelector } from 'react-redux';
-import { useRouter } from 'next/router';
-import {
-    useState, useEffect, useMemo,
-} from 'react';
-import ThumbUpIcon from '@mui/icons-material/ThumbUp';
-import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
 import AddCommentIcon from '@mui/icons-material/AddComment';
 import CommentIcon from '@mui/icons-material/Comment';
-import ShareIcon from '@mui/icons-material/Share';
-import { toast } from 'react-toastify';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import Helmet from '../../src/components/common/Helmet';
-import UserNavbar from '../../src/components/navbar/user';
-import { ReduxStoreType } from '../../src/types/redux';
-import { setCurrentUser } from '../../src/store';
-import { getUser } from '../../src/api/user';
-import { PostType } from '../../src/types/post';
+import ShareIcon from '@mui/icons-material/Share';
+import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
+import {
+    Chip, CircularProgress, Container, Divider, IconButton, Skeleton, Stack, styled, Tooltip,
+} from '@mui/material';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import type { NextPage } from 'next';
+import { useRouter } from 'next/router';
+import { useEffect, useMemo, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 import { deletePost, getPost } from '../../src/api/post';
-import { TOAST_OPTIONS } from '../../src/constants/toast';
-import BackButton from '../../src/components/common/BackButton';
+import { getUser } from '../../src/api/user';
 import { getProfile } from '../../src/api/user/profile';
+import BackButton from '../../src/components/common/BackButton';
+import Helmet from '../../src/components/common/Helmet';
 import ProfileAvatar from '../../src/components/common/ProfileAvatar';
+import UserNavbar from '../../src/components/navbar/user';
+import { TOAST_OPTIONS } from '../../src/constants/toast';
+import { removePostId, setCurrentUser } from '../../src/store';
+import { PostType } from '../../src/types/post';
+import { ReduxStoreType } from '../../src/types/redux';
 
 const StyledChip = styled(Chip)({
     margin: 5,
@@ -121,6 +118,7 @@ const PostPage: NextPage = () => {
         if (isSelfPost) {
             deletePost(post.postId).then((res) => {
                 if (res.success) {
+                    dispatch(removePostId(post.postId))
                     router.push(`/profile/${userId}`)
                     toast.success('Successfully deleted post!', TOAST_OPTIONS)
                 } else {
@@ -153,7 +151,7 @@ const PostPage: NextPage = () => {
 
     return (
         <Box>
-            <Helmet title={`${post.title === '' ? 'Post' : post.title} | Sample Text`} />
+            <Helmet title={`${(post.title ?? '') === '' ? 'Post' : post.title} | Sample Text`} />
             <UserNavbar />
             <Container maxWidth="md" sx={{ mt: 6, mb: 20 }}>
                 <BackButton />
@@ -194,11 +192,35 @@ const PostPage: NextPage = () => {
                         <Divider sx={{ mb: 4 }} />
                     </>
                 ) : (
-                    <>
-                        <Stack direction="row" spacing={1} alignItems="center" sx={{ '&:hover': { cursor: 'pointer' }, mt: 3 }} onClick={handleAuthorClick}>
-                            <ProfileAvatar size={25} picture64={authorPfp} />
-                            <Typography variant="body1" fontWeight="light">
-                                {isAnonymous ? 'Posted Anonymously' : `u/${authorName}`}
+                    <Box sx={{ mt: 3 }}>
+                        <Stack
+                            direction="row"
+                            spacing={1}
+                            alignItems="center"
+                            onClick={handleAuthorClick}
+                        >
+                            <Typography variant="body2" color="text.secondary">
+                                Posted by
+                            </Typography>
+                            <Stack
+                                direction="row"
+                                spacing={1}
+                                alignItems="center"
+                                sx={{
+                                    '&:hover': {
+                                        cursor: isAnonymous ? 'auto' : 'pointer',
+                                        opacity: isAnonymous ? '100%' : '75%',
+                                        transition: isAnonymous ? '0.2s' : '0.2s',
+                                    },
+                                }}
+                            >
+                                <ProfileAvatar size={25} picture64={authorPfp} />
+                                <Typography variant="body2">
+                                    {isAnonymous ? 'Anonymous' : `u/${authorName}`}
+                                </Typography>
+                            </Stack>
+                            <Typography variant="body2" color="text.secondary">
+                                {`at ${post.date}`}
                             </Typography>
                         </Stack>
                         <Typography variant="h3" fontWeight="300">
@@ -255,7 +277,7 @@ const PostPage: NextPage = () => {
                             </Stack>
                         </Stack>
                         <Divider sx={{ mb: 4 }} />
-                    </>
+                    </Box>
                 )}
             </Container>
         </Box>

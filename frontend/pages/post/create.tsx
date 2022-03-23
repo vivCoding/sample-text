@@ -1,24 +1,24 @@
-import type { NextPage } from 'next';
-import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
-import {
-    Button, Stack, Container, CircularProgress, FormControlLabel, Switch,
-} from '@mui/material';
-import { useDispatch, useSelector } from 'react-redux';
-import { useState, useEffect, ChangeEventHandler } from 'react';
-import { useRouter } from 'next/router';
-import { toast, ToastContainer } from 'react-toastify';
 import { LoadingButton } from '@mui/lab';
-import Helmet from '../../src/components/common/Helmet';
-import UserNavbar from '../../src/components/navbar/user';
-import { ReduxStoreType } from '../../src/types/redux';
-import { getUser } from '../../src/api/user';
-import { setCurrentProfile, setCurrentUser } from '../../src/store';
-import StyledTextField from '../../src/components/common/StyledTextField';
-import { LENGTH_LIMIT, IMG_LIMIT_MB } from '../../src/constants/formLimit';
-import ImageUploadForm from '../../src/components/common/ImageUpload';
+import {
+    Button, CircularProgress, Container, FormControlLabel, Stack, Switch,
+} from '@mui/material';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import type { NextPage } from 'next';
+import { useRouter } from 'next/router';
+import { ChangeEventHandler, useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 import { createPost } from '../../src/api/post';
+import { getUser } from '../../src/api/user';
+import Helmet from '../../src/components/common/Helmet';
+import ImageUploadForm from '../../src/components/common/ImageUpload';
+import StyledTextField from '../../src/components/common/StyledTextField';
+import UserNavbar from '../../src/components/navbar/user';
+import { IMG_LIMIT_MB, LENGTH_LIMIT } from '../../src/constants/formLimit';
 import { TOAST_OPTIONS } from '../../src/constants/toast';
+import { addPostId, setCurrentUser } from '../../src/store';
+import { ReduxStoreType } from '../../src/types/redux';
 
 interface FormType {
     title: string,
@@ -80,6 +80,7 @@ const CreatePostPage: NextPage = () => {
         setCreateLoading(true)
         createPost(postValue).then((res) => {
             if (res.success && res.data) {
+                dispatch(addPostId(res.data.postId))
                 router.push(`/post/${res.data.postId}`)
                 toast.success('Successfully created post!', TOAST_OPTIONS)
             } else {

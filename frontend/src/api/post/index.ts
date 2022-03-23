@@ -1,7 +1,6 @@
 import { GeneralResponseType } from '../../types/api'
 import { PostResponseType } from '../../types/api/post'
 import { ID } from '../../types/misc'
-import { PostType } from '../../types/post'
 import client from '../client'
 
 export const createPost = async ({

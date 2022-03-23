@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { ID } from '../../types/misc'
 import { UserSliceType } from '../../types/redux'
 import { ProfileType, AccountType, UserType } from '../../types/user'
 
@@ -26,10 +27,13 @@ export const userSlice = createSlice({
             state.email = email
         },
         setCurrentProfile: (state, action: PayloadAction<ProfileType>) => {
-            const { name, bio, profileImg } = action.payload
+            const {
+                name, bio, profileImg, posts,
+            } = action.payload
             state.name = name
             state.bio = bio
             state.profileImg = profileImg
+            state.posts = posts
         },
         clearUser: (state) => {
             state.userId = undefined
@@ -38,11 +42,25 @@ export const userSlice = createSlice({
             state.name = undefined
             state.bio = undefined
             state.profileImg = undefined
+            state.posts = undefined
+        },
+        setPostIds: (state, action: PayloadAction<ID[]>) => {
+            state.posts = action.payload
+        },
+        addPostId: (state, action: PayloadAction<ID>) => {
+            if (state.posts) {
+                state.posts.push(action.payload)
+            }
+        },
+        removePostId: (state, action: PayloadAction<ID>) => {
+            if (state.posts) {
+                state.posts = state.posts.filter((postId) => postId !== action.payload)
+            }
         },
     },
 })
 
 export const {
-    setCurrentUser, setCurrentAccount, setCurrentProfile, clearUser,
+    setCurrentUser, setCurrentAccount, setCurrentProfile, clearUser, setPostIds, addPostId, removePostId,
 } = userSlice.actions
 export default userSlice.reducer

@@ -1,6 +1,7 @@
 from .connect import Connection
 from datetime import datetime
 from database.user import User
+from bson.objectid import ObjectId
 
 class Post:
     collection = "posts"
@@ -121,6 +122,12 @@ class Post:
             db = Connection.client[Connection.database]
             col = db[Post.collection]
             res = col.find_one({'post_id': post_id})
+            user_col = db[User.collection]
+            user_col.update_one({'_id': ObjectId(res.get("author_id", "")) }, {
+                "$pull": {
+                    "posts": post_id
+                }
+            })
             col.delete_one(res)
         except Exception as e:
             print (e)

@@ -7,7 +7,6 @@ import AddBoxIcon from '@mui/icons-material/AddBox';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/Person';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
