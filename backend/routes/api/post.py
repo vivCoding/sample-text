@@ -32,10 +32,6 @@ def create_post():
 					data.get("img", ""),
 					data.get("caption", ""),
 					data.get("anonymous", ""),
-					data.get("likes", ""),
-					data.get("comments", ""),
-					data.get("date", ""),
-					data.get("post_id", "")
 				)
 				new_post.push()
 				# add this post under its topic in the database

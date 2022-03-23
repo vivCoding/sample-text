@@ -1,24 +1,24 @@
-import type { NextPage } from 'next';
-import {
-    Box, Typography, Button, Stack, LinearProgress, CircularProgress,
-} from '@mui/material';
-import { LoadingButton } from '@mui/lab';
-import { useEffect, useState, ChangeEventHandler } from 'react';
-import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
-import { useRouter } from 'next/router';
 import CheckIcon from '@mui/icons-material/Check';
-import { ToastContainer, toast } from 'react-toastify';
+import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
+import { LoadingButton } from '@mui/lab';
+import {
+    Box, Button, LinearProgress, Stack, Typography,
+} from '@mui/material';
+import type { NextPage } from 'next';
+import { useRouter } from 'next/router';
+import { ChangeEventHandler, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
+import { editProfile } from '../../src/api/user/profile';
 import Helmet from '../../src/components/common/Helmet';
+import ImageUpload from '../../src/components/common/ImageUpload';
+import ProfileAvatar from '../../src/components/common/ProfileAvatar';
 import StyledTextField from '../../src/components/common/StyledTextField';
-import ProfileAvatar from '../../src/components/common/ProfileAvatar'
-import ImageUpload from '../../src/components/common/ImageUpload'
 import UserNavbar from '../../src/components/navbar/user';
 import { LENGTH_LIMIT, PFP_LIMIT_MB } from '../../src/constants/formLimit';
-import { ReduxStoreType } from '../../src/types/redux';
-import { setCurrentProfile } from '../../src/store';
-import { editProfile } from '../../src/api/user/profile';
 import { TOAST_OPTIONS } from '../../src/constants/toast';
+import { setCurrentProfile } from '../../src/store';
+import { ReduxStoreType } from '../../src/types/redux';
 
 const SignupSuccess: NextPage = () => {
     const router = useRouter()

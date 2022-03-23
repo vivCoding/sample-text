@@ -7,4 +7,5 @@ export interface PostType {
     caption: string,
     img: string,
     anonymous: boolean,
+    date: string,
 }

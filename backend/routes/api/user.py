@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request, session
 from utils.encrypt import encrypt
 from utils.validate_fields import check_account_fields, check_email, check_password, check_username
 from database.user import User
+from database.post import Post
 import hashlib
 
 user_blueprint = Blueprint("user", __name__)
@@ -86,7 +87,8 @@ def get_user():
 @user_blueprint.route('/getprofile', methods=["POST"])
 def get_profile():
 	# do not proceed if user is not logged in
-	if session.get('user_id', None) is None:
+	user_id = session.get('user_id', None)
+	if user_id is None:
 		return jsonify({ "success": False }), 401
 	try:
 		data = request.get_json()
@@ -98,6 +100,15 @@ def get_profile():
 		if user is not None:
 			return_dict = user.to_dict()
 			return_dict.pop("email")
+			# we also want to sort the posts made, and not return the ones that are not anonymous
+			# if the person logged in is getting their own profile, view everything
+			if user.user_id != user_id:
+				filtered_posts = []
+				for post_id in user.posts:
+					post = Post.find(post_id)
+					if post is not None and not post.anonymous: 
+						filtered_posts.append(post_id)
+				return_dict["posts"] = filtered_posts
 			return jsonify({ "success": True, "data": return_dict }), 200
 		else:
 			return jsonify({ "success": False }), 404

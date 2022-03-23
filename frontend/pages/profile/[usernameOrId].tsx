@@ -1,19 +1,20 @@
 import {
-    Button, Stack, Box, Container, Grid, Typography, Skeleton, CircularProgress, Divider, Card,
+    Box, Button, CircularProgress, Container, Divider, Grid, Skeleton, Stack, Typography,
 } from '@mui/material';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { getUser } from '../../src/api/user';
+import { getProfile } from '../../src/api/user/profile';
+import Helmet from '../../src/components/common/Helmet';
 import Link from '../../src/components/common/Link';
 import ProfileAvatar from '../../src/components/common/ProfileAvatar';
-import { getProfile } from '../../src/api/user/profile';
-import { ProfileType } from '../../src/types/user';
+import LazyPost from '../../src/components/LazyPost';
 import UserNavbar from '../../src/components/navbar/user';
-import Helmet from '../../src/components/common/Helmet';
-import { ReduxStoreType } from '../../src/types/redux';
 import { setCurrentUser } from '../../src/store';
-import { getUser } from '../../src/api/user';
+import { ReduxStoreType } from '../../src/types/redux';
+import { ProfileType } from '../../src/types/user';
 
 const UserProfilePage: NextPage = () => {
     const router = useRouter()
@@ -48,7 +49,7 @@ const UserProfilePage: NextPage = () => {
     }, [])
 
     useEffect(() => {
-        if (query.usernameOrId) {
+        if (userId && !loadingUser && query.usernameOrId) {
             if (isSelf && username && posts) {
                 setProfile({
                     username, name, bio, profileImg, posts,
@@ -70,7 +71,7 @@ const UserProfilePage: NextPage = () => {
             }
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [router, query])
+    }, [router, query, userId, loadingUser])
 
     if (loadingUser || !userId) {
         return (
@@ -118,8 +119,8 @@ const UserProfilePage: NextPage = () => {
         <Box>
             <Helmet title={`${profile.username}'s Profile`} />
             <UserNavbar />
-            <Container sx={{ mt: 5, width: '90vw' }}>
-                <Stack direction="row" sx={{ mb: 5 }}>
+            <Container sx={{ mt: 5, width: '90vw', mb: 10 }}>
+                <Stack direction="row">
                     <ProfileAvatar size={200} picture64={profile.profileImg} />
                     <Grid rowSpacing={2} container sx={{ ml: 5 }}>
                         <Grid item xs={12}>
@@ -139,17 +140,16 @@ const UserProfilePage: NextPage = () => {
                         )}
                     </Grid>
                 </Stack>
-                <Divider />
-                {/* TODO show user posts */}
+                <Divider sx={{ my: 5 }} />
+                <Typography variant="h4" sx={{ mb: 5 }}>Posts Made</Typography>
                 <Stack>
                     {profile.posts.length === 0
                         ? <Typography variant="h6">No posts made</Typography>
                         : (
-                            profile.posts.map((post) => (
-                                <Stack key={post} direction="row" alignItems="center">
-                                    <Typography variant="body1">{post}</Typography>
-                                    <Button onClick={() => router.push(`/post/${post}`)}>Go to post</Button>
-                                </Stack>
+                            profile.posts.map((postId) => (
+                                <Box key={postId} sx={{ my: 1 }}>
+                                    <LazyPost key={postId} postId={postId} />
+                                </Box>
                             ))
                         )}
                 </Stack>

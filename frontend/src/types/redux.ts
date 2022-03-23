@@ -7,9 +7,9 @@ export interface UserSliceType {
     name?: string,
     bio?: string,
     profileImg?: string,
-    posts?: ID[],
+    posts?: ID[]
 }
 
 export interface ReduxStoreType {
-    user: UserSliceType
+    user: UserSliceType,
 }
