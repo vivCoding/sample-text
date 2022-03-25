@@ -1,5 +1,3 @@
-import tempfile
-from time import time
 from flask import session
 from runtests import test_client
 from database.user import User
