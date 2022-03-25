@@ -75,6 +75,20 @@ class Post:
             print (e)
             return False
 
+    # Updates this object's likes in MongoDB, and returns whether it was successful
+    def unlike(self, user_id: str) -> bool:
+        try:
+            db = Connection.client[Connection.database]
+            col = db[Post.collection]
+            filter = { "post_id": self.post_id }
+            new_value = { "$pull": { "likes": user_id } }
+            col.update_one(filter, new_value)
+            self.likes.remove(user_id)
+            return True
+        except Exception as e:
+            print(e)
+            return False
+
     # Updates this object's comments in MongoDB, and returns whether it was successful
     def add_comment(self, user_id: str, comment: str) -> bool:
         try: 
