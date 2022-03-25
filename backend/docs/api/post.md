@@ -121,6 +121,30 @@ Like a post, incrementing the total and recording the user who liked the post in
 - Response status code 404 post does not exist
 - Response status code 500 exception during execution
 
+## `POST /api/post/unlikepost`
+
+Unlikes a post, removing the user_id from the list of users. Returns the new number of likes
+
+### Request Body
+```json
+{
+    "post_id": string
+}
+```
+
+### Response Types
+```json
+{
+    "success": boolean,
+    "data": {
+        "likeCount": int
+    }
+}
+```
+- Response status code 401 if user is not logged in
+- Response status code 404 if post does not exist
+- Response status code 500 if exception occurs during execution1
+
 ## `POST /api/post/commentonpost`
 
 Comment on a post, recording the user and the comment as a list in MongoDB. Returns the new list of user, comment pairs on the post
