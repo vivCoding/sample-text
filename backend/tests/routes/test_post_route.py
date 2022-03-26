@@ -131,7 +131,8 @@ def test_like_post(test_client):
         data = response.json
         assert response.status_code == 200, "Bad like post response, got " + str(response.status_code)
         post = Post.find(post.post_id)
-        assert data["success"] == True and len(post.likes) == likeCount + 1 and userId in post.likes, f"Like post test failed for post {post.post_id}, got success {data.get('success', None)} and error {data.get('error', None)}"
+        user = User.find_by_email(user.email)
+        assert data["success"] == True and len(post.likes) == likeCount + 1 and userId in post.likes and post.post_id in user.liked_posts, f"Like post test failed for post {post.post_id}, got success {data.get('success', None)} and error {data.get('error', None)}"
     finally:
         if User.find_by_email(user.email):
             User.delete_by_email(user.email)
@@ -181,7 +182,8 @@ def test_unlike_post(test_client):
         data = response.json
         assert response.status_code == 200, "Bad like post response, got " + str(response.status_code)
         post = Post.find(post.post_id)
-        assert data["success"] == True and len(post.likes) == likeCount + 1 and userId in post.likes, f"Like post test failed for post {post.post_id}, got success {data.get('success', None)} and error {data.get('error', None)}"
+        user = User.find_by_email(user.email)
+        assert data["success"] == True and len(post.likes) == likeCount + 1 and userId in post.likes and post.post_id in user.liked_posts, f"Like post test failed for post {post.post_id}, got success {data.get('success', None)} and error {data.get('error', None)}"
     
         # track initial number of likes
         likeCount = len(post.likes)
@@ -192,7 +194,8 @@ def test_unlike_post(test_client):
         data = response.json
         assert response.status_code == 200, "Bad unlike post response, got " + str(response.status_code)
         post = Post.find(post.post_id)
-        assert data["success"] == True and len(post.likes) == likeCount - 1 and userId not in post.likes, f"Unlike post test failed for post {post.post_id}, got success {data.get('success', None)} and error {data.get('error', None)}"
+        user = User.find_by_email(user.email)
+        assert data["success"] == True and len(post.likes) == likeCount - 1 and userId not in post.likes and post.post_id not in user.liked_posts, f"Unlike post test failed for post {post.post_id}, got success {data.get('success', None)} and error {data.get('error', None)}"
     
     finally:
         if User.find_by_email(user.email):

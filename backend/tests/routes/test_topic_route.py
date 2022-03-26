@@ -119,7 +119,7 @@ def test_topic_follow(test_client):
         assert response.status_code == 200, "Bad response for following a topic " + str(response.status_code)
         assert data["success"], f"Following topic test failed, got success {data.get('success', None)}"
 
-        assert topic.topic_name in user.followed_topics, "Mismatch between db!"
+        assert topic.topic_name in User.find_by_email(user.email).followed_topics, "Mismatch between db!"
     finally:
         if Topic.find_by_name(topic.topic_name):
             Topic.delete(topic.topic_name)
@@ -155,7 +155,7 @@ def test_topic_unfollow(test_client):
         assert response.status_code == 200, "Bad response for following a topic " + str(response.status_code)
         assert data["success"], f"Following topic test failed, got success {data.get('success', None)}"
 
-        assert topic.topic_name in user.followed_topics, "Mismatch between db!"
+        assert topic.topic_name in User.find_by_email(user.email).followed_topics, "Mismatch between db!"
 
         response = test_client.post('api/user/unfollowtopic', json={
             "topic_name": topic.topic_name
@@ -165,7 +165,7 @@ def test_topic_unfollow(test_client):
         assert response.status_code == 200, "Bad response for unfollowing a topic " + str(response.status_code)
         assert data["success"], f"Unfollowing topic test failed, got success {data.get('success', None)}"
 
-        assert topic.topic_name not in user.followed_topics, "Mismatch between db!"
+        assert topic.topic_name not in User.find_by_email(user.email).followed_topics, "Mismatch between db!"
     finally:
         if Topic.find_by_name(topic.topic_name):
             Topic.delete(topic.topic_name)
