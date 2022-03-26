@@ -70,6 +70,12 @@ class Post:
             col.update_one(filter, new_value, upsert=True)
             if user_id not in self.likes:
                 self.likes.append(user_id)
+
+            usercol = db[User.collection]
+            filter = { "_id": ObjectId(user_id) }
+            new_value = { "$addToSet": { "liked_posts": self.post_id } }
+            usercol.update_one(filter, new_value)
+
             return True
         except Exception as e:
             print (e)
@@ -84,6 +90,12 @@ class Post:
             new_value = { "$pull": { "likes": user_id } }
             col.update_one(filter, new_value)
             self.likes.remove(user_id)
+
+            usercol = db[User.collection]
+            filter = { "_id": ObjectId(user_id) }
+            new_value = { "$pull": { "liked_posts": self.post_id } }
+            usercol.update_one(filter, new_value)
+
             return True
         except Exception as e:
             print(e)
@@ -142,6 +154,12 @@ class Post:
                     "posts": post_id
                 }
             })
+
+            for _id in res["likes"]:
+                filter = { "_id": ObjectId(_id) }
+                new_value = { "$pull": { "liked_posts": post_id } }
+                user_col.update_one(filter, new_value)
+
             col.delete_one(res)
         except Exception as e:
             print (e)
