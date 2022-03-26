@@ -281,7 +281,7 @@ class User:
                 following=res["following"],
                 followers=res["followers"],
                 posts=res["posts"],
-                followed_topics=res["posts"],
+                followed_topics=res["followed_topics"],
                 liked_posts=res["liked_posts"],
                 user_id= str(res["_id"])
             )
