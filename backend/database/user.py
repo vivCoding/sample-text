@@ -18,7 +18,7 @@ class User:
         self.followers = followers
         self.posts = posts
         self.followed_topics = followed_topics
-        self.liked_posts = liked_posts,
+        self.liked_posts = liked_posts
         self.comments = comments
 
     def __eq__(self, other) -> bool:
@@ -327,8 +327,7 @@ class User:
                 postcol.update_one(filter, new_value)
             col.delete_one(res)
 
-            postcol = db["posts"]
-            new_value = { "$pull": { "comments": { "user_id": str(res["_id"]) } } }
+            new_value = { "$pull": { "comments": { "$elemMatch": { "user_id": str(res["_id"]) } } } }
             for post_id in res["comments"]:
                 filter = { "post_id": post_id}
                 postcol.update_one(filter, new_value)

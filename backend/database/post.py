@@ -167,9 +167,10 @@ class Post:
                 user_col.update_one(filter, new_value)
 
             for comment in res["comments"]:
-                user_id = comment["user_id"]
+                user_id = comment[0]["user_id"]
                 filter = { "_id": ObjectId(user_id) }
                 new_value = { "$pull": { "comments": post_id }}
+                user_col.update_one(filter, new_value)
 
             col.delete_one(res)
         except Exception as e:
