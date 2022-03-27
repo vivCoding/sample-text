@@ -44,3 +44,4 @@ def test_unfollow_topic_again(mongodb):
 def test_delete_topic(mongodb):
     Topic.delete(good_topic.topic_name)
     assert Topic.find_by_name(good_topic.topic_name) is None, "Topic was not deleted"
+    User.delete_by_email(good_user.email)

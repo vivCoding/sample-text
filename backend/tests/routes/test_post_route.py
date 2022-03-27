@@ -245,7 +245,7 @@ def test_comment_on_post(test_client):
         data = response.json
         assert response.status_code == 200, "Bad response, got " + str(response.status_code)
         assert data["success"] == True, f"Comment on post test failed for: {comment}, error: {data.get('errorMessage', None)}"
-        assert [user_data["data"]["userId"], comment] in data["data"]["comments"], "Comment was not added correctly"
+        assert [{"user_id": user_data["data"]["userId"]}, {"comment": comment}] in data["data"]["comments"], "Comment was not added correctly"
         assert post.post_id in User.find_by_email(user.email).comments, "post_id not added to user's list of comments"
 
         # invalid comment on a post

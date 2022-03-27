@@ -41,8 +41,8 @@ def test_post(mongodb):
     assert post.post_id not in User.find_by_username(user.username).liked_posts, "post_id not removed from user's list of liked posts"
 
     # test add comment
-    pair = [user.user_id, "epic post dude! wow!"]
-    post.add_comment(user.user_id, comment=pair[1])
+    pair = [{"user_id": user.user_id}, {"comment": "epic post dude! wow!"}]
+    post.add_comment(pair[0]["user_id"], pair[1]["comment"])
     post2.add_comment(user2.user_id, "comment2")
     post3.add_comment(user3.user_id, "comment3")
     user = User.find_by_email(user.email)
