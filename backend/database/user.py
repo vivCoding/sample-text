@@ -6,7 +6,7 @@ class User:
     collection = "users"
 
 
-    def __init__(self, username, email, password, name="", bio="", profile_img="", following=[], followers=[], followed_topics = [], posts=[], liked_posts = [], user_id="") -> None:
+    def __init__(self, username, email, password, name="", bio="", profile_img="", following=[], followers=[], followed_topics = [], posts=[], liked_posts = [], comments=[], user_id="") -> None:
         self.user_id = user_id
         self.username = username
         self.email = email
@@ -19,6 +19,7 @@ class User:
         self.posts = posts
         self.followed_topics = followed_topics
         self.liked_posts = liked_posts
+        self.comments = comments
 
     def __eq__(self, other) -> bool:
         if isinstance(other, User):
@@ -37,7 +38,8 @@ class User:
             "following": self.following,
             "posts": self.posts,
             "followed_topics": self.followed_topics,
-            "liked_posts": self.liked_posts
+            "liked_posts": self.liked_posts,
+            "comments": self.comments
         }
 
     # Pushes this object to MongoDB, and returns the user id if it was successful. If error, return None
@@ -58,7 +60,8 @@ class User:
                 "followers": self.followers,
                 "posts": self.posts,
                 "followed_topics": self.followed_topics,
-                "liked_posts": self.liked_posts
+                "liked_posts": self.liked_posts,
+                "comments": self.comments
             }
             result = col.insert_one(doc)
             self.user_id = str(result.inserted_id)
@@ -283,6 +286,7 @@ class User:
                 posts=res["posts"],
                 followed_topics=res["followed_topics"],
                 liked_posts=res["liked_posts"],
+                comments=res["comments"],
                 user_id= str(res["_id"])
             )
         except Exception as e:
@@ -322,6 +326,12 @@ class User:
                 filter = { "post_id": post_id }
                 postcol.update_one(filter, new_value)
             col.delete_one(res)
+
+            new_value = { "$pull": { "comments": { "$elemMatch": { "user_id": str(res["_id"]) } } } }
+            for post_id in res["comments"]:
+                filter = { "post_id": post_id}
+                postcol.update_one(filter, new_value)
+
         except Exception as e:
             print (e)
             return None

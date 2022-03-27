@@ -110,7 +110,13 @@ class Post:
             pair = [user_id, comment]
             new_value = { "$push": {"comments": [{'user_id': user_id}, {"comment": comment}]} }
             col.update_one(filter, new_value, upsert=True)
-            self.comments.append(pair)
+            self.comments.append([{"user_id": user_id}, {"comment": comment}])
+
+            usercol = db[User.collection]
+            filter = { "_id": ObjectId(user_id) }
+            new_value = { "$push": { "comments": self.post_id} }
+            usercol.update_one(filter, new_value)
+
             return True
         except Exception as e:
             print (e)
@@ -158,6 +164,12 @@ class Post:
             for _id in res["likes"]:
                 filter = { "_id": ObjectId(_id) }
                 new_value = { "$pull": { "liked_posts": post_id } }
+                user_col.update_one(filter, new_value)
+
+            for comment in res["comments"]:
+                user_id = comment[0]["user_id"]
+                filter = { "_id": ObjectId(user_id) }
+                new_value = { "$pull": { "comments": post_id }}
                 user_col.update_one(filter, new_value)
 
             col.delete_one(res)

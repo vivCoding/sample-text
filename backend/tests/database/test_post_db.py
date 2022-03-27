@@ -41,24 +41,31 @@ def test_post(mongodb):
     assert post.post_id not in User.find_by_username(user.username).liked_posts, "post_id not removed from user's list of liked posts"
 
     # test add comment
-    pair = ["xqcow1", "epic post dude! wow!"]
-    post.add_comment(user_id=pair[0], comment=pair[1])
+    pair = [{"user_id": user.user_id}, {"comment": "epic post dude! wow!"}]
+    post.add_comment(pair[0]["user_id"], pair[1]["comment"])
+    post2.add_comment(user2.user_id, "comment2")
+    post3.add_comment(user3.user_id, "comment3")
+    user = User.find_by_email(user.email)
     assert pair in post.comments, "Comment was not added"
+    assert post.post_id in user.comments, "post_id not added to user's list of comments"
+
     # test post deletion
     Post.delete(post.post_id)
     assert Post.find(post.post_id) is None, "Post was not deleted"
     User.delete_by_username(user.username)
 
-    # test that deleting post removes like from user
+    # test that deleting post removes interactions from user
     Post.delete(post2.post_id)
     user2 = User.find_by_username(user2.username)
     assert post2.post_id not in user2.liked_posts, "post_id not removed from user's list of liked posts"
+    assert post2.post_id not in user2.comments, "post_id not removed from user's list of comments"
 
-    # test that deleting user removes like from post
+    # test that deleting user removes interactions from post
     user3 = User.find_by_username(user3.username)
     User.delete_by_username(user3.username)
     post3 = Post.find(post3.post_id)
     assert user3.user_id not in post3.likes and len(post3.likes) == 0, "user_id not removed from post's likes after deleting user"
+    assert [{"user_id": user3.user_id}, {"comment": "comment3"}] not in post3.comments, "comment not removed from post after deleting user"
 
     Post.delete(post3.post_id)
     User.delete_by_username(user2.username)
