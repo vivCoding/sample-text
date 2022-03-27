@@ -135,6 +135,12 @@ class User:
             col.update_one(filter, new_value, upsert=True)
             if post_id not in self.saved_posts:
                 self.saved_posts.append(post_id)
+
+            postcol = db["posts"]
+            filter = { "post_id": post_id }
+            new_value = { "$addToSet": { "saves": self.user_id } }
+            postcol.update_one(filter, new_value)
+            
             return True
         except Exception as e:
             print (e)
@@ -342,16 +348,23 @@ class User:
             res = col.find_one(filters)
 
             postcol = db["posts"]
+            new_value = { "$pull": { "likes": str(res["_id"]) } }
             for post_id in res["liked_posts"]:
-                new_value = { "$pull": { "likes": str(res["_id"]) } }
                 filter = { "post_id": post_id }
                 postcol.update_one(filter, new_value)
-            col.delete_one(res)
 
             new_value = { "$pull": { "comments": { "$elemMatch": { "user_id": str(res["_id"]) } } } }
             for post_id in res["comments"]:
                 filter = { "post_id": post_id}
                 postcol.update_one(filter, new_value)
+
+            new_value = { "$pull": { "saves": str(res["_id"]) } }
+            for post_id in res["saved_posts"]:
+                filter = { "post_id": post_id }
+                postcol.update_one(filter, new_value)
+
+                
+            col.delete_one(res)
 
         except Exception as e:
             print (e)
