@@ -205,8 +205,8 @@ def unsave_post():
 			post_id = data["post_id"]
 			post = Post.find(post_id)
 			if post is not None:
-				user.unsave(post.post_id)
-				return jsonify({ "success": True, "data": post.to_dit() }), 200
+				user.unsave_post(post.post_id)
+				return jsonify({ "success": True, "data": post.to_dict() }), 200
 		return jsonify({ "success": False }), 404
 	except Exception as e:
 		print(e)
