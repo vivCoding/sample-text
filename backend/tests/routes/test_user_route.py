@@ -1,5 +1,5 @@
 from flask import session
-from backend.database.post import Post
+from database.post import Post
 from runtests import test_client
 from database.user import User
 from utils import generate_random
