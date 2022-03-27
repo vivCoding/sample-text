@@ -174,11 +174,11 @@ def comment_on_post():
 def save_post():
 	# do not proceed if user is not logged in
 	# if they are logged in, they should have their username in their session cookie
-	username = session.get('username', None)
-	if session.get('username') is None:
+	user_id = session.get('user_id', None)
+	if user_id is None:
 		return jsonify({ "success": False }), 401
 	try:
-		user = User.find_by_username(username)
+		user = User.find_by_id(user_id)
 		if user is not None:
 			data = request.get_json()
 			post_id = data["post_id"]
