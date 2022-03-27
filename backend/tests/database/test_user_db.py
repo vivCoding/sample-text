@@ -61,6 +61,54 @@ def test_update_user_profile(mongodb):
     assert good_user.bio == bio, "Bio was not updated"
     assert good_user.profile_img == profile_img, "Profile image was not updated"
 
+def test_save_post(mongodb):
+    post = Post("post1", "topic1", good_user.user_id)
+    if Post.find(post.post_id) is None:
+        post.push()
+    
+    assert good_user.save_post(post.post_id), "Saving post failed"
+    post = Post.find(post.post_id)
+    assert post.post_id in good_user.saved_posts, "post_id not added to list of saved posts"
+    assert good_user.user_id in post.saves, "user_id not added to list of users who saved the post"
+
+    Post.delete(post.post_id)
+
+def test_delete_user_interaction(mongodb):
+    user = generate_user(True)
+    if User.find_by_email(user.email) is None:
+        user.push()
+    post = Post("title", "topic", user.user_id)
+    if Post.find(post.post_id) is None:
+        post.push()
+
+    assert user.save_post(post.post_id), "failed to save post"
+    post = Post.find(post.post_id)
+    assert user.user_id in post.saves, "user_id not added to saves"
+
+    User.delete_by_email(user.email), "failed to delete user"
+    post = Post.find(post.post_id)
+    assert user.user_id not in post.saves, "user_id not removed from saves"
+
+    Post.delete(post.post_id)
+
+def test_delete_post_interaction(mongodb):
+    user = generate_user(True)
+    if User.find_by_email(user.email) is None:
+        user.push()
+    post = Post("title", "topic", user.user_id)
+    if Post.find(post.post_id) is None:
+        post.push()
+
+    assert user.save_post(post.post_id), "failed to save post"
+    post = Post.find(post.post_id)
+    assert user.user_id in post.saves, "user_id not added to saves"
+
+    assert Post.delete(post.post_id) is None, "failed to delete post"
+    user = User.find_by_email(user.email)
+    assert post.post_id not in user.saved_posts, "post_id not removed from saves"
+
+    User.delete_by_email(user.email)
+
 def test_delete_user_by_username(mongodb):
     if User.find_by_username(good_user.username) is None:
         good_user.push()
@@ -72,29 +120,3 @@ def test_delete_user_by_email(mongodb):
         good_user.push()
     User.delete_by_email(good_user.email)
     assert User.find_by_email(good_user.email) is None, "User was not deleted"
-
-def test_post(mongodb):
-    # test post creation
-    if User.find_by_username(good_user.email) is None:
-        good_user.push()
-    post = Post(title="My first post", topic="Games", username=good_user.username)
-    post.push()
-    assert post.post_id == Post.find(post.post_id).post_id, "Could not find post"
-    assert post.post_id in User.find_by_username(good_user.username).posts, "Post was not added to the user"
-    # test update likes
-    likeCount = len(post.likes)
-    post.like("emiru")
-    post.like("emiru")
-    post.like("tyler1")
-    assert len(Post.find(post.post_id).likes) == likeCount + 2, "Likes was not updated correctly"
-    # test add comment
-    pair = ["xqcow1", "epic post dude! wow!"]
-    post.add_comment(username=pair[0], comment=pair[1])
-    assert pair in post.comments, "Comment was not added"
-    # test save post
-    good_user.save_post(post.post_id)
-    assert post.post_id in good_user.saved_posts, "Post was not saved"
-    # test post deletion
-    Post.delete(post.post_id)
-    assert Post.find(post.post_id) is None, "Post was not deleted"
-    User.delete_by_username(good_user.username)
