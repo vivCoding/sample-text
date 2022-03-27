@@ -16,7 +16,7 @@ def test_string():
 def test_db(mongodb):
     if User.find_by_username("bob") is None:
         user = User("bob", "frankieray12345@gmail.com", "password")
-        assert user.push(), "Could not push bob!"
+        assert user.push() is not None, "Could not push bob!"
     assert User.find_by_username("bob") is not None, "Could not find bob!"
     # make sure you clean up resources afterwards!
     User.delete_by_username("bob")

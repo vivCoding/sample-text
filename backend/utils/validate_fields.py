@@ -1,10 +1,13 @@
+
 from typing import Tuple
 from validate_email import validate_email
 from database.user import User
+from database.topic import Topic
 import re
 
 good_username = re.compile(r"[a-zA-Z0-9\-_.]{1,20}")
 good_password = re.compile(r"[a-zA-Z0-9~`!@#$%^&*()_\-+={[}\]|:;'\"<,>.?\/]{8,25}")
+good_topic = re.compile(r"[a-z0-9\-]{1,25}")
 
 # Checks if new account information is valid, returns a tuple with the integer status code and an success/error message
 # 0 - Fields are valid
@@ -75,3 +78,11 @@ def check_comment(comment) -> Tuple[int, str]:
         return 1, "Comment length is invalid"
     return 0, ""
     
+def check_topic(name) -> Tuple[int, str]:
+    if len(name) < 1 or len(name) > 25:
+        return 1, "Topic name must be between 1 and 25 characters"
+    if good_topic.fullmatch(name) is None:
+        return 2, "Topic contains invalid characters"
+    if Topic.find_by_name(name) is not None:
+        return 3, "Topic already exists"
+    return 0, ""

@@ -1,7 +1,6 @@
-import { responseSymbol } from 'next/dist/server/web/spec-compliant/fetch-event'
 import { FetcherResponseType, GeneralResponseType } from '../../types/api'
 import { UserResponseType } from '../../types/api/user'
-import client from '../httpClient'
+import client from '../client'
 
 export const createUser = async (username: string, email: string, password: string): Promise<GeneralResponseType> => {
     const response = await client.post(

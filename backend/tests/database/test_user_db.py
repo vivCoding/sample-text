@@ -1,9 +1,9 @@
 import hashlib
-from tkinter import N
 from database.user import User
 from database.post import Post
 from runtests import mongodb
 from utils.generate_random import generate_user
+from database.topic import Topic
 
 good_user = generate_user(good=True)
 bad_user = generate_user(good=False)
@@ -11,7 +11,7 @@ bad_user = generate_user(good=False)
 def test_push_user(mongodb):
     hashed_password = hashlib.md5(good_user.password.encode()).hexdigest()
     good_user.password = hashed_password
-    assert good_user.push(), "Push on user failed"
+    assert good_user.push() is not None, "Push on user failed"
 
 def test_find_user_with_valid_username(mongodb):
     assert User.find_by_username(good_user.username) == good_user, "Could not find user by username"

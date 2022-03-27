@@ -1,16 +1,25 @@
+from gettext import find
 from .connect import Connection
+from bson.objectid import ObjectId
 
 class User:
     collection = "users"
 
-    def __init__(self, username, email, password, name="", bio="", profile_img="", posts=[], saved_posts=[]) -> None:
+
+    def __init__(self, username, email, password, name="", bio="", profile_img="", following=[], followers=[], followed_topics = [], posts=[], liked_posts = [], comments=[], saved_posts=[], user_id="") -> None:
+        self.user_id = user_id
         self.username = username
         self.email = email
         self.password = password
         self.name = name
         self.bio = bio
         self.profile_img = profile_img
+        self.following = following
+        self.followers = followers
         self.posts = posts
+        self.followed_topics = followed_topics
+        self.liked_posts = liked_posts
+        self.comments = comments
         self.saved_posts = saved_posts
 
     def __eq__(self, other) -> bool:
@@ -20,17 +29,23 @@ class User:
 
     def to_dict(self):
         return {
+            "userId": self.user_id,
             "username": self.username,
             "email": self.email,
             "name": self.name,
             "bio": self.bio,
             "profileImg": self.profile_img,
+            "followers": self.followers,
+            "following": self.following,
             "posts": self.posts,
+            "followed_topics": self.followed_topics,
+            "liked_posts": self.liked_posts,
+            "comments": self.comments,
             "saved_posts": self.saved_posts
         }
 
-    # Pushes this object to MongoDB, and returns whether it was successful
-    def push(self) -> bool:
+    # Pushes this object to MongoDB, and returns the user id if it was successful. If error, return None
+    def push(self):
         if Connection.client is None:
             return False
         try: 
@@ -42,15 +57,22 @@ class User:
                 "password": self.password,
                 "name": self.name,
                 "bio": self.bio,
-                "profile_img": self.profile_img,
+                "profile_img": self.profile_img,         
+                "following": self.following,
+                "followers": self.followers,
                 "posts": self.posts,
+                "followed_topics": self.followed_topics,
+                "liked_posts": self.liked_posts,
+                "comments": self.comments,
                 "saved_posts": self.saved_posts
             }
-            col.insert_one(doc)
-            return True
+            result = col.insert_one(doc)
+            self.user_id = str(result.inserted_id)
+            return self.user_id
         except Exception as e:
             print (e)
-            return False
+            return None
+
 
     # Updates this object's username in MongoDB, and returns whether it was successful
     def update_username(self, username) -> bool:
@@ -155,13 +177,112 @@ class User:
                 "bio": self.bio,
                 "profile_img": self.profile_img 
             }}
-            col.update_one({ "username" : self.username }, new_value)
+            col.update_one({ "username" : self.username }, new_value).modified_count
             return True
         except Exception as e:
             print (e)
             self.name = old_name
             self.bio = old_bio
             self.profile_img = old_profile_img
+            return False
+    
+    # makes current user follow given id
+    # 0 - db error
+    # 1 - given id isnt valid
+    # 2 - already following
+    # 3 - success
+    def follow(self, id) -> int:
+        if Connection.client is None:
+            return 0
+        try:
+            user_to_follow = User.find_by_id(id)
+            if user_to_follow is None:
+                return 1
+            if id in self.following:
+                return 2
+            db = Connection.client[Connection.database]
+            col = db[User.collection]
+            
+            self.following.append(id)
+            user_to_follow.followers.append(self.id)
+
+            new_value = { "$set": { "following": self.following } }
+            col.update_one({ "_id" : ObjectId(self.id) }, new_value)
+
+            new_value = { "$set": { "followers": user_to_follow.followers } }
+            col.update_one({ "_id" : ObjectId(id) }, new_value)
+
+            return 3
+        except Exception as e:
+            print (e)
+            return 0
+
+    # makes current user follow given id
+    # 0 - db error
+    # 1 - given id isnt valid
+    # 2 - not following
+    # 3 - success
+    def unfollow(self, id) -> int:
+        if Connection.client is None:
+            return 0
+        try:
+            user_to_unfollow = User.find_by_id(id)
+            if user_to_unfollow is None:
+                return 1
+            if id not in self.following:
+                return 2
+            db = Connection.client[Connection.database]
+            col = db[User.collection]
+            
+            self.following.remove(id)
+            user_to_unfollow.followers.remove(self.id)
+
+            new_value = { "$set": { "following": self.following } }
+            col.update_one({ "_id" : ObjectId(self.user) }, new_value)
+
+            new_value = { "$set": { "followers": user_to_unfollow.followers } }
+            col.update_one({ "_id" : ObjectId(id) }, new_value)
+
+            return 3
+        except Exception as e:
+            print (e)
+            return 0
+
+
+    # Tries following a topic, returns whether it was successful
+    def follow_topic(self, topic_name) -> bool:
+        if Connection.client is None:
+            return False
+        try:
+            if topic_name in self.followed_topics:
+                return True
+                
+            db = Connection.client[Connection.database]
+            col = db[User.collection]
+            new_value = { "$push": { "followed_topics": topic_name } }
+            col.update_one({ "username": self.username }, new_value)
+            self.followed_topics.append(topic_name)
+            return True
+        except Exception as e:
+            print(e)
+            return False
+        
+    # Tries unfollowing a topic, returns whether it was successful
+    def unfollow_topic(self, topic_name) -> bool:
+        if Connection.client is None:
+            return False
+        try:
+            if topic_name not in self.followed_topics:
+                return True
+            
+            db = Connection.client[Connection.database]
+            col = db[User.collection]
+            new_value = { "$pull": { "followed_topics": topic_name } }
+            col.update_one({ "username": self.username }, new_value)
+            self.followed_topics.remove(topic_name)
+            return True
+        except Exception as e:
+            print(e)
             return False
 
     # Static method that finds and returns a specific user from the collection based on filters
@@ -173,7 +294,22 @@ class User:
             res = col.find_one(filters)
             if res is None:
                 return None
-            return User(res["username"], res["email"], res["password"], res["name"], res["bio"], res["profile_img"], res["posts"], res["saved_posts"])
+            return User(
+                username=res["username"],
+                email=res["email"],
+                password=res["password"],
+                name=res["name"],
+                bio=res["bio"],
+                profile_img=res["profile_img"],
+                following=res["following"],
+                followers=res["followers"],
+                posts=res["posts"],
+                followed_topics=res["followed_topics"],
+                liked_posts=res["liked_posts"],
+                comments=res["comments"],
+                saved_posts=res["saved_posts"],
+                user_id= str(res["_id"])
+            )
         except Exception as e:
             print (e)
             return None
@@ -184,6 +320,10 @@ class User:
         if found_user is None:
             found_user = User.find({ "email": username, "password": hashed_password })
         return found_user
+
+    @staticmethod
+    def find_by_id(user_id: str):
+        return User.find({ "_id":  ObjectId(user_id) })
 
     @staticmethod
     def find_by_username(username: str):
@@ -200,11 +340,27 @@ class User:
             db = Connection.client[Connection.database]
             col = db[User.collection]
             res = col.find_one(filters)
+
+            postcol = db["posts"]
+            for post_id in res["liked_posts"]:
+                new_value = { "$pull": { "likes": str(res["_id"]) } }
+                filter = { "post_id": post_id }
+                postcol.update_one(filter, new_value)
             col.delete_one(res)
+
+            new_value = { "$pull": { "comments": { "$elemMatch": { "user_id": str(res["_id"]) } } } }
+            for post_id in res["comments"]:
+                filter = { "post_id": post_id}
+                postcol.update_one(filter, new_value)
+
         except Exception as e:
             print (e)
             return None
     
+    @staticmethod
+    def delete_by_id(id: str):
+        User.delete({ "_id": ObjectId(id) })
+
     @staticmethod
     def delete_by_username(username: str):
         User.delete({ "username": username })

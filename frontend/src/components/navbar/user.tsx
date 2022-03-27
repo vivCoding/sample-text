@@ -3,10 +3,10 @@ import {
 } from '@mui/material';
 import TextFieldsIcon from '@mui/icons-material/TextFields';
 import { MouseEventHandler, useState } from 'react';
+import AddBoxIcon from '@mui/icons-material/AddBox';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/Person';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
@@ -69,6 +69,10 @@ const Navbar = (): JSX.Element => {
         })
     }
 
+    const handleGoCreate = (): void => {
+        router.push('/post/create')
+    }
+
     return (
         <>
             <AppBar
@@ -99,16 +103,14 @@ const Navbar = (): JSX.Element => {
                         ))}
                         <Tooltip title="Friend Requests" sx={{ mx: 1 }}>
                             <IconButton>
-                                <Badge color="primary">
+                                <Badge color="primary" badgeContent={2}>
                                     <PersonAddIcon color="action" />
                                 </Badge>
                             </IconButton>
                         </Tooltip>
-                        <Tooltip title="Notifications" sx={{ mx: 1 }}>
-                            <IconButton>
-                                <Badge badgeContent={4} color="primary">
-                                    <NotificationsIcon color="action" />
-                                </Badge>
+                        <Tooltip title="Create Post" sx={{ mx: 1 }}>
+                            <IconButton onClick={handleGoCreate}>
+                                <AddBoxIcon />
                             </IconButton>
                         </Tooltip>
                         {username
