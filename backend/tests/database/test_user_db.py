@@ -73,6 +73,23 @@ def test_save_post(mongodb):
 
     Post.delete(post.post_id)
 
+def test_unsave_post(mongodb):
+    post = Post("title", "topic", good_user.user_id)
+    if Post.find(post.post_id) is None:
+        post.push()
+
+    assert good_user.save_post(post.post_id), "Saving post failed"
+    post = Post.find(post.post_id)
+    assert post.post_id in User.find_by_email(good_user.email).saved_posts, "post_id not added to list of saved posts"
+    assert good_user.user_id in post.saves, "user_id not added to list of users who saved the post"
+
+    assert good_user.unsave_post(post.post_id), "Unsaving post failed"
+    post = Post.find(post.post_id)
+    assert post.post_id not in User.find_by_email(good_user.email).saved_posts, "post not removed from saved posts"
+    assert good_user.user_id not in post.saves, "user not removed from saves"
+    
+    Post.delete(post.post_id)
+
 def test_delete_user_interaction(mongodb):
     user = generate_user(True)
     if User.find_by_email(user.email) is None:

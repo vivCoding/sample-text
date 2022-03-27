@@ -145,6 +145,28 @@ class User:
         except Exception as e:
             print (e)
             return False
+
+    def unsave_post(self, post_id) -> bool:
+        if Connection.client is None:
+            return False
+        try: 
+            db = Connection.client[Connection.database]
+            col = db[User.collection]
+            filter = { "username" : self.username }
+            new_value = { "$pull": { "saved_posts": post_id } }
+            col.update_one(filter, new_value, upsert=True)
+            if post_id in self.saved_posts:
+                self.saved_posts.remove(post_id)
+
+            postcol = db["posts"]
+            filter = { "post_id": post_id }
+            new_value = { "$pull": { "saves": self.user_id } }
+            postcol.update_one(filter, new_value)
+            
+            return True
+        except Exception as e:
+            print (e)
+            return False
     
     # Updates this object's password in MongoDB, and returns whether it was successful
     def update_password(self, password) -> bool:
