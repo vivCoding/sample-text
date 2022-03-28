@@ -262,6 +262,10 @@ def delete_user():
 		user = User.find_by_id(user_id)
 		if user is not None:
 			if user.password == password:
+				# delete this user's posts
+				for post_id in user.posts:
+					Post.delete(post_id)
+				# delete this user
 				User.delete_by_id(user_id)
 				session.pop('user_id')
 				return jsonify({ "success": True }), 200

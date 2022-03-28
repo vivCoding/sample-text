@@ -232,10 +232,10 @@ class User:
             col = db[User.collection]
             
             self.following.append(id)
-            user_to_follow.followers.append(self.id)
+            user_to_follow.followers.append(self.user_id)
 
             new_value = { "$set": { "following": self.following } }
-            col.update_one({ "_id" : ObjectId(self.id) }, new_value)
+            col.update_one({ "_id" : ObjectId(self.user_id) }, new_value)
 
             new_value = { "$set": { "followers": user_to_follow.followers } }
             col.update_one({ "_id" : ObjectId(id) }, new_value)

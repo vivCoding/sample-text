@@ -6,9 +6,7 @@ from bson.objectid import ObjectId
 class Post:
     collection = "posts"
 
-    def __init__(self, title, topic, author_id, img="", caption="", anonymous=False, 
-        likes=[], comments=[], saves=[], date=datetime.now().strftime("%m/%d/%Y, %H:%M"), post_id=""
-    ) -> None:
+    def __init__(self, title, topic, author_id, img="", caption="", anonymous=False, likes=[], comments=[], saves=[], date=datetime.now().strftime("%m/%d/%Y, %H:%M"), post_id="") -> None:
         self.title = title
         self.topic = topic
         self.author_id = author_id
