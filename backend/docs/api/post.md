@@ -12,8 +12,9 @@ Creates a post, validates given parameters, and stores into MongoDB. Returns the
     "img": string,
     "caption": string,
     "anonymous": string,
-    "likes": string,
-    "comments": string,
+    "likes": list(str),
+    "comments": list(list(str, str)),
+    "saves": listr(str),
     "date": string,
     "post_id": string
 }
@@ -31,8 +32,9 @@ Creates a post, validates given parameters, and stores into MongoDB. Returns the
         "img": string,
         "caption": string,
         "anonymous": string,
-        "likes": string,
-        "comments": string,
+        "likes": list(str),
+        "comments": list(list(str, str)),
+        "saves": list(str),
         "date": string,
         "post_id": string
     }
@@ -86,8 +88,9 @@ Returns info of requested post
         "img": string,
         "caption": string,
         "anonymous": string,
-        "likes": string,
-        "comments": string,
+        "likes": list(str),
+        "comments": list(str),
+        "saves": list(str),
         "date": string,
         "post_id": string
     }
@@ -188,12 +191,46 @@ Save a post in MongoDB for the logged in user. Returns the post that was saved
     "data": {
         "title": string,
         "topic": string,
-        "username": string,
+        "author_id": string,
         "img": string,
         "caption": string,
         "anonymous": string,
-        "likes": string,
-        "comments": string,
+        "likes": list(str),
+        "comments": list(list(str, str)),
+        "saves": list(str),
+        "date": string,
+        "post_id": string
+    }
+}
+```
+- Response status code 401 user is not logged in
+- Response status code 404 post does not exist
+- Response status code 500 exception during execution
+
+## `POST /spi/post/unsavepost`
+
+Unsaves a post in MongoDB for the logged in user
+
+### Request Body
+```json
+{
+    "post_id": string
+}
+```
+### Response Types
+```json
+{
+    "success": boolean,
+    "data": {
+        "title": string,
+        "topic": string,
+        "author_id": string,
+        "img": string,
+        "caption": string,
+        "anonymous": string,
+        "likes": list(str),
+        "comments": list(list(str, str)),
+        "saves": list(str),
         "date": string,
         "post_id": string
     }
