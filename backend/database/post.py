@@ -70,9 +70,35 @@ class Post:
             col.update_one(filter, new_value, upsert=True)
             if user_id not in self.likes:
                 self.likes.append(user_id)
+
+            usercol = db[User.collection]
+            filter = { "_id": ObjectId(user_id) }
+            new_value = { "$addToSet": { "liked_posts": self.post_id } }
+            usercol.update_one(filter, new_value)
+
             return True
         except Exception as e:
             print (e)
+            return False
+
+    # Updates this object's likes in MongoDB, and returns whether it was successful
+    def unlike(self, user_id: str) -> bool:
+        try:
+            db = Connection.client[Connection.database]
+            col = db[Post.collection]
+            filter = { "post_id": self.post_id }
+            new_value = { "$pull": { "likes": user_id } }
+            col.update_one(filter, new_value)
+            self.likes.remove(user_id)
+
+            usercol = db[User.collection]
+            filter = { "_id": ObjectId(user_id) }
+            new_value = { "$pull": { "liked_posts": self.post_id } }
+            usercol.update_one(filter, new_value)
+
+            return True
+        except Exception as e:
+            print(e)
             return False
 
     # Updates this object's comments in MongoDB, and returns whether it was successful
@@ -84,7 +110,13 @@ class Post:
             pair = [user_id, comment]
             new_value = { "$push": {"comments": [{'user_id': user_id}, {"comment": comment}]} }
             col.update_one(filter, new_value, upsert=True)
-            self.comments.append(pair)
+            self.comments.append([{"user_id": user_id}, {"comment": comment}])
+
+            usercol = db[User.collection]
+            filter = { "_id": ObjectId(user_id) }
+            new_value = { "$push": { "comments": self.post_id} }
+            usercol.update_one(filter, new_value)
+
             return True
         except Exception as e:
             print (e)
@@ -128,6 +160,18 @@ class Post:
                     "posts": post_id
                 }
             })
+
+            for _id in res["likes"]:
+                filter = { "_id": ObjectId(_id) }
+                new_value = { "$pull": { "liked_posts": post_id } }
+                user_col.update_one(filter, new_value)
+
+            for comment in res["comments"]:
+                user_id = comment[0]["user_id"]
+                filter = { "_id": ObjectId(user_id) }
+                new_value = { "$pull": { "comments": post_id }}
+                user_col.update_one(filter, new_value)
+
             col.delete_one(res)
         except Exception as e:
             print (e)
