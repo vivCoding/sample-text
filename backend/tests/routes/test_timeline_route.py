@@ -1,9 +1,11 @@
+import tempfile
+from time import time
 from flask import session
 from runtests import test_client
 from database.user import User
 from database.post import Post
 from database.topic import Topic
-from utils.generate_random import generate_user
+from utils.generate_random import generate_user, generate_good_topic
 from datetime import datetime
 
 def test_generate_timeline(test_client):
@@ -24,7 +26,8 @@ def test_generate_timeline(test_client):
         user2 = generate_user(True)
         user2.push()
         # second user creates a post
-        post1 = Post("Check out my post", "Science23", user2.user_id)
+        generated_topic = generate_good_topic()
+        post1 = Post("Check out my post", generated_topic, user2.user_id)
         post1.push()
         parent_topic = Topic.find_by_name(post1.topic)
         if parent_topic is None:
@@ -33,7 +36,6 @@ def test_generate_timeline(test_client):
         else:
             parent_topic.add_post(post1.post_id)
         user2.add_post(post1.post_id)
-        print(user2.posts)
         assert post1.post_id in user2.posts, "Post was not added to user2"
         # user1 follows user2
         user1.follow(user2.user_id)
@@ -42,7 +44,7 @@ def test_generate_timeline(test_client):
         user3 = generate_user(True)
         user3.push()
         # third user creates a post
-        post2 = Post("This is a cool topic to post to", "Tech", user3.user_id)
+        post2 = Post("This is a cool topic to post to", generated_topic, user3.user_id)
         post2.push()
         parent_topic = Topic.find_by_name(post2.topic)
         if parent_topic is None:
@@ -53,13 +55,14 @@ def test_generate_timeline(test_client):
         user3.add_post(post2.post_id)
         assert post2.post_id in user3.posts, "Post was not added to user3"
         # user1 follows the topic user3 posted to
-        user1.follow_topic("Tech")
-        assert "Tech" in user1.followed_topics
+        user1.follow_topic(generated_topic)
+        assert generated_topic in user1.followed_topics
         # generate timeline
         response = test_client.post("/api/timeline/generatetimeline")
         assert response.status_code == 200, "Bad response, got " + str(response.status_code)
         data = response.json
         timeline = data['data']
+        print("timeline: ", timeline)
         assert post1.post_id in timeline, "post1 was not in user1's timeline --> followed user error"
         assert post2.post_id in timeline, "post2 was not in user1's timeline --> followed topic error"
         # assert that posts are sorted by creation time
