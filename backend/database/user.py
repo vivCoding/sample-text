@@ -6,7 +6,7 @@ class User:
     collection = "users"
 
 
-    def __init__(self, username, email, password, name="", bio="", profile_img="", following=[], followers=[], followed_topics = [], posts=[], liked_posts = [], comments=[], user_id="") -> None:
+    def __init__(self, username, email, password, name="", bio="", profile_img="", following=[], followers=[], followed_topics = [], posts=[], liked_posts = [], comments=[], saved_posts=[], user_id="") -> None:
         self.user_id = user_id
         self.username = username
         self.email = email
@@ -20,6 +20,7 @@ class User:
         self.followed_topics = followed_topics
         self.liked_posts = liked_posts
         self.comments = comments
+        self.saved_posts = saved_posts
 
     def __eq__(self, other) -> bool:
         if isinstance(other, User):
@@ -39,7 +40,8 @@ class User:
             "posts": self.posts,
             "followed_topics": self.followed_topics,
             "liked_posts": self.liked_posts,
-            "comments": self.comments
+            "comments": self.comments,
+            "saved_posts": self.saved_posts
         }
 
     # Pushes this object to MongoDB, and returns the user id if it was successful. If error, return None
@@ -61,7 +63,8 @@ class User:
                 "posts": self.posts,
                 "followed_topics": self.followed_topics,
                 "liked_posts": self.liked_posts,
-                "comments": self.comments
+                "comments": self.comments,
+                "saved_posts": self.saved_posts
             }
             result = col.insert_one(doc)
             self.user_id = str(result.inserted_id)
@@ -115,6 +118,51 @@ class User:
             col.update_one(filter, new_value, upsert=True)
             if post_id not in self.posts:
                 self.posts.append(post_id)
+            return True
+        except Exception as e:
+            print (e)
+            return False
+
+    # Adds a post to this object's list of saved posts in MongoDB, and returns whether it was successful
+    def save_post(self, post_id) -> bool:
+        if Connection.client is None:
+            return False
+        try: 
+            db = Connection.client[Connection.database]
+            col = db[User.collection]
+            filter = { "username" : self.username }
+            new_value = { "$addToSet": { "saved_posts": post_id } }
+            col.update_one(filter, new_value, upsert=True)
+            if post_id not in self.saved_posts:
+                self.saved_posts.append(post_id)
+
+            postcol = db["posts"]
+            filter = { "post_id": post_id }
+            new_value = { "$addToSet": { "saves": self.user_id } }
+            postcol.update_one(filter, new_value)
+            
+            return True
+        except Exception as e:
+            print (e)
+            return False
+
+    def unsave_post(self, post_id) -> bool:
+        if Connection.client is None:
+            return False
+        try: 
+            db = Connection.client[Connection.database]
+            col = db[User.collection]
+            filter = { "username" : self.username }
+            new_value = { "$pull": { "saved_posts": post_id } }
+            col.update_one(filter, new_value, upsert=True)
+            if post_id in self.saved_posts:
+                self.saved_posts.remove(post_id)
+
+            postcol = db["posts"]
+            filter = { "post_id": post_id }
+            new_value = { "$pull": { "saves": self.user_id } }
+            postcol.update_one(filter, new_value)
+            
             return True
         except Exception as e:
             print (e)
@@ -287,6 +335,7 @@ class User:
                 followed_topics=res["followed_topics"],
                 liked_posts=res["liked_posts"],
                 comments=res["comments"],
+                saved_posts=res["saved_posts"],
                 user_id= str(res["_id"])
             )
         except Exception as e:
@@ -321,16 +370,23 @@ class User:
             res = col.find_one(filters)
 
             postcol = db["posts"]
+            new_value = { "$pull": { "likes": str(res["_id"]) } }
             for post_id in res["liked_posts"]:
-                new_value = { "$pull": { "likes": str(res["_id"]) } }
                 filter = { "post_id": post_id }
                 postcol.update_one(filter, new_value)
-            col.delete_one(res)
 
             new_value = { "$pull": { "comments": { "$elemMatch": { "user_id": str(res["_id"]) } } } }
             for post_id in res["comments"]:
                 filter = { "post_id": post_id}
                 postcol.update_one(filter, new_value)
+
+            new_value = { "$pull": { "saves": str(res["_id"]) } }
+            for post_id in res["saved_posts"]:
+                filter = { "post_id": post_id }
+                postcol.update_one(filter, new_value)
+
+                
+            col.delete_one(res)
 
         except Exception as e:
             print (e)
