@@ -6,9 +6,7 @@ from bson.objectid import ObjectId
 class Post:
     collection = "posts"
 
-    def __init__(self, title, topic, author_id, img="", caption="", anonymous=False, 
-        likes=[], comments=[], date=datetime.now().strftime("%Y/%m/%d, %H:%M:%S"), post_id=""
-    ) -> None:
+    def __init__(self, title, topic, author_id, img="", caption="", anonymous=False, likes=[], comments=[], saves=[], date=datetime.now().strftime("%m/%d/%Y, %H:%M"), post_id="") -> None:
         self.title = title
         self.topic = topic
         self.author_id = author_id
@@ -17,6 +15,7 @@ class Post:
         self.anonymous = anonymous
         self.likes = likes
         self.comments = comments
+        self.saves = saves
         self.date = date
         self.post_id = post_id
 
@@ -31,6 +30,7 @@ class Post:
             "anonymous": self.anonymous,
             "likes": self.likes,
             "comments": self.comments,
+            "saves": self.saves,
             "date": self.date
         }
 
@@ -132,16 +132,17 @@ class Post:
             if res is None:
                 return None
             return Post(
-                res["title"],
-                res["topic"],
-                res["author_id"],
-                res["img"],
-                res["caption"],
-                res["anonymous"],
-                res["likes"],
-                res["comments"],
-                res["date"],
-                res["post_id"]
+                title=res["title"],
+                topic=res["topic"],
+                author_id=res["author_id"],
+                img=res["img"],
+                caption=res["caption"],
+                anonymous=res["anonymous"],
+                likes=res["likes"],
+                comments=res["comments"],
+                saves=res["saves"],
+                date=res["date"],
+                post_id=res["post_id"]
             )
         except Exception as e:
             print (e)
@@ -161,15 +162,22 @@ class Post:
                 }
             })
 
+            
+            new_value = { "$pull": { "liked_posts": post_id } }
             for _id in res["likes"]:
                 filter = { "_id": ObjectId(_id) }
-                new_value = { "$pull": { "liked_posts": post_id } }
                 user_col.update_one(filter, new_value)
 
+            
+            new_value = { "$pull": { "comments": post_id }}
             for comment in res["comments"]:
                 user_id = comment[0]["user_id"]
                 filter = { "_id": ObjectId(user_id) }
-                new_value = { "$pull": { "comments": post_id }}
+                user_col.update_one(filter, new_value)
+
+            new_value = { "$pull": { "saved_posts": post_id } }
+            for _id in res["saves"]:
+                filter = { "_id": ObjectId(_id) }
                 user_col.update_one(filter, new_value)
 
             col.delete_one(res)

@@ -169,3 +169,45 @@ def comment_on_post():
 	except Exception as e:
 		print(e)
 		return jsonify({"success": False }), 500
+
+@post_blueprint.route('/savepost', methods=["POST"])
+def save_post():
+	# do not proceed if user is not logged in
+	# if they are logged in, they should have their user_id in their session cookie
+	user_id = session.get('user_id', None)
+	if user_id is None:
+		return jsonify({ "success": False }), 401
+	try:
+		user = User.find_by_id(user_id)
+		if user is not None:
+			data = request.get_json()
+			post_id = data["post_id"]
+			post = Post.find(post_id)
+			if post is not None:
+				user.save_post(post.post_id)
+				return jsonify({ "success": True, "data": post.to_dict() }), 200
+		return jsonify({ "success": False }), 404
+	except Exception as e:
+		print(e)
+		return jsonify({"success": False }), 500
+
+@post_blueprint.route('/unsavepost', methods=["POST"])
+def unsave_post():
+# do not proceed if user is not logged in
+	# if they are logged in, they should have their user_id in their session cookie
+	user_id = session.get('user_id', None)
+	if user_id is None:
+		return jsonify({ "success": False }), 401
+	try:
+		user = User.find_by_id(user_id)
+		if user is not None:
+			data = request.get_json()
+			post_id = data["post_id"]
+			post = Post.find(post_id)
+			if post is not None:
+				user.unsave_post(post.post_id)
+				return jsonify({ "success": True, "data": post.to_dict() }), 200
+		return jsonify({ "success": False }), 404
+	except Exception as e:
+		print(e)
+		return jsonify({"success": False }), 500
