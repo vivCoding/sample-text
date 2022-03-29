@@ -1,8 +1,10 @@
 import {
-    AppBar, Button, IconButton, Toolbar, Tooltip, Menu, MenuItem, Badge, Typography, Skeleton, Stack, Backdrop, CircularProgress,
+    AppBar, Button,
+    Box, IconButton, Toolbar, Tooltip, Menu, MenuItem, Badge,
+    Typography, Skeleton, Stack, Backdrop, CircularProgress, TextField, styled, alpha, InputBase, InputAdornment, Popper, Autocomplete,
 } from '@mui/material';
 import TextFieldsIcon from '@mui/icons-material/TextFields';
-import { MouseEventHandler, useState } from 'react';
+import { ChangeEventHandler, MouseEventHandler, useState } from 'react';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -10,22 +12,57 @@ import PersonIcon from '@mui/icons-material/Person';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
+import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Clear';
+import TagIcon from '@mui/icons-material/Tag';
+import { PanoramaFishEyeSharp } from '@mui/icons-material';
 import Link from '../common/Link'
 import { NavBtnStyle, Page } from '.';
 import ProfileAvatar from '../common/ProfileAvatar'
 import { ReduxStoreType } from '../../types/redux';
 import { logoutUser } from '../../api/user';
 
-const pages: Page[] = [
-    // {
-    //     label: 'Timeline',
-    //     path: '/',
-    // },
-    // {
-    //     label: 'My Posts',
-    //     path: '/',
-    // },
-]
+const Search = styled('div')(({ theme }) => ({
+    position: 'relative',
+    borderRadius: theme.shape.borderRadius,
+    backgroundColor: alpha(theme.palette.common.white, 0.15),
+    transition: '0.2s',
+    '&:hover': {
+        backgroundColor: alpha(theme.palette.common.white, 0.20),
+        transition: '0.2s',
+    },
+    marginRight: theme.spacing(2),
+    marginLeft: 0,
+    width: '150%',
+    [theme.breakpoints.up('sm')]: {
+        marginLeft: theme.spacing(3),
+        width: 'auto',
+    },
+}));
+
+const SearchIconWrapper = styled('div')(({ theme }) => ({
+    padding: theme.spacing(0, 2),
+    height: '100%',
+    position: 'absolute',
+    pointerEvents: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+}));
+
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
+    color: 'inherit',
+    '& .MuiInputBase-input': {
+        padding: theme.spacing(1, 1, 1, 0),
+        // vertical padding + font size from searchIcon
+        paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+        transition: theme.transitions.create('width'),
+        width: '100%',
+        [theme.breakpoints.up('md')]: {
+            width: '40ch',
+        },
+    },
+}));
 
 const settings: Page[] = [
     {
@@ -37,16 +74,18 @@ const settings: Page[] = [
 
 const Navbar = (): JSX.Element => {
     const [showUserMenu, setShowUserMenu] = useState(false)
-    const [anchorElUser, setAnchorElUser]: [Element | undefined, any] = useState(undefined)
+    const [menuAnchorEl, setMenuAnchorEl]: [Element | undefined, any] = useState(undefined)
 
     const { username, profileImg } = useSelector((state: ReduxStoreType) => state.user)
     const router = useRouter()
 
     const [loadingLogout, setLogoutLoading] = useState(false)
+    const [searchValue, setSearchValue] = useState('')
+    const [searchResults, setSearchResults] = useState([] as string[])
 
     const handleOpenUserMenu: MouseEventHandler<HTMLButtonElement> = (e) => {
         if (username !== undefined) {
-            setAnchorElUser(e.currentTarget)
+            setMenuAnchorEl(e.currentTarget)
             setShowUserMenu(true)
         }
     }
@@ -73,6 +112,14 @@ const Navbar = (): JSX.Element => {
         router.push('/post/create')
     }
 
+    const handleSearchChange = (): void => {
+        // TODO: implement
+    }
+
+    const handleCloseSearchResults = (): void => {
+        // TODO: implement
+    }
+
     return (
         <>
             <AppBar
@@ -86,7 +133,7 @@ const Navbar = (): JSX.Element => {
             >
                 <Toolbar disableGutters sx={{ width: '100%' }}>
                     <Tooltip
-                        title="Home"
+                        title="Timeline"
                         sx={{
                             mr: 2, color: 'white', '&:hover': { backgroundColor: 'rgba(0,0,0,0)' },
                         }}
@@ -95,19 +142,41 @@ const Navbar = (): JSX.Element => {
                             <TextFieldsIcon fontSize="large" />
                         </IconButton>
                     </Tooltip>
+                    <Autocomplete
+                        disablePortal
+                        blurOnSelect
+                        inputValue={searchValue}
+                        onInputChange={(_, searchString, reason) => {
+                            if (reason !== 'input' && reason !== 'clear') return
+                            setSearchValue(searchString || '')
+                        }}
+                        options={searchResults}
+                        onChange={(_: any, result: string | null, reason: string | null) => {
+                            if (reason !== 'selectOption') return
+                            if (!result) return
+                            setSearchValue('')
+                        }}
+                        noOptionsText="No results"
+                        renderInput={(params) => (
+                            <Search ref={params.InputProps.ref}>
+                                <SearchIconWrapper>
+                                    <SearchIcon />
+                                </SearchIconWrapper>
+                                <StyledInputBase
+                                    {...params}
+                                    placeholder="Search Users or Topics"
+                                    endAdornment={(
+                                        <InputAdornment position="end">
+                                            <IconButton onClick={() => setSearchValue('')}>
+                                                <ClearIcon />
+                                            </IconButton>
+                                        </InputAdornment>
+                                    )}
+                                />
+                            </Search>
+                        )}
+                    />
                     <Stack direction="row" alignItems="center" sx={{ ml: 'auto' }}>
-                        {pages.map((page) => (
-                            <Button key={page.label} component={Link} noLinkStyle href={page.path} sx={NavBtnStyle}>
-                                {page.label}
-                            </Button>
-                        ))}
-                        <Tooltip title="Friend Requests" sx={{ mx: 1 }}>
-                            <IconButton>
-                                <Badge color="primary" badgeContent={2}>
-                                    <PersonAddIcon color="action" />
-                                </Badge>
-                            </IconButton>
-                        </Tooltip>
                         <Tooltip title="Create Post" sx={{ mx: 1 }}>
                             <IconButton onClick={handleGoCreate}>
                                 <AddBoxIcon />
@@ -115,10 +184,16 @@ const Navbar = (): JSX.Element => {
                         </Tooltip>
                         {username
                             ? (
-                                <Typography display="inline-block" sx={{ mx: 1 }}>
-                                    u/
-                                    {username}
-                                </Typography>
+                                <Tooltip title="My Profile">
+                                    <Typography
+                                        display="inline-block"
+                                        onClick={() => router.push(`/profile/${username}`)}
+                                        sx={{ mx: 1, '&:hover': { cursor: 'pointer' } }}
+                                    >
+                                        u/
+                                        {username}
+                                    </Typography>
+                                </Tooltip>
                             )
                             : (
                                 <Skeleton width={150} height={40} sx={{ display: 'inline-block', mx: 1 }} />
@@ -131,7 +206,7 @@ const Navbar = (): JSX.Element => {
                         <Menu
                             sx={{ mt: '45px' }}
                             id="menu-appbar"
-                            anchorEl={anchorElUser}
+                            anchorEl={menuAnchorEl}
                             anchorOrigin={{
                                 vertical: 'top',
                                 horizontal: 'right',

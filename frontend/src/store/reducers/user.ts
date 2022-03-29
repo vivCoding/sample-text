@@ -50,6 +50,8 @@ export const userSlice = createSlice({
         addPostId: (state, action: PayloadAction<ID>) => {
             if (state.posts) {
                 state.posts.push(action.payload)
+            } else {
+                state.posts = [action.payload]
             }
         },
         removePostId: (state, action: PayloadAction<ID>) => {
