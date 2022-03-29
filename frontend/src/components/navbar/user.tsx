@@ -86,7 +86,7 @@ const Navbar = (): JSX.Element => {
             >
                 <Toolbar disableGutters sx={{ width: '100%' }}>
                     <Tooltip
-                        title="Home"
+                        title="Timeline"
                         sx={{
                             mr: 2, color: 'white', '&:hover': { backgroundColor: 'rgba(0,0,0,0)' },
                         }}
@@ -101,13 +101,13 @@ const Navbar = (): JSX.Element => {
                                 {page.label}
                             </Button>
                         ))}
-                        <Tooltip title="Friend Requests" sx={{ mx: 1 }}>
+                        {/* <Tooltip title="Friend Requests" sx={{ mx: 1 }}>
                             <IconButton>
                                 <Badge color="primary" badgeContent={2}>
                                     <PersonAddIcon color="action" />
                                 </Badge>
                             </IconButton>
-                        </Tooltip>
+                        </Tooltip> */}
                         <Tooltip title="Create Post" sx={{ mx: 1 }}>
                             <IconButton onClick={handleGoCreate}>
                                 <AddBoxIcon />
@@ -115,10 +115,16 @@ const Navbar = (): JSX.Element => {
                         </Tooltip>
                         {username
                             ? (
-                                <Typography display="inline-block" sx={{ mx: 1 }}>
-                                    u/
-                                    {username}
-                                </Typography>
+                                <Tooltip title="My Profile">
+                                    <Typography
+                                        display="inline-block"
+                                        onClick={() => router.push(`/profile/${username}`)}
+                                        sx={{ mx: 1, '&:hover': { cursor: 'pointer' } }}
+                                    >
+                                        u/
+                                        {username}
+                                    </Typography>
+                                </Tooltip>
                             )
                             : (
                                 <Skeleton width={150} height={40} sx={{ display: 'inline-block', mx: 1 }} />

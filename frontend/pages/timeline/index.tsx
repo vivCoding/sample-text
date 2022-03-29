@@ -1,6 +1,6 @@
 import type { NextPage } from 'next';
 import {
-    Box, Button, Stack, Container, CircularProgress, Typography,
+    Box, Button, Stack, Container, CircularProgress, Typography, Divider,
 } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
@@ -9,15 +9,19 @@ import Helmet from '../../src/components/common/Helmet';
 import UserNavbar from '../../src/components/navbar/user';
 import { ReduxStoreType } from '../../src/types/redux';
 import { getUser } from '../../src/api/user';
+import { getTimeline } from '../../src/api/timeline'
 import { setCurrentUser } from '../../src/store';
+import { ID } from '../../src/types/misc';
+import LazyPost from '../../src/components/LazyPost';
 
 const ProfilePage: NextPage = () => {
     const router = useRouter()
     const dispatch = useDispatch()
 
     const { username } = useSelector((state: ReduxStoreType) => state.user)
-
+    const [timeline, setTimeline] = useState([] as ID[])
     const [loading, setLoading] = useState(username === undefined)
+    const [loadingTimeline, setLoadingTimeline] = useState(true)
 
     useEffect(() => {
         if (!username) {
@@ -33,6 +37,17 @@ const ProfilePage: NextPage = () => {
             })
         }
     }, [router, dispatch, username])
+
+    useEffect(() => {
+        if (username && !loading) {
+            getTimeline().then((res) => {
+                if (res.success && res.data) {
+                    setTimeline(res.data)
+                }
+                setLoadingTimeline(false)
+            })
+        }
+    }, [username, loading])
 
     if (loading) {
         return (
@@ -53,15 +68,30 @@ const ProfilePage: NextPage = () => {
         <Box>
             <Helmet title="Timeline" />
             <UserNavbar />
-            <Stack sx={{
-                alignItems: 'center', height: '90vh', justifyContent: 'center',
-            }}
-            >
-                <Typography variant="h3">
-                    Timeline View
-                    {/* TODO implement timeline */}
+            <Container maxWidth="md" sx={{ mt: 6, mb: 20 }}>
+                <Typography variant="h3" fontWeight="300">
+                    Timeline
                 </Typography>
-            </Stack>
+                <Divider sx={{ my: 5 }} />
+                <Box>
+                    {loadingTimeline
+                        ? <CircularProgress />
+                        : (
+                            <Stack alignItems="center">
+                                {timeline.length === 0
+                                    ? <Typography variant="h6">Nothing to see here!</Typography>
+                                    : (
+                                        timeline.map((postId) => (
+                                            <Box key={postId} sx={{ my: 1 }}>
+                                                <LazyPost key={postId} postId={postId} />
+                                            </Box>
+                                        ))
+                                    )}
+                            </Stack>
+                        )}
+
+                </Box>
+            </Container>
         </Box>
     )
 };
