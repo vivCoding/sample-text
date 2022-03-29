@@ -1,7 +1,7 @@
 import {
     AppBar, Button,
     Box, IconButton, Toolbar, Tooltip, Menu, MenuItem, Badge,
-    Typography, Skeleton, Stack, Backdrop, CircularProgress, TextField, styled, alpha, InputBase, InputAdornment,
+    Typography, Skeleton, Stack, Backdrop, CircularProgress, TextField, styled, alpha, InputBase, InputAdornment, Popper, Autocomplete,
 } from '@mui/material';
 import TextFieldsIcon from '@mui/icons-material/TextFields';
 import { ChangeEventHandler, MouseEventHandler, useState } from 'react';
@@ -14,6 +14,8 @@ import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
+import TagIcon from '@mui/icons-material/Tag';
+import { PanoramaFishEyeSharp } from '@mui/icons-material';
 import Link from '../common/Link'
 import { NavBtnStyle, Page } from '.';
 import ProfileAvatar from '../common/ProfileAvatar'
@@ -72,17 +74,18 @@ const settings: Page[] = [
 
 const Navbar = (): JSX.Element => {
     const [showUserMenu, setShowUserMenu] = useState(false)
-    const [anchorElUser, setAnchorElUser]: [Element | undefined, any] = useState(undefined)
+    const [menuAnchorEl, setMenuAnchorEl]: [Element | undefined, any] = useState(undefined)
 
     const { username, profileImg } = useSelector((state: ReduxStoreType) => state.user)
     const router = useRouter()
 
     const [loadingLogout, setLogoutLoading] = useState(false)
     const [searchValue, setSearchValue] = useState('')
+    const [searchResults, setSearchResults] = useState([] as string[])
 
     const handleOpenUserMenu: MouseEventHandler<HTMLButtonElement> = (e) => {
         if (username !== undefined) {
-            setAnchorElUser(e.currentTarget)
+            setMenuAnchorEl(e.currentTarget)
             setShowUserMenu(true)
         }
     }
@@ -109,8 +112,12 @@ const Navbar = (): JSX.Element => {
         router.push('/post/create')
     }
 
-    const handleSearchChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-        setSearchValue(e.target.value)
+    const handleSearchChange = (): void => {
+        // TODO: implement
+    }
+
+    const handleCloseSearchResults = (): void => {
+        // TODO: implement
     }
 
     return (
@@ -135,23 +142,40 @@ const Navbar = (): JSX.Element => {
                             <TextFieldsIcon fontSize="large" />
                         </IconButton>
                     </Tooltip>
-                    <Search>
-                        <SearchIconWrapper>
-                            <SearchIcon />
-                        </SearchIconWrapper>
-                        <StyledInputBase
-                            placeholder="Search Users or Topics"
-                            endAdornment={(
-                                <InputAdornment position="end">
-                                    <IconButton onClick={() => setSearchValue('')}>
-                                        <ClearIcon />
-                                    </IconButton>
-                                </InputAdornment>
-                            )}
-                            onChange={handleSearchChange}
-                            value={searchValue}
-                        />
-                    </Search>
+                    <Autocomplete
+                        disablePortal
+                        blurOnSelect
+                        inputValue={searchValue}
+                        onInputChange={(_, searchString, reason) => {
+                            if (reason !== 'input' && reason !== 'clear') return
+                            setSearchValue(searchString || '')
+                        }}
+                        options={searchResults}
+                        onChange={(_: any, result: string | null, reason: string | null) => {
+                            if (reason !== 'selectOption') return
+                            if (!result) return
+                            setSearchValue('')
+                        }}
+                        noOptionsText="No results"
+                        renderInput={(params) => (
+                            <Search ref={params.InputProps.ref}>
+                                <SearchIconWrapper>
+                                    <SearchIcon />
+                                </SearchIconWrapper>
+                                <StyledInputBase
+                                    {...params}
+                                    placeholder="Search Users or Topics"
+                                    endAdornment={(
+                                        <InputAdornment position="end">
+                                            <IconButton onClick={() => setSearchValue('')}>
+                                                <ClearIcon />
+                                            </IconButton>
+                                        </InputAdornment>
+                                    )}
+                                />
+                            </Search>
+                        )}
+                    />
                     <Stack direction="row" alignItems="center" sx={{ ml: 'auto' }}>
                         <Tooltip title="Create Post" sx={{ mx: 1 }}>
                             <IconButton onClick={handleGoCreate}>
@@ -182,7 +206,7 @@ const Navbar = (): JSX.Element => {
                         <Menu
                             sx={{ mt: '45px' }}
                             id="menu-appbar"
-                            anchorEl={anchorElUser}
+                            anchorEl={menuAnchorEl}
                             anchorOrigin={{
                                 vertical: 'top',
                                 horizontal: 'right',
