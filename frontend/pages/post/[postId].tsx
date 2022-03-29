@@ -13,6 +13,8 @@ import { useRouter } from 'next/router';
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
 import { deletePost, getPost } from '../../src/api/post';
 import { getUser } from '../../src/api/user';
 import { getProfile } from '../../src/api/user/profile';
@@ -112,6 +114,10 @@ const PostPage: NextPage = () => {
     const handleShare = (): void => {
         navigator.clipboard.writeText(window.location.href)
         toast.success('Copied post URL to clipboard!', TOAST_OPTIONS)
+    }
+
+    const handleSave = (): void => {
+        // TODO implement
     }
 
     const handleDelete = (): void => {
@@ -244,6 +250,7 @@ const PostPage: NextPage = () => {
                                 <Tooltip title="Like Post">
                                     <Stack direction="row" alignItems="center">
                                         <IconButton onClick={handleLike}>
+                                            {/* TODO: set icon and like tooltip title conditionally */}
                                             <ThumbUpOffAltIcon />
                                             {/* <ThumbUpIcon /> */}
                                         </IconButton>
@@ -252,15 +259,22 @@ const PostPage: NextPage = () => {
                                         </Typography>
                                     </Stack>
                                 </Tooltip>
-                                <Tooltip title="Comment">
+                                <Tooltip title="Comments">
                                     <Stack direction="row" alignItems="center">
-                                        <IconButton onClick={handleComment}>
+                                        <IconButton>
                                             <CommentIcon />
                                         </IconButton>
                                         <Typography variant="button">
                                             2
                                         </Typography>
                                     </Stack>
+                                </Tooltip>
+                                <Tooltip title="Save Post">
+                                    {/* TODO: set icon and save tooltip title conditionally */}
+                                    <IconButton onClick={handleSave}>
+                                        <BookmarkBorderIcon />
+                                        {/* <BookmarkIcon /> */}
+                                    </IconButton>
                                 </Tooltip>
                                 <Tooltip title="Share Link">
                                     <IconButton onClick={handleShare}>

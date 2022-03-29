@@ -1,10 +1,16 @@
 import {
-    Box, Button, CircularProgress, Container, Divider, Grid, Skeleton, Stack, Typography,
+    Box, Button, CircularProgress, Container, Divider, Grid, Skeleton, Stack, Tab, Tabs, Typography,
 } from '@mui/material';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useEffect, useMemo, useState } from 'react';
+import {
+    SyntheticEvent, useEffect, useMemo, useState,
+} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import PagesIcon from '@mui/icons-material/Pages';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import CommentIcon from '@mui/icons-material/Comment';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
 import { getUser } from '../../src/api/user';
 import { getProfile } from '../../src/api/user/profile';
 import Helmet from '../../src/components/common/Helmet';
@@ -27,6 +33,7 @@ const UserProfilePage: NextPage = () => {
     const [loadingUser, setLoadingUser] = useState(userId === undefined)
     const [profile, setProfile] = useState({} as ProfileType)
     const [loadingProfile, setLoadingProfile] = useState(true)
+    const [tabValue, setTabValue] = useState(0)
 
     const isSelf = useMemo(() => (
         userId && username && (query.usernameOrId === userId || query.usernameOrId === username)
@@ -72,6 +79,10 @@ const UserProfilePage: NextPage = () => {
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router, query, userId, loadingUser])
+
+    const handleTabChange = (e: SyntheticEvent, newValue: number): void => {
+        setTabValue(newValue)
+    }
 
     if (loadingUser || !userId) {
         return (
@@ -124,10 +135,9 @@ const UserProfilePage: NextPage = () => {
                     <ProfileAvatar size={200} picture64={profile.profileImg} />
                     <Grid rowSpacing={2} container sx={{ ml: 5 }}>
                         <Grid item xs={12}>
-                            <Typography variant="h4">{profile.name}</Typography>
+                            <Typography variant="h4">{profile.name === '' ? `u/${profile.username}` : profile.name}</Typography>
                             <Typography variant="body1" fontWeight="light">
-                                u/
-                                {profile.username}
+                                {`u/${profile.username}`}
                             </Typography>
                         </Grid>
                         <Grid item xs={12}>
@@ -140,19 +150,79 @@ const UserProfilePage: NextPage = () => {
                         )}
                     </Grid>
                 </Stack>
-                <Divider sx={{ my: 5 }} />
-                <Typography variant="h4" sx={{ mb: 5 }}>Posts Made</Typography>
-                <Stack>
-                    {profile.posts.length === 0
-                        ? <Typography variant="h6">No posts made</Typography>
-                        : (
-                            profile.posts.map((postId) => (
-                                <Box key={postId} sx={{ my: 1 }}>
-                                    <LazyPost key={postId} postId={postId} />
-                                </Box>
-                            ))
-                        )}
-                </Stack>
+                <Divider sx={{ mt: 5, mb: 1 }} />
+                <Tabs value={tabValue} onChange={handleTabChange}>
+                    <Tab label="Posts" />
+                    <Tab label="Liked" />
+                    <Tab label="Commented" />
+                    <Tab label="Saved" />
+                </Tabs>
+                <Box sx={{ mt: 5 }}>
+                    {tabValue === 0 && (
+                        <>
+                            <Typography variant="h4" sx={{ mb: 3 }}>Posts Made</Typography>
+                            <Stack>
+                                {profile.posts.length === 0
+                                    ? <Typography variant="h6">No posts made</Typography>
+                                    : (
+                                        profile.posts.map((postId) => (
+                                            <Box key={postId} sx={{ my: 1 }}>
+                                                <LazyPost key={postId} postId={postId} />
+                                            </Box>
+                                        ))
+                                    )}
+                            </Stack>
+                        </>
+                    )}
+                    {tabValue === 1 && (
+                        <>
+                            <Typography variant="h4" sx={{ mb: 3 }}>Liked Posts</Typography>
+                            <Stack>
+                                {/* {profile.posts.length === 0
+                                    ? <Typography variant="h6">No posts made</Typography>
+                                    : (
+                                        profile.posts.map((postId) => (
+                                            <Box key={postId} sx={{ my: 1 }}>
+                                                <LazyPost key={postId} postId={postId} />
+                                            </Box>
+                                        ))
+                                    )} */}
+                            </Stack>
+                        </>
+                    )}
+                    {tabValue === 2 && (
+                        <>
+                            <Typography variant="h4" sx={{ mb: 3 }}>Comments Made</Typography>
+                            <Stack>
+                                {/* {profile.posts.length === 0
+                                    ? <Typography variant="h6">No posts made</Typography>
+                                    : (
+                                        profile.posts.map((postId) => (
+                                            <Box key={postId} sx={{ my: 1 }}>
+                                                <LazyPost key={postId} postId={postId} />
+                                            </Box>
+                                        ))
+                                    )} */}
+                            </Stack>
+                        </>
+                    )}
+                    {tabValue === 3 && (
+                        <>
+                            <Typography variant="h4" sx={{ mb: 3 }}>Saved Posts</Typography>
+                            <Stack>
+                                {/* {profile.posts.length === 0
+                                    ? <Typography variant="h6">No posts made</Typography>
+                                    : (
+                                        profile.posts.map((postId) => (
+                                            <Box key={postId} sx={{ my: 1 }}>
+                                                <LazyPost key={postId} postId={postId} />
+                                            </Box>
+                                        ))
+                                    )} */}
+                            </Stack>
+                        </>
+                    )}
+                </Box>
             </Container>
         </Box>
 

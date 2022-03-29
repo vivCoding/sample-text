@@ -73,24 +73,26 @@ const ProfilePage: NextPage = () => {
                     Timeline
                 </Typography>
                 <Divider sx={{ my: 5 }} />
-                <Box>
+                <Stack alignItems="center">
                     {loadingTimeline
                         ? <CircularProgress />
                         : (
-                            <Stack alignItems="center">
-                                {timeline.length === 0
-                                    ? <Typography variant="h6">Nothing to see here!</Typography>
-                                    : (
-                                        timeline.map((postId) => (
-                                            <Box key={postId} sx={{ my: 1 }}>
-                                                <LazyPost key={postId} postId={postId} />
-                                            </Box>
-                                        ))
-                                    )}
-                            </Stack>
+                            timeline.length === 0
+                                ? (
+                                    <>
+                                        <Typography variant="h6">Nothing to see here!</Typography>
+                                        <Typography variant="h6">Follow users and topics to see posts here</Typography>
+                                    </>
+                                )
+                                : (
+                                    timeline.map((postId) => (
+                                        <Box key={postId} sx={{ my: 1 }}>
+                                            <LazyPost key={postId} postId={postId} />
+                                        </Box>
+                                    ))
+                                )
                         )}
-
-                </Box>
+                </Stack>
             </Container>
         </Box>
     )

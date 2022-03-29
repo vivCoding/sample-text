@@ -1,8 +1,10 @@
 import {
-    AppBar, Button, IconButton, Toolbar, Tooltip, Menu, MenuItem, Badge, Typography, Skeleton, Stack, Backdrop, CircularProgress,
+    AppBar, Button,
+    Box, IconButton, Toolbar, Tooltip, Menu, MenuItem, Badge,
+    Typography, Skeleton, Stack, Backdrop, CircularProgress, TextField, styled, alpha, InputBase, InputAdornment,
 } from '@mui/material';
 import TextFieldsIcon from '@mui/icons-material/TextFields';
-import { MouseEventHandler, useState } from 'react';
+import { ChangeEventHandler, MouseEventHandler, useState } from 'react';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -10,22 +12,55 @@ import PersonIcon from '@mui/icons-material/Person';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
+import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Clear';
 import Link from '../common/Link'
 import { NavBtnStyle, Page } from '.';
 import ProfileAvatar from '../common/ProfileAvatar'
 import { ReduxStoreType } from '../../types/redux';
 import { logoutUser } from '../../api/user';
 
-const pages: Page[] = [
-    // {
-    //     label: 'Timeline',
-    //     path: '/',
-    // },
-    // {
-    //     label: 'My Posts',
-    //     path: '/',
-    // },
-]
+const Search = styled('div')(({ theme }) => ({
+    position: 'relative',
+    borderRadius: theme.shape.borderRadius,
+    backgroundColor: alpha(theme.palette.common.white, 0.15),
+    transition: '0.2s',
+    '&:hover': {
+        backgroundColor: alpha(theme.palette.common.white, 0.20),
+        transition: '0.2s',
+    },
+    marginRight: theme.spacing(2),
+    marginLeft: 0,
+    width: '150%',
+    [theme.breakpoints.up('sm')]: {
+        marginLeft: theme.spacing(3),
+        width: 'auto',
+    },
+}));
+
+const SearchIconWrapper = styled('div')(({ theme }) => ({
+    padding: theme.spacing(0, 2),
+    height: '100%',
+    position: 'absolute',
+    pointerEvents: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+}));
+
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
+    color: 'inherit',
+    '& .MuiInputBase-input': {
+        padding: theme.spacing(1, 1, 1, 0),
+        // vertical padding + font size from searchIcon
+        paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+        transition: theme.transitions.create('width'),
+        width: '100%',
+        [theme.breakpoints.up('md')]: {
+            width: '40ch',
+        },
+    },
+}));
 
 const settings: Page[] = [
     {
@@ -43,6 +78,7 @@ const Navbar = (): JSX.Element => {
     const router = useRouter()
 
     const [loadingLogout, setLogoutLoading] = useState(false)
+    const [searchValue, setSearchValue] = useState('')
 
     const handleOpenUserMenu: MouseEventHandler<HTMLButtonElement> = (e) => {
         if (username !== undefined) {
@@ -73,6 +109,10 @@ const Navbar = (): JSX.Element => {
         router.push('/post/create')
     }
 
+    const handleSearchChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+        setSearchValue(e.target.value)
+    }
+
     return (
         <>
             <AppBar
@@ -95,19 +135,24 @@ const Navbar = (): JSX.Element => {
                             <TextFieldsIcon fontSize="large" />
                         </IconButton>
                     </Tooltip>
+                    <Search>
+                        <SearchIconWrapper>
+                            <SearchIcon />
+                        </SearchIconWrapper>
+                        <StyledInputBase
+                            placeholder="Search Users or Topics"
+                            endAdornment={(
+                                <InputAdornment position="end">
+                                    <IconButton onClick={() => setSearchValue('')}>
+                                        <ClearIcon />
+                                    </IconButton>
+                                </InputAdornment>
+                            )}
+                            onChange={handleSearchChange}
+                            value={searchValue}
+                        />
+                    </Search>
                     <Stack direction="row" alignItems="center" sx={{ ml: 'auto' }}>
-                        {pages.map((page) => (
-                            <Button key={page.label} component={Link} noLinkStyle href={page.path} sx={NavBtnStyle}>
-                                {page.label}
-                            </Button>
-                        ))}
-                        {/* <Tooltip title="Friend Requests" sx={{ mx: 1 }}>
-                            <IconButton>
-                                <Badge color="primary" badgeContent={2}>
-                                    <PersonAddIcon color="action" />
-                                </Badge>
-                            </IconButton>
-                        </Tooltip> */}
                         <Tooltip title="Create Post" sx={{ mx: 1 }}>
                             <IconButton onClick={handleGoCreate}>
                                 <AddBoxIcon />
