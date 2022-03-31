@@ -172,6 +172,7 @@ const Navbar = (): JSX.Element => {
                         loading={searchLoading}
                         renderOption={(props, option, __) => (
                             <Button
+                                key={option.data}
                                 component={Link}
                                 noLinkStyle
                                 href={option.type === 'user' ? `/profile/${option.data}` : `/topic/${option.data}`}
