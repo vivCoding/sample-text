@@ -33,7 +33,6 @@ def create_post():
 					data.get("caption", ""),
 					data.get("anonymous", ""),
 				)
-				new_post.push()
 				# add this post under its topic in the database
 				parent_topic = Topic.find_by_name(new_post.topic)
 				if parent_topic is None:
@@ -51,6 +50,7 @@ def create_post():
 				else:
 					# topic exists, so add the post to it
 					parent_topic.add_post(new_post.post_id)
+				new_post.push()
 				return jsonify({ "success": True, "data": new_post.to_dict() }), 200
 			else:
 				return jsonify({ "success": False,"error": status, "errorMessage": error_message }), 200
