@@ -152,6 +152,7 @@ const PostPage: NextPage = () => {
                 if (res.success) {
                     setHasSavedPost(false)
                     dispatch(removeSavedPost(post.postId))
+                    toast.success('Successfuly unsaved the post!', TOAST_OPTIONS)
                 } else {
                     toast.error('There was an error in unsaving the post', TOAST_OPTIONS)
                 }
@@ -161,6 +162,7 @@ const PostPage: NextPage = () => {
                 if (res.success) {
                     setHasSavedPost(true)
                     dispatch(addSavedPost(post.postId))
+                    toast.success('Successfuly saved the post!', TOAST_OPTIONS)
                 } else {
                     toast.error('There was an error in saving the post', TOAST_OPTIONS)
                 }
