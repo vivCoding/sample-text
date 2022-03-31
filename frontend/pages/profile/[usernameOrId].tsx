@@ -303,7 +303,7 @@ const UserProfilePage: NextPage = () => {
                     )}
                     {tabValue === 4 && (
                         <>
-                            <Typography variant="h4" sx={{ mb: 3 }}>Saved Posts</Typography>
+                            <Typography variant="h4" sx={{ mb: 3 }}>Followers</Typography>
                             <Stack>
                                 {profile.followers.length === 0
                                     ? <Typography variant="h6">No followers</Typography>
@@ -319,7 +319,7 @@ const UserProfilePage: NextPage = () => {
                     )}
                     {tabValue === 5 && (
                         <>
-                            <Typography variant="h4" sx={{ mb: 3 }}>Saved Posts</Typography>
+                            <Typography variant="h4" sx={{ mb: 3 }}>Following</Typography>
                             <Stack>
                                 {profile.following.length === 0
                                     ? <Typography variant="h6">Not following anybody</Typography>
