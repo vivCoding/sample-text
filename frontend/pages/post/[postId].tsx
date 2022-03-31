@@ -14,8 +14,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
-import { deletePost, getPost } from '../../src/api/post';
+import {
+    deletePost, getPost, likePost, unlikePost, unsavePost, savePost,
+} from '../../src/api/post';
 import { getUser } from '../../src/api/user';
 import { getProfile } from '../../src/api/user/profile';
 import BackButton from '../../src/components/common/BackButton';
@@ -23,7 +26,9 @@ import Helmet from '../../src/components/common/Helmet';
 import ProfileAvatar from '../../src/components/common/ProfileAvatar';
 import UserNavbar from '../../src/components/navbar/user';
 import { TOAST_OPTIONS } from '../../src/constants/toast';
-import { removePostId, setCurrentUser } from '../../src/store';
+import {
+    addSavedPost, removePostId, removeSavedPost, setCurrentUser,
+} from '../../src/store';
 import { PostType } from '../../src/types/post';
 import { ReduxStoreType } from '../../src/types/redux';
 
@@ -39,7 +44,9 @@ const StyledChip = styled(Chip)({
 const PostPage: NextPage = () => {
     const router = useRouter()
     const dispatch = useDispatch()
-    const { userId, username, profileImg } = useSelector((state: ReduxStoreType) => state.user)
+    const {
+        userId, username, profileImg, savedPosts,
+    } = useSelector((state: ReduxStoreType) => state.user)
 
     const [loading, setLoading] = useState(userId === undefined)
     const [post, setPost]: [PostType | undefined, any] = useState({} as PostType)
@@ -47,9 +54,11 @@ const PostPage: NextPage = () => {
     const [authorName, setAuthorName] = useState('')
     const [authorPfp, setAuthorPfp] = useState('')
     const [isAnonymous, setIsAnonymous] = useState(false)
+    const [hasLikedPost, setHasLikedPost] = useState(false)
+    const [likeCount, setLikeCount] = useState(0)
+    const [hasSavedPost, setHasSavedPost] = useState(false)
 
     const isSelfPost = useMemo(() => userId && post.authorId && post.authorId === userId, [userId, post])
-
     useEffect(() => {
         if (!userId) {
             getUser().then((res) => {
@@ -72,6 +81,9 @@ const PostPage: NextPage = () => {
             const res = await getPost(postId)
             if (res.success && res.data) {
                 setPost(res.data)
+                setHasLikedPost(res.data.likes.find((userLike) => userLike === userId) !== undefined)
+                setLikeCount(res.data.likes.length)
+                setHasSavedPost(savedPosts !== undefined && savedPosts.find((savePostId) => savePostId === postId) !== undefined)
                 if (res.data.authorId && res.data.authorId === userId && username) {
                     setAuthorName(username)
                     setAuthorPfp(profileImg ?? '')
@@ -101,10 +113,28 @@ const PostPage: NextPage = () => {
         if (userId && !loading) {
             getPostAndAuthor()
         }
-    }, [userId, loading, username])
+    }, [userId, loading, username, savedPosts])
 
     const handleLike = (): void => {
-        // TODO implement
+        if (hasLikedPost) {
+            unlikePost(post.postId).then((res) => {
+                if (res.success && res.data) {
+                    setLikeCount(res.data.likeCount)
+                    setHasLikedPost(false)
+                } else {
+                    toast.error('There was an error in unliking the post', TOAST_OPTIONS)
+                }
+            })
+        } else {
+            likePost(post.postId).then((res) => {
+                if (res.success && res.data) {
+                    setLikeCount(res.data.likeCount)
+                    setHasLikedPost(true)
+                } else {
+                    toast.error('There was an error in liking the post', TOAST_OPTIONS)
+                }
+            })
+        }
     }
 
     const handleComment = (): void => {
@@ -117,7 +147,25 @@ const PostPage: NextPage = () => {
     }
 
     const handleSave = (): void => {
-        // TODO implement
+        if (hasSavedPost) {
+            unsavePost(post.postId).then((res) => {
+                if (res.success) {
+                    setHasSavedPost(false)
+                    dispatch(removeSavedPost(post.postId))
+                } else {
+                    toast.error('There was an error in unsaving the post', TOAST_OPTIONS)
+                }
+            })
+        } else {
+            savePost(post.postId).then((res) => {
+                if (res.success) {
+                    setHasSavedPost(true)
+                    dispatch(addSavedPost(post.postId))
+                } else {
+                    toast.error('There was an error in saving the post', TOAST_OPTIONS)
+                }
+            })
+        }
     }
 
     const handleDelete = (): void => {
@@ -250,12 +298,12 @@ const PostPage: NextPage = () => {
                                 <Tooltip title="Like Post">
                                     <Stack direction="row" alignItems="center">
                                         <IconButton onClick={handleLike}>
-                                            {/* TODO: set icon and like tooltip title conditionally */}
-                                            <ThumbUpOffAltIcon />
-                                            {/* <ThumbUpIcon /> */}
+                                            {hasLikedPost
+                                                ? <ThumbUpIcon />
+                                                : <ThumbUpOffAltIcon />}
                                         </IconButton>
                                         <Typography variant="button">
-                                            13
+                                            {likeCount}
                                         </Typography>
                                     </Stack>
                                 </Tooltip>
@@ -265,15 +313,17 @@ const PostPage: NextPage = () => {
                                             <CommentIcon />
                                         </IconButton>
                                         <Typography variant="button">
-                                            2
+                                            {post.comments.length}
                                         </Typography>
                                     </Stack>
                                 </Tooltip>
                                 <Tooltip title="Save Post">
                                     {/* TODO: set icon and save tooltip title conditionally */}
                                     <IconButton onClick={handleSave}>
-                                        <BookmarkBorderIcon />
-                                        {/* <BookmarkIcon /> */}
+                                        {hasSavedPost
+                                            ? <BookmarkIcon />
+                                            : <BookmarkBorderIcon />}
+
                                     </IconButton>
                                 </Tooltip>
                                 <Tooltip title="Share Link">
