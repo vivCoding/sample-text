@@ -21,6 +21,8 @@ import { NavBtnStyle, Page } from '.';
 import ProfileAvatar from '../common/ProfileAvatar'
 import { ReduxStoreType } from '../../types/redux';
 import { logoutUser } from '../../api/user';
+import { getProfile } from '../../api/user/profile';
+import { getTopic } from '../../api/topic';
 
 const Search = styled('div')(({ theme }) => ({
     position: 'relative',
@@ -81,7 +83,8 @@ const Navbar = (): JSX.Element => {
 
     const [loadingLogout, setLogoutLoading] = useState(false)
     const [searchValue, setSearchValue] = useState('')
-    const [searchResults, setSearchResults] = useState([] as string[])
+    const [searchResults, setSearchResults] = useState([] as { type: string, data: string }[])
+    const [searchLoading, setSearchLoading] = useState(false)
 
     const handleOpenUserMenu: MouseEventHandler<HTMLButtonElement> = (e) => {
         if (username !== undefined) {
@@ -112,12 +115,20 @@ const Navbar = (): JSX.Element => {
         router.push('/post/create')
     }
 
-    const handleSearchChange = (): void => {
-        // TODO: implement
-    }
-
-    const handleCloseSearchResults = (): void => {
-        // TODO: implement
+    const handleSearchChange = async (): Promise<void> => {
+        if (searchValue === '') return
+        setSearchLoading(true)
+        const results = []
+        const userRes = await getProfile(searchValue)
+        if (userRes.success && userRes.data) {
+            results.push({ type: 'user', data: userRes.data.username })
+        }
+        const topicRes = await getTopic(searchValue)
+        if (topicRes.success && topicRes.data) {
+            results.push({ type: 'topic', data: topicRes.data.topic })
+        }
+        setSearchResults(results)
+        setSearchLoading(false)
     }
 
     return (
@@ -145,17 +156,33 @@ const Navbar = (): JSX.Element => {
                     <Autocomplete
                         disablePortal
                         blurOnSelect
-                        inputValue={searchValue}
                         onInputChange={(_, searchString, reason) => {
                             if (reason !== 'input' && reason !== 'clear') return
                             setSearchValue(searchString || '')
                         }}
-                        options={searchResults}
-                        onChange={(_: any, result: string | null, reason: string | null) => {
-                            if (reason !== 'selectOption') return
-                            if (!result) return
-                            setSearchValue('')
+                        onKeyPress={(ev) => {
+                            if (ev.key === 'Enter') {
+                                handleSearchChange()
+                                ev.preventDefault()
+                            }
                         }}
+                        getOptionLabel={(option) => option.data}
+                        options={searchResults}
+                        loadingText="Loading..."
+                        loading={searchLoading}
+                        renderOption={(props, option, __) => (
+                            <Button
+                                component={Link}
+                                noLinkStyle
+                                href={option.type === 'user' ? `/profile/${option.data}` : `/topic/${option.data}`}
+                                sx={{
+                                    color: 'white', width: '100%', display: 'flex', p: 2, justifyContent: 'flex-start',
+                                }}
+                                startIcon={option.type === 'user' ? <PersonIcon /> : <TagIcon />}
+                            >
+                                {option.data}
+                            </Button>
+                        )}
                         noOptionsText="No results"
                         renderInput={(params) => (
                             <Search ref={params.InputProps.ref}>
@@ -165,13 +192,6 @@ const Navbar = (): JSX.Element => {
                                 <StyledInputBase
                                     {...params}
                                     placeholder="Search Users or Topics"
-                                    endAdornment={(
-                                        <InputAdornment position="end">
-                                            <IconButton onClick={() => setSearchValue('')}>
-                                                <ClearIcon />
-                                            </IconButton>
-                                        </InputAdornment>
-                                    )}
                                 />
                             </Search>
                         )}
