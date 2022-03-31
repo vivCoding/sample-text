@@ -206,6 +206,7 @@ const Settings: NextPage = () => {
         deleteUser(confirmDeleting).then((res) => {
             if (res.success) {
                 router.push('/')
+                toast.success('Successfully deleted account!', TOAST_OPTIONS)
             } else {
                 toast.error(res.errorMessage, TOAST_OPTIONS)
                 setErrorDeleting(res.errorMessage ?? 'Error!')

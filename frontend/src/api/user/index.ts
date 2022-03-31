@@ -14,7 +14,12 @@ export const createUser = async (username: string, email: string, password: stri
         error.server = 'There was an error signing you up. Try again later!'
         return { success: false, data: error, error: 404 }
     }
-    const data = response.data as GeneralResponseType
+    const resData = response.data as any
+    if (resData.data) {
+        resData.data.savedPosts = resData.data.saved_posts
+        resData.data.followedTopics = resData.data.followed_topics
+    }
+    const data = resData as GeneralResponseType
     if (data.error) {
         if (data.error === 1 || data.error === 2 || data.error === 6) {
             error.username = data.errorMessage ?? ''
@@ -38,7 +43,12 @@ export const loginUser = async (loginField: string, password: string): Promise<U
     if (response.status !== 200) {
         return { ...response.data, errorMessage: 'There was an error logging you in. Try again later!' }
     }
-    return response.data as UserResponseType
+    const resData = response.data as any
+    if (resData.data) {
+        resData.data.savedPosts = resData.data.saved_posts
+        resData.data.followedTopics = resData.data.followed_topics
+    }
+    return resData as UserResponseType
 }
 
 export const logoutUser = async (): Promise<GeneralResponseType> => {

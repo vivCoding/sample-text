@@ -55,6 +55,7 @@ const SignupSuccess: NextPage = () => {
                 }))
                 router.push(`/profile/${username}`)
             } else {
+                console.log(res.success, userId, username, posts, savedPosts, followedTopics, followers, following)
                 toast.error(res.errorMessage ?? 'Error!', TOAST_OPTIONS)
             }
             setLoadingEditing(false)

@@ -377,7 +377,7 @@ class User:
 
             new_value = { "$pull": { "comments": { "$elemMatch": { "user_id": str(res["_id"]) } } } }
             for post_id in res["comments"]:
-                filter = { "post_id": post_id}
+                filter = { "post_id": post_id }
                 postcol.update_one(filter, new_value)
 
             new_value = { "$pull": { "saves": str(res["_id"]) } }
@@ -385,8 +385,15 @@ class User:
                 filter = { "post_id": post_id }
                 postcol.update_one(filter, new_value)
 
-                
-            col.delete_one(res)
+            for follower_id in res["followers"]:
+                other_user = User.find_by_id(follower_id)
+                other_user.unfollow(str(res["_id"]))
+
+            this_user = User.find_by_id(str(res["_id"]))
+            for follower_id in res["following"]:
+                this_user.unfollow(follower_id)
+            
+            col.delete_one({ "_id": ObjectId(str(res["_id"])) })
 
         except Exception as e:
             print (e)
