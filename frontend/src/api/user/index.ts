@@ -54,6 +54,11 @@ export const getUser = async (): Promise<UserResponseType> => {
     if (response.status !== 200) {
         return { success: false, error: 401 }
     }
+    const resData = response.data as any
+    if (resData.data) {
+        resData.data.savedPosts = resData.data.saved_posts
+        resData.data.followedTopics = resData.data.followed_topics
+    }
     return response.data as UserResponseType
 }
 
@@ -63,6 +68,23 @@ export const deleteUser = async (password: string): Promise<GeneralResponseType>
     return response.data as GeneralResponseType
 }
 
+export const followUser = async (userId: string): Promise<GeneralResponseType> => {
+    const response = await client.post('/user/followuser', { user_id: userId }).catch(() => ({ status: 404, data: { success: false, error: 404 } }))
+    if (response.status === 401) {
+        return { success: false, error: 401 }
+    }
+    return response.data as UserResponseType
+}
+
+export const unfollowUser = async (userId: string): Promise<GeneralResponseType> => {
+    const response = await client.post('/user/unfollowuser', { user_id: userId }).catch(() => ({ status: 404, data: { success: false, error: 404 } }))
+    if (response.status === 401) {
+        return { success: false, error: 401 }
+    }
+    return response.data as UserResponseType
+}
+
+// unused SWR, ignore
 export const userFetcher = (url: string, username: string): Promise<FetcherResponseType> => (
     client.post(url, { username }).then((res) => ({ status: res.status, data: res.data }))
 )

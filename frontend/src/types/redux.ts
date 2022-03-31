@@ -7,7 +7,11 @@ export interface UserSliceType {
     name?: string,
     bio?: string,
     profileImg?: string,
-    posts?: ID[]
+    posts?: ID[],
+    savedPosts?: ID[],
+    followers?: ID[],
+    following?: ID[],
+    followedTopics?: ID[],
 }
 
 export interface ReduxStoreType {

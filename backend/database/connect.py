@@ -21,7 +21,11 @@ class Connection:
                     ("email", ASCENDING)
                 ], unique=True)
             ])
-            # TODO: add other collections that need to be indexed
+            Connection.client[Connection.database]["topics"].create_indexes([
+                IndexModel([
+                    ("topic_name", ASCENDING),
+                ], unique=True)
+            ])
             return True
         except Exception as e:
             print (e)

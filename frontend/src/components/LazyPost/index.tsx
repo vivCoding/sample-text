@@ -1,12 +1,16 @@
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import {
-    Card, CardActionArea, CardActions, CardContent, CardMedia, Skeleton, Stack, styled, Typography,
+    Card, CardActionArea, CardContent, CardHeader, CardMedia, IconButton, Skeleton, Stack, styled, Tooltip, Typography,
 } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { getPost } from '../../api/post';
+import { getProfile } from '../../api/user/profile';
 import { ID } from '../../types/misc';
 import { PostType } from '../../types/post';
+import { ReduxStoreType } from '../../types/redux';
+import ProfileAvatar from '../common/ProfileAvatar';
 
 const OneLineTypography = styled(Typography)({
     overflow: 'hidden',
@@ -21,18 +25,46 @@ interface LazyPostProps {
 
 const LazyPost = ({ postId }: LazyPostProps): JSX.Element => {
     const router = useRouter()
+    const { userId, username, profileImg } = useSelector((state: ReduxStoreType) => state.user)
 
     const [post, setPost] = useState({} as PostType)
     const [postLoading, setPostLoading] = useState(true)
+    const [authorName, setAuthorName] = useState('')
+    const [authorPfp, setAuthorPfp] = useState('')
+    const [isAnonymous, setIsAnonymous] = useState(false)
 
     useEffect(() => {
-        getPost(postId).then((res) => {
+        const getPostAndAuthor = async (): Promise<void> => {
+            const res = await getPost(postId)
             if (res.success && res.data) {
                 setPost(res.data)
+                if (res.data.authorId && res.data.authorId === userId && username) {
+                    setAuthorName(username)
+                    setAuthorPfp(profileImg ?? '')
+                    setPostLoading(false)
+                } else if (res.data.anonymous) {
+                    setIsAnonymous(true)
+                    setPostLoading(false)
+                } else if (res.data.authorId) {
+                    const profileRes = await getProfile(res.data.authorId)
+                    if (profileRes.success && profileRes.data) {
+                        setAuthorName(profileRes.data.username)
+                        setAuthorPfp(profileRes.data.profileImg ?? '')
+                    } else if (profileRes.error === 401) {
+                        // show load post error instead
+                    } else {
+                        // show load post error instead
+                    }
+                    setPostLoading(false)
+                }
+            } else if (res.error === 401) {
+                // show load post error instead
+            } else {
+                // show load post error instead
             }
-            setPostLoading(false)
-        })
-    }, [postId])
+        }
+        getPostAndAuthor()
+    }, [userId, username, profileImg, postId])
 
     const handlePostClick = (): void => {
         router.push(`/post/${postId}`)
@@ -63,30 +95,34 @@ const LazyPost = ({ postId }: LazyPostProps): JSX.Element => {
 
     return (
         <Card>
-            <Stack direction="row" sx={{ maxWidth: '100%' }}>
-                {post.img !== '' && (
-                    <CardMedia
-                        component="img"
-                        image={post.img}
-                        sx={{
-                            maxWidth: '10%',
-                        }}
-                    />
+            <CardHeader
+                avatar={<ProfileAvatar size={25} picture64={authorPfp} />}
+                title={isAnonymous ? 'Anonymous' : `u/${authorName}`}
+                subheader={post.date}
+                action={(
+                    <Tooltip title="Go to Post">
+                        <IconButton onClick={handlePostClick}><ArrowForwardIcon /></IconButton>
+                    </Tooltip>
                 )}
-                <CardContent sx={{ width: '100%' }}>
-                    <OneLineTypography>{post.title}</OneLineTypography>
-                    <OneLineTypography variant="body2" color="text.secondary">
-                        {post.caption}
-                    </OneLineTypography>
-                </CardContent>
-            </Stack>
+            />
             <CardActionArea onClick={handlePostClick}>
-                <CardActions sx={{ justifyContent: 'end' }}>
-                    <Typography variant="button" color="primary">
-                        View Post
-                    </Typography>
-                    <ArrowForwardIcon color="primary" />
-                </CardActions>
+                <Stack direction="row" sx={{ maxWidth: '100%' }}>
+                    {post.img !== '' && (
+                        <CardMedia
+                            component="img"
+                            image={post.img}
+                            sx={{
+                                maxWidth: '10%',
+                            }}
+                        />
+                    )}
+                    <CardContent sx={{ width: '100%' }}>
+                        <OneLineTypography variant="h6">{post.title}</OneLineTypography>
+                        <OneLineTypography variant="body2" color="text.secondary">
+                            {post.caption}
+                        </OneLineTypography>
+                    </CardContent>
+                </Stack>
             </CardActionArea>
         </Card>
     )
