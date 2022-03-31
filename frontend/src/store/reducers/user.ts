@@ -11,7 +11,7 @@ export const userSlice = createSlice({
     reducers: {
         setCurrentUser: (state, action: PayloadAction<UserType>) => {
             const {
-                userId, username, email, name, bio, profileImg, posts,
+                userId, username, email, name, bio, profileImg, posts, savedPosts,
             } = action.payload
             state.userId = userId
             state.username = username
@@ -20,6 +20,7 @@ export const userSlice = createSlice({
             state.bio = bio
             state.profileImg = profileImg
             state.posts = posts
+            state.savedPosts = savedPosts
         },
         setCurrentAccount: (state, action: PayloadAction<AccountType>) => {
             const { username, email } = action.payload
@@ -28,12 +29,13 @@ export const userSlice = createSlice({
         },
         setCurrentProfile: (state, action: PayloadAction<ProfileType>) => {
             const {
-                name, bio, profileImg, posts,
+                name, bio, profileImg, posts, savedPosts,
             } = action.payload
             state.name = name
             state.bio = bio
             state.profileImg = profileImg
             state.posts = posts
+            state.savedPosts = savedPosts
         },
         clearUser: (state) => {
             state.userId = undefined
@@ -43,6 +45,7 @@ export const userSlice = createSlice({
             state.bio = undefined
             state.profileImg = undefined
             state.posts = undefined
+            state.savedPosts = undefined
         },
         setPostIds: (state, action: PayloadAction<ID[]>) => {
             state.posts = action.payload
@@ -59,10 +62,22 @@ export const userSlice = createSlice({
                 state.posts = state.posts.filter((postId) => postId !== action.payload)
             }
         },
+        addSavedPost: (state, action: PayloadAction<ID>) => {
+            if (state.savedPosts) {
+                state.savedPosts.push(action.payload)
+            } else {
+                state.savedPosts = [action.payload]
+            }
+        },
+        removeSavedPost: (state, action: PayloadAction<ID>) => {
+            if (state.savedPosts) {
+                state.savedPosts = state.savedPosts.filter((postId) => postId !== action.payload)
+            }
+        },
     },
 })
 
 export const {
-    setCurrentUser, setCurrentAccount, setCurrentProfile, clearUser, setPostIds, addPostId, removePostId,
+    setCurrentUser, setCurrentAccount, setCurrentProfile, clearUser, setPostIds, addPostId, removePostId, addSavedPost, removeSavedPost,
 } = userSlice.actions
 export default userSlice.reducer

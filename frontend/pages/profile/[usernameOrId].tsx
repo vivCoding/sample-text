@@ -27,7 +27,7 @@ const UserProfilePage: NextPage = () => {
     const { query } = useRouter()
     const dispatch = useDispatch()
     const {
-        userId, username, name, bio, profileImg, posts,
+        userId, username, name, bio, profileImg, posts, savedPosts,
     } = useSelector((state: ReduxStoreType) => state.user)
 
     const [loadingUser, setLoadingUser] = useState(userId === undefined)
@@ -57,9 +57,9 @@ const UserProfilePage: NextPage = () => {
 
     useEffect(() => {
         if (userId && !loadingUser && query.usernameOrId) {
-            if (isSelf && username && posts) {
+            if (isSelf && username && posts && savedPosts) {
                 setProfile({
-                    username, name, bio, profileImg, posts,
+                    username, name, bio, profileImg, posts, savedPosts,
                 })
                 setLoadingProfile(false)
             } else {
@@ -210,15 +210,15 @@ const UserProfilePage: NextPage = () => {
                         <>
                             <Typography variant="h4" sx={{ mb: 3 }}>Saved Posts</Typography>
                             <Stack>
-                                {/* {profile.posts.length === 0
-                                    ? <Typography variant="h6">No posts made</Typography>
+                                {profile.savedPosts.length === 0
+                                    ? <Typography variant="h6">No saved posts</Typography>
                                     : (
-                                        profile.posts.map((postId) => (
+                                        profile.savedPosts.map((postId) => (
                                             <Box key={postId} sx={{ my: 1 }}>
                                                 <LazyPost key={postId} postId={postId} />
                                             </Box>
                                         ))
-                                    )} */}
+                                    )}
                             </Stack>
                         </>
                     )}

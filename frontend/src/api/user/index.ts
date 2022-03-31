@@ -54,6 +54,10 @@ export const getUser = async (): Promise<UserResponseType> => {
     if (response.status !== 200) {
         return { success: false, error: 401 }
     }
+    const resData = response.data as any
+    if (resData.data) {
+        resData.data.savedPosts = resData.data.saved_posts
+    }
     return response.data as UserResponseType
 }
 

@@ -17,6 +17,10 @@ export const getProfile = async (usernameOrId: string): Promise<ProfileResponseT
     if (response.status === 401) {
         return { success: false, error: 401 }
     }
+    const resData = response.data as any
+    if (resData.data) {
+        resData.data.savedPosts = resData.data.saved_posts
+    }
     return response.data as ProfileResponseType
 }
 
@@ -27,6 +31,10 @@ export const editProfile = async (
         .catch(() => ({ status: 404, data: undefined }))
     if (response.status !== 200) {
         return { success: false, error: 404, errorMessage: 'There was an issue changing your profile. Please try again later!' }
+    }
+    const resData = response.data as any
+    if (resData.data) {
+        resData.data.savedPosts = resData.data.saved_posts
     }
     return response.data as ProfileResponseType
 }
