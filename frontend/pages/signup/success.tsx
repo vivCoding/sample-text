@@ -27,7 +27,7 @@ const SignupSuccess: NextPage = () => {
     const [bio, setBio] = useState('')
     const [profileImg, setProfileImg] = useState('')
 
-    const { username, posts } = useSelector((state: ReduxStoreType) => state.user)
+    const { username, posts, savedPosts } = useSelector((state: ReduxStoreType) => state.user)
     const dispatch = useDispatch()
 
     useEffect(() => {
@@ -47,9 +47,9 @@ const SignupSuccess: NextPage = () => {
     const handleFinish = (): void => {
         setLoadingEditing(true)
         editProfile({ name, bio, profileImg }).then((res) => {
-            if (res.success && username && posts) {
+            if (res.success && username && posts && savedPosts) {
                 dispatch(setCurrentProfile({
-                    username, name, bio, profileImg, posts,
+                    username, name, bio, profileImg, posts, savedPosts,
                 }))
                 router.push(`/profile/${username}`)
             } else {

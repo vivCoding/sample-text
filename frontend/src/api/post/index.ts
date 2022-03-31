@@ -41,6 +41,16 @@ export const getPost = async (postId: ID): Promise<PostResponseType> => {
     if (resData.data) {
         resData.data.postId = resData.data.post_id
         resData.data.authorId = resData.data.author_id
+        const comments: Comment[] = []
+        if (resData.data.comments) {
+            resData.data.comments.forEach((element: any) => {
+                comments.push({
+                    userId: element[0].user_id,
+                    comment: element[1].comment,
+                })
+            });
+        }
+        resData.data.comments = comments
     }
     return response.data as PostResponseType
 }
@@ -81,6 +91,27 @@ export const unsavePost = async (postId: string): Promise<GeneralResponseType> =
     const response = await client.post('/post/unsavepost', { post_id: postId }).catch(() => ({ status: 404, data: { success: false, error: 404 } }))
     if (response.status === 401) {
         return { success: false, error: 401 }
+    }
+    return response.data as GeneralResponseType
+}
+
+export const commentOnPost = async (postId: string, comment: string): Promise<GeneralResponseType> => {
+    const response = await client.post('/post/commentonpost', { post_id: postId, comment }).catch(() => ({ status: 404, data: { success: false, error: 404 } }))
+    if (response.status === 401) {
+        return { success: false, error: 401 }
+    }
+    const resData = response.data as any
+    if (resData.data) {
+        const comments: Comment[] = []
+        if (resData.data.comments) {
+            resData.data.comments.forEach((element: any) => {
+                comments.push({
+                    userId: element[0].user_id,
+                    comment: element[1].comment,
+                })
+            });
+        }
+        resData.data.comments = comments
     }
     return response.data as GeneralResponseType
 }

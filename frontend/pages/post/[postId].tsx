@@ -10,14 +10,17 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useEffect, useMemo, useState } from 'react';
+import {
+    ChangeEventHandler, useEffect, useMemo, useState,
+} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
+import { LoadingButton } from '@mui/lab';
 import {
-    deletePost, getPost, likePost, unlikePost, unsavePost, savePost,
+    deletePost, getPost, likePost, unlikePost, unsavePost, savePost, commentOnPost,
 } from '../../src/api/post';
 import { getUser } from '../../src/api/user';
 import { getProfile } from '../../src/api/user/profile';
@@ -31,6 +34,8 @@ import {
 } from '../../src/store';
 import { PostType } from '../../src/types/post';
 import { ReduxStoreType } from '../../src/types/redux';
+import StyledTextField from '../../src/components/common/StyledTextField';
+import LazyComment from '../../src/components/LazyComment';
 
 const StyledChip = styled(Chip)({
     margin: 5,
@@ -55,8 +60,11 @@ const PostPage: NextPage = () => {
     const [authorPfp, setAuthorPfp] = useState('')
     const [isAnonymous, setIsAnonymous] = useState(false)
     const [hasLikedPost, setHasLikedPost] = useState(false)
+    const [comments, setComments]: [Comment[], any] = useState([])
     const [likeCount, setLikeCount] = useState(0)
     const [hasSavedPost, setHasSavedPost] = useState(false)
+    const [commentValue, setCommentValue] = useState('')
+    const [isAdding, setIsAdding] = useState(false)
 
     const isSelfPost = useMemo(() => userId && post.authorId && post.authorId === userId, [userId, post])
     useEffect(() => {
@@ -84,6 +92,7 @@ const PostPage: NextPage = () => {
                 setHasLikedPost(res.data.likes.find((userLike) => userLike === userId) !== undefined)
                 setLikeCount(res.data.likes.length)
                 setHasSavedPost(savedPosts !== undefined && savedPosts.find((savePostId) => savePostId === postId) !== undefined)
+                setComments(res.data.comments)
                 if (res.data.authorId && res.data.authorId === userId && username) {
                     setAuthorName(username)
                     setAuthorPfp(profileImg ?? '')
@@ -137,8 +146,22 @@ const PostPage: NextPage = () => {
         }
     }
 
+    const handleCommentOnChange : ChangeEventHandler<HTMLInputElement> = (e) => {
+        setCommentValue(e.target.value)
+    }
+
     const handleComment = (): void => {
-        // TODO implement
+        setIsAdding(true)
+        commentOnPost(post.postId, commentValue).then((res) => {
+            if (res.success && res.data) {
+                setComments(res.data.comments)
+                setCommentValue('')
+                toast.success('Successfully commented on the post!', TOAST_OPTIONS)
+            } else {
+                toast.error('There was an error in commenting on the post', TOAST_OPTIONS)
+            }
+            setIsAdding(false)
+        })
     }
 
     const handleShare = (): void => {
@@ -152,7 +175,7 @@ const PostPage: NextPage = () => {
                 if (res.success) {
                     setHasSavedPost(false)
                     dispatch(removeSavedPost(post.postId))
-                    toast.success('Successfuly unsaved the post!', TOAST_OPTIONS)
+                    toast.success('Successfully unsaved the post!', TOAST_OPTIONS)
                 } else {
                     toast.error('There was an error in unsaving the post', TOAST_OPTIONS)
                 }
@@ -162,7 +185,7 @@ const PostPage: NextPage = () => {
                 if (res.success) {
                     setHasSavedPost(true)
                     dispatch(addSavedPost(post.postId))
-                    toast.success('Successfuly saved the post!', TOAST_OPTIONS)
+                    toast.success('Successfully saved the post!', TOAST_OPTIONS)
                 } else {
                     toast.error('There was an error in saving the post', TOAST_OPTIONS)
                 }
@@ -315,7 +338,7 @@ const PostPage: NextPage = () => {
                                             <CommentIcon />
                                         </IconButton>
                                         <Typography variant="button">
-                                            {post.comments.length}
+                                            {comments.length}
                                         </Typography>
                                     </Stack>
                                 </Tooltip>
@@ -343,6 +366,39 @@ const PostPage: NextPage = () => {
                             </Stack>
                         </Stack>
                         <Divider sx={{ mb: 4 }} />
+                        <Box>
+                            {/* <Typography variant="h5">Add Comment</Typography> */}
+                            <StyledTextField
+                                label="Add Comment"
+                                multiline
+                                minRows={3}
+                                placeholder="Add comment"
+                                onChange={handleCommentOnChange}
+                                value={commentValue}
+                                error={commentValue.length > 500}
+                                helperText={`${commentValue.length} / 500`}
+                                disabled={isAdding}
+                            />
+                            <Stack direction="row" justifyContent="flex-end">
+                                <LoadingButton
+                                    variant="contained"
+                                    loading={isAdding}
+                                    onClick={handleComment}
+                                    disabled={commentValue.length === 0 || commentValue.length > 500}
+                                >
+                                    Add Comment
+
+                                </LoadingButton>
+                            </Stack>
+                        </Box>
+                        <Stack>
+                            <Typography variant="h4" sx={{ mt: 3, mb: 4 }}>Comments</Typography>
+                            {comments.map((comment) => (
+                                <Box key={comment.comment} sx={{ my: 1 }}>
+                                    <LazyComment comment={comment} />
+                                </Box>
+                            ))}
+                        </Stack>
                     </Box>
                 )}
             </Container>
