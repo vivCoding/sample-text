@@ -1,39 +1,40 @@
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import {
-    Card, CardContent, CardHeader, Skeleton, Stack, Typography,
+    Card, CardActionArea, CardContent, CardHeader, IconButton, Skeleton, Stack,
 } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { getProfile } from '../../api/user/profile';
-import { Comment } from '../../types/post';
-import { ReduxStoreType } from '../../types/redux';
 import ProfileAvatar from '../common/ProfileAvatar';
 
-interface LazyCommentProps {
-    comment: Comment,
+interface LazyUserCardProps {
+    userId: string
 }
 
-const LazyComment = ({ comment }: LazyCommentProps): JSX.Element => {
+const LazyUserCard = ({ userId }: LazyUserCardProps): JSX.Element => {
     const router = useRouter()
-    const { userId, username, profileImg } = useSelector((state: ReduxStoreType) => state.user)
 
-    const [commentLoading, setCommentLoading] = useState(true)
+    const [userLoading, setUserLoading] = useState(true)
     const [authorName, setAuthorName] = useState('')
     const [authorPfp, setAuthorPfp] = useState('')
 
     useEffect(() => {
         const getAuthor = async (): Promise<void> => {
-            const res = await getProfile(comment.userId)
+            const res = await getProfile(userId)
             if (res.success && res.data) {
                 setAuthorName(res.data.username)
                 setAuthorPfp(res.data.profileImg ?? '')
             }
-            setCommentLoading(false)
+            setUserLoading(false)
         }
         getAuthor()
-    }, [comment])
+    }, [userId])
 
-    if (commentLoading) {
+    const handleClick = (): void => {
+        router.push(`/profile/${userId}`)
+    }
+
+    if (userLoading) {
         return (
             <Card>
                 <CardContent>
@@ -58,17 +59,16 @@ const LazyComment = ({ comment }: LazyCommentProps): JSX.Element => {
 
     return (
         <Card>
-            <CardHeader
-                avatar={<ProfileAvatar size={25} picture64={authorPfp} />}
-                title={`u/${authorName}`}
-            />
-            <CardContent sx={{ width: '100%' }}>
-                <Typography variant="body2" color="text.secondary">
-                    {comment.comment}
-                </Typography>
-            </CardContent>
+            <CardActionArea>
+                <CardHeader
+                    avatar={<ProfileAvatar size={25} picture64={authorPfp} />}
+                    title={`u/${authorName}`}
+                    onClick={handleClick}
+                    action={<IconButton><ArrowForwardIcon /></IconButton>}
+                />
+            </CardActionArea>
         </Card>
     )
 }
 
-export default LazyComment
+export default LazyUserCard

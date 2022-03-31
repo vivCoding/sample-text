@@ -11,7 +11,7 @@ export const userSlice = createSlice({
     reducers: {
         setCurrentUser: (state, action: PayloadAction<UserType>) => {
             const {
-                userId, username, email, name, bio, profileImg, posts, savedPosts,
+                userId, username, email, name, bio, profileImg, posts, savedPosts, followers, following,
             } = action.payload
             state.userId = userId
             state.username = username
@@ -21,6 +21,8 @@ export const userSlice = createSlice({
             state.profileImg = profileImg
             state.posts = posts
             state.savedPosts = savedPosts
+            state.followers = followers
+            state.following = following
         },
         setCurrentAccount: (state, action: PayloadAction<AccountType>) => {
             const { username, email } = action.payload
@@ -29,13 +31,15 @@ export const userSlice = createSlice({
         },
         setCurrentProfile: (state, action: PayloadAction<ProfileType>) => {
             const {
-                name, bio, profileImg, posts, savedPosts,
+                name, bio, profileImg, posts, savedPosts, followers, following,
             } = action.payload
             state.name = name
             state.bio = bio
             state.profileImg = profileImg
             state.posts = posts
             state.savedPosts = savedPosts
+            state.followers = followers
+            state.following = following
         },
         clearUser: (state) => {
             state.userId = undefined
@@ -46,6 +50,8 @@ export const userSlice = createSlice({
             state.profileImg = undefined
             state.posts = undefined
             state.savedPosts = undefined
+            state.followers = undefined
+            state.following = undefined
         },
         setPostIds: (state, action: PayloadAction<ID[]>) => {
             state.posts = action.payload

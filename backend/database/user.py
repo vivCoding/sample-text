@@ -219,26 +219,26 @@ class User:
     # 1 - given id isnt valid
     # 2 - already following
     # 3 - success
-    def follow(self, id) -> int:
+    def follow(self, user_id) -> int:
         if Connection.client is None:
             return 0
         try:
-            user_to_follow = User.find_by_id(id)
+            user_to_follow = User.find_by_id(user_id)
             if user_to_follow is None:
                 return 1
-            if id in self.following:
+            if user_id in self.following:
                 return 2
             db = Connection.client[Connection.database]
             col = db[User.collection]
             
-            self.following.append(id)
+            self.following.append(user_id)
             user_to_follow.followers.append(self.user_id)
 
             new_value = { "$set": { "following": self.following } }
             col.update_one({ "_id" : ObjectId(self.user_id) }, new_value)
 
             new_value = { "$set": { "followers": user_to_follow.followers } }
-            col.update_one({ "_id" : ObjectId(id) }, new_value)
+            col.update_one({ "_id" : ObjectId(user_id) }, new_value)
 
             return 3
         except Exception as e:
@@ -250,26 +250,26 @@ class User:
     # 1 - given id isnt valid
     # 2 - not following
     # 3 - success
-    def unfollow(self, id) -> int:
+    def unfollow(self, user_id) -> int:
         if Connection.client is None:
             return 0
         try:
-            user_to_unfollow = User.find_by_id(id)
+            user_to_unfollow = User.find_by_id(user_id)
             if user_to_unfollow is None:
                 return 1
-            if id not in self.following:
+            if user_id not in self.following:
                 return 2
             db = Connection.client[Connection.database]
             col = db[User.collection]
             
-            self.following.remove(id)
-            user_to_unfollow.followers.remove(self.id)
+            self.following.remove(user_id)
+            user_to_unfollow.followers.remove(self.user_id)
 
             new_value = { "$set": { "following": self.following } }
-            col.update_one({ "_id" : ObjectId(self.user) }, new_value)
+            col.update_one({ "_id" : ObjectId(self.user_id) }, new_value)
 
             new_value = { "$set": { "followers": user_to_unfollow.followers } }
-            col.update_one({ "_id" : ObjectId(id) }, new_value)
+            col.update_one({ "_id" : ObjectId(user_id) }, new_value)
 
             return 3
         except Exception as e:
