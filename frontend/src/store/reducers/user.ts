@@ -11,7 +11,7 @@ export const userSlice = createSlice({
     reducers: {
         setCurrentUser: (state, action: PayloadAction<UserType>) => {
             const {
-                userId, username, email, name, bio, profileImg, posts, savedPosts, followers, following,
+                userId, username, email, name, bio, profileImg, posts, savedPosts, followers, following, followedTopics,
             } = action.payload
             state.userId = userId
             state.username = username
@@ -23,6 +23,7 @@ export const userSlice = createSlice({
             state.savedPosts = savedPosts
             state.followers = followers
             state.following = following
+            state.followedTopics = followedTopics
         },
         setCurrentAccount: (state, action: PayloadAction<AccountType>) => {
             const { username, email } = action.payload
@@ -31,7 +32,7 @@ export const userSlice = createSlice({
         },
         setCurrentProfile: (state, action: PayloadAction<ProfileType>) => {
             const {
-                name, bio, profileImg, posts, savedPosts, followers, following,
+                name, bio, profileImg, posts, savedPosts, followers, following, followedTopics,
             } = action.payload
             state.name = name
             state.bio = bio
@@ -40,6 +41,7 @@ export const userSlice = createSlice({
             state.savedPosts = savedPosts
             state.followers = followers
             state.following = following
+            state.followedTopics = followedTopics
         },
         clearUser: (state) => {
             state.userId = undefined
@@ -52,6 +54,7 @@ export const userSlice = createSlice({
             state.savedPosts = undefined
             state.followers = undefined
             state.following = undefined
+            state.followedTopics = undefined
         },
         setPostIds: (state, action: PayloadAction<ID[]>) => {
             state.posts = action.payload
@@ -80,10 +83,22 @@ export const userSlice = createSlice({
                 state.savedPosts = state.savedPosts.filter((postId) => postId !== action.payload)
             }
         },
+        addFollowTopic: (state, action: PayloadAction<string>) => {
+            if (state.followedTopics) {
+                state.followedTopics.push(action.payload)
+            } else {
+                state.followedTopics = [action.payload]
+            }
+        },
+        removeFollowTopic: (state, action: PayloadAction<string>) => {
+            if (state.followedTopics) {
+                state.followedTopics = state.followedTopics.filter((topicName) => topicName !== action.payload)
+            }
+        },
     },
 })
 
 export const {
-    setCurrentUser, setCurrentAccount, setCurrentProfile, clearUser, setPostIds, addPostId, removePostId, addSavedPost, removeSavedPost,
+    setCurrentUser, setCurrentAccount, setCurrentProfile, clearUser, setPostIds, addPostId, removePostId, addSavedPost, removeSavedPost, addFollowTopic, removeFollowTopic,
 } = userSlice.actions
 export default userSlice.reducer

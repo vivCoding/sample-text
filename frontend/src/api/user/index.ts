@@ -57,6 +57,7 @@ export const getUser = async (): Promise<UserResponseType> => {
     const resData = response.data as any
     if (resData.data) {
         resData.data.savedPosts = resData.data.saved_posts
+        resData.data.followedTopics = resData.data.followed_topics
     }
     return response.data as UserResponseType
 }

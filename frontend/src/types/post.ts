@@ -7,6 +7,7 @@ export interface PostType {
     likes: string[],
     caption: string,
     comments: Comment[],
+    topic: string,
     img: string,
     anonymous: boolean,
     date: string,

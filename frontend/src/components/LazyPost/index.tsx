@@ -1,11 +1,9 @@
-import { MotionPhotosAutoOutlined } from '@mui/icons-material';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import {
-    Button,
-    Card, CardActionArea, CardActions, CardContent, CardHeader, CardMedia, IconButton, Skeleton, Stack, styled, Tooltip, Typography,
+    Card, CardActionArea, CardContent, CardHeader, CardMedia, IconButton, Skeleton, Stack, styled, Tooltip, Typography,
 } from '@mui/material';
 import { useRouter } from 'next/router';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getPost } from '../../api/post';
 import { getProfile } from '../../api/user/profile';

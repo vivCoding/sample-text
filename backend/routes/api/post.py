@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, session
 from utils.encrypt import encrypt
-from utils.validate_fields import check_post_fields, check_comment
+from utils.validate_fields import check_post_fields, check_comment, check_topic
 from database.user import User
 from database.post import Post
 from database.topic import Topic
@@ -38,8 +38,16 @@ def create_post():
 				parent_topic = Topic.find_by_name(new_post.topic)
 				if parent_topic is None:
 					# create the topic and add the post to it
-					parent_topic = Topic(new_post.topic, [new_post.post_id])
-					parent_topic.push()
+					topic_status, topic_err_msg = check_topic(new_post.topic)
+					if topic_status == 0:
+						parent_topic = Topic(new_post.topic, [new_post.post_id])
+						parent_topic.push()
+					else:
+						return jsonify({
+							"success": False,
+							"error": topic_status,
+							"errorMessage": topic_err_msg,
+						}), 200
 				else:
 					# topic exists, so add the post to it
 					parent_topic.add_post(new_post.post_id)

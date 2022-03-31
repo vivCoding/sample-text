@@ -1,5 +1,5 @@
 import {
-    Box, Button, CircularProgress, Container, Divider, Grid, Skeleton, Stack, Tab, Tabs, Typography,
+    Box, Button, CircularProgress, Container, Divider, Grid, Skeleton, Stack, Tab, Tabs, Typography, styled, Chip,
 } from '@mui/material';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -29,12 +29,21 @@ import { ReduxStoreType } from '../../src/types/redux';
 import { ProfileType } from '../../src/types/user';
 import { TOAST_OPTIONS } from '../../src/constants/toast';
 
+const StyledChip = styled(Chip)({
+    margin: 5,
+    cursor: 'pointer',
+    '&:hover': {
+        opacity: '70%',
+        transition: '0.2s',
+    },
+})
+
 const UserProfilePage: NextPage = () => {
     const router = useRouter()
     const { query } = useRouter()
     const dispatch = useDispatch()
     const {
-        userId, username, name, bio, profileImg, posts, savedPosts, followers, following,
+        userId, username, name, bio, profileImg, posts, savedPosts, followers, following, followedTopics,
     } = useSelector((state: ReduxStoreType) => state.user)
 
     const [loadingUser, setLoadingUser] = useState(userId === undefined)
@@ -208,6 +217,13 @@ const UserProfilePage: NextPage = () => {
                             <Typography variant="h4">{profile.following.length}</Typography>
                             <Typography variant="body1">Following</Typography>
                         </Box>
+                        <Box>
+                            <Typography variant="h4">{profile.followedTopics.length}</Typography>
+                            <Typography variant="body1">
+                                Followed Topic
+                                {profile.followedTopics.length !== 1 && 's'}
+                            </Typography>
+                        </Box>
                     </Stack>
                 </Stack>
                 <Divider sx={{ mt: 5, mb: 1 }} />
@@ -218,6 +234,7 @@ const UserProfilePage: NextPage = () => {
                     <Tab label="Saved" />
                     <Tab label="Followers" />
                     <Tab label="Following" />
+                    <Tab label="Followed Topics" />
                 </Tabs>
                 <Box sx={{ mt: 5 }}>
                     {tabValue === 0 && (
@@ -314,6 +331,18 @@ const UserProfilePage: NextPage = () => {
                                         ))
                                     )}
                             </Stack>
+                        </>
+                    )}
+                    {tabValue === 6 && (
+                        <>
+                            <Typography variant="h4" sx={{ mb: 3 }}>Followed Topics</Typography>
+                            {profile.followedTopics.length === 0
+                                ? <Typography variant="h6">Not following any topics</Typography>
+                                : (
+                                    profile.followedTopics.map((topicName) => (
+                                        <StyledChip key={topicName} label={topicName} onClick={() => router.push(`/topic/${topicName}`)} />
+                                    ))
+                                )}
                         </>
                     )}
                 </Box>

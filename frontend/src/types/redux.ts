@@ -11,6 +11,7 @@ export interface UserSliceType {
     savedPosts?: ID[],
     followers?: ID[],
     following?: ID[],
+    followedTopics?: ID[],
 }
 
 export interface ReduxStoreType {

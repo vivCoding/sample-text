@@ -1,6 +1,6 @@
 import { LoadingButton } from '@mui/lab';
 import {
-    Button, CircularProgress, Container, FormControlLabel, Stack, Switch,
+    Button, CircularProgress, Container, FormControlLabel, InputAdornment, Stack, Switch,
 } from '@mui/material';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -9,6 +9,7 @@ import { useRouter } from 'next/router';
 import { ChangeEventHandler, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import TagIcon from '@mui/icons-material/Tag';
 import { createPost } from '../../src/api/post';
 import { getUser } from '../../src/api/user';
 import Helmet from '../../src/components/common/Helmet';
@@ -24,7 +25,8 @@ interface FormType {
     title: string,
     caption: string,
     img: string,
-    anonymous: boolean
+    anonymous: boolean,
+    topicName: string,
 }
 
 const CreatePostPage: NextPage = () => {
@@ -33,7 +35,7 @@ const CreatePostPage: NextPage = () => {
     const router = useRouter()
     const [loading, setLoading] = useState(username === undefined)
     const [postValue, setPostValue] = useState({
-        title: '', caption: '', img: '', anonymous: false,
+        title: '', caption: '', img: '', anonymous: false, topicName: '',
     } as FormType)
     const [createLoading, setCreateLoading] = useState(false)
 
@@ -74,6 +76,10 @@ const CreatePostPage: NextPage = () => {
 
     const handleCancelButton = (): void => {
         router.back()
+    }
+
+    const handleTopicChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+        setPostValue({ ...postValue, topicName: e.target.value })
     }
 
     const handleCreateButton = (): void => {
@@ -141,6 +147,21 @@ const CreatePostPage: NextPage = () => {
                             {postValue.img !== '' && <Button sx={{ ml: 2 }} onClick={handleRemoveImage}>Remove</Button>}
                         </Stack>
                     </Box>
+                    <StyledTextField
+                        label="Topic"
+                        placeholder="Add Topic"
+                        error={postValue.topicName.length > 25}
+                        helperText={`${postValue.topicName.length} / 25`}
+                        onChange={handleTopicChange}
+                        sx={{ mt: 2 }}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <TagIcon />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
                     <Stack direction="row" sx={{ mt: 1, width: '100%' }} justifyContent="flex-end">
                         <FormControlLabel control={<Switch onChange={handleToggleAnonymous} />} label="Post Anonymously" sx={{ mr: 'auto' }} />
                         <Button onClick={handleCancelButton}>Cancel</Button>
@@ -149,7 +170,10 @@ const CreatePostPage: NextPage = () => {
                             sx={{ ml: 2 }}
                             loading={createLoading}
                             onClick={handleCreateButton}
-                            disabled={postValue.title.length === 0 || postValue.title.length > LENGTH_LIMIT.POST.TITLE || postValue.caption.length > LENGTH_LIMIT.POST.BODY}
+                            disabled={postValue.topicName.length === 0
+                                || postValue.title.length === 0
+                                || postValue.title.length > LENGTH_LIMIT.POST.TITLE
+                                || postValue.caption.length > LENGTH_LIMIT.POST.BODY}
                         >
                             Create
                         </LoadingButton>

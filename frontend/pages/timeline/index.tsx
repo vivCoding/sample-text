@@ -73,7 +73,7 @@ const ProfilePage: NextPage = () => {
                     Timeline
                 </Typography>
                 <Divider sx={{ my: 5 }} />
-                <Stack alignItems="center">
+                <Stack>
                     {loadingTimeline
                         ? <CircularProgress />
                         : (

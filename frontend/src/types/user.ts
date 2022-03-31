@@ -15,6 +15,7 @@ export interface ProfileType {
     savedPosts: ID[],
     followers: ID[],
     following: ID[],
+    followedTopics: ID[],
 }
 
 export interface UserType extends AccountType, ProfileType {

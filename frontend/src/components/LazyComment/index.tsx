@@ -14,9 +14,6 @@ interface LazyCommentProps {
 }
 
 const LazyComment = ({ comment }: LazyCommentProps): JSX.Element => {
-    const router = useRouter()
-    const { userId, username, profileImg } = useSelector((state: ReduxStoreType) => state.user)
-
     const [commentLoading, setCommentLoading] = useState(true)
     const [authorName, setAuthorName] = useState('')
     const [authorPfp, setAuthorPfp] = useState('')

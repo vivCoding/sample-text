@@ -20,6 +20,7 @@ export const getProfile = async (usernameOrId: string): Promise<ProfileResponseT
     const resData = response.data as any
     if (resData.data) {
         resData.data.savedPosts = resData.data.saved_posts
+        resData.data.followedTopics = resData.data.followed_topics
     }
     return response.data as ProfileResponseType
 }
@@ -35,6 +36,7 @@ export const editProfile = async (
     const resData = response.data as any
     if (resData.data) {
         resData.data.savedPosts = resData.data.saved_posts
+        resData.data.followedTopics = resData.data.followed_topics
     }
     return response.data as ProfileResponseType
 }

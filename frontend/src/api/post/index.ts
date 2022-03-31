@@ -5,11 +5,11 @@ import { Comment } from '../../types/post'
 import client from '../client'
 
 export const createPost = async ({
-    title, caption, img, anonymous,
+    title, caption, img, anonymous, topicName,
 }:
-{ title: string, caption: string, img: string, anonymous: boolean }): Promise<PostResponseType> => {
+{ title: string, caption: string, img: string, anonymous: boolean, topicName: string }): Promise<PostResponseType> => {
     const response = await client.post('/post/createpost', {
-        title, caption, img, anonymous,
+        title, caption, img, anonymous, topic: topicName,
     }).catch(() => ({ status: 404, data: { success: false, error: 404 } }))
     if (response.status === 401) {
         return { success: false, error: 401 }

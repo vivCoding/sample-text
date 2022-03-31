@@ -32,7 +32,7 @@ import { TOAST_OPTIONS } from '../../src/constants/toast';
 import {
     addSavedPost, removePostId, removeSavedPost, setCurrentUser,
 } from '../../src/store';
-import { PostType } from '../../src/types/post';
+import { PostType, Comment } from '../../src/types/post';
 import { ReduxStoreType } from '../../src/types/redux';
 import StyledTextField from '../../src/components/common/StyledTextField';
 import LazyComment from '../../src/components/LazyComment';
@@ -316,8 +316,7 @@ const PostPage: NextPage = () => {
                         </Box>
                         <Stack direction="row" justifyContent="end" alignItems="center">
                             <Stack direction="row" flexWrap="wrap" sx={{ mr: 'auto' }}>
-                                {/* TODO: insert topic here */}
-                                <StyledChip label="topic 1" />
+                                <StyledChip label={post.topic} onClick={() => router.push(`/topic/${post.topic}`)} />
                             </Stack>
                             <Stack direction="row" spacing={1} sx={{ mt: 1, mb: 2 }}>
                                 <Tooltip title="Like Post">
@@ -393,11 +392,16 @@ const PostPage: NextPage = () => {
                         </Box>
                         <Stack>
                             <Typography variant="h4" sx={{ mt: 3, mb: 4 }}>Comments</Typography>
-                            {comments.map((comment) => (
-                                <Box key={comment.comment} sx={{ my: 1 }}>
-                                    <LazyComment comment={comment} />
-                                </Box>
-                            ))}
+                            {comments.length === 0
+                                ? (
+                                    <Typography variant="h6">No comments</Typography>
+                                ) : (
+                                    comments.map((comment) => (
+                                        <Box key={comment.comment} sx={{ my: 1 }}>
+                                            <LazyComment comment={comment} />
+                                        </Box>
+                                    ))
+                                )}
                         </Stack>
                     </Box>
                 )}
