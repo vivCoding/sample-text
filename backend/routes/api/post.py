@@ -39,7 +39,7 @@ def create_post():
 					# create the topic and add the post to it
 					topic_status, topic_err_msg = check_topic(new_post.topic)
 					if topic_status == 0:
-						parent_topic = Topic(new_post.topic, [new_post.post_id])
+						parent_topic = Topic(new_post.topic, [])
 						parent_topic.push()
 					else:
 						return jsonify({
