@@ -47,10 +47,9 @@ def create_post():
 							"error": topic_status,
 							"errorMessage": topic_err_msg,
 						}), 200
-				else:
-					# topic exists, so add the post to it
-					parent_topic.add_post(new_post.post_id)
 				new_post.push()
+				# topic exists, so add the post to it
+				parent_topic.add_post(new_post.post_id)
 				return jsonify({ "success": True, "data": new_post.to_dict() }), 200
 			else:
 				return jsonify({ "success": False,"error": status, "errorMessage": error_message }), 200
