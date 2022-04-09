@@ -353,3 +353,128 @@ def test_post_deletion(test_client):
         if "user_id" in session:
             session.pop("user_id")
         test_client.cookie_jar.clear()
+
+def test_logged_in_getprofile(test_client):
+    try:
+        # create first user
+        user1 = generate_random.generate_user(True)
+        response = test_client.post("/api/user/createaccount", json={
+            "username": user1.username,
+            "email": user1.email,
+            "password": user1.password,
+        })
+        assert response.status_code == 200, "Bad create account reponse " + str(response.status_code)
+        user1 = User.find_by_email(user1.email)
+
+        # user creates a post
+        post = Post(title="title", topic="topic", author_id=user1.user_id)
+        response = test_client.post("/api/post/createpost", json={
+            "title": post.title,
+            "topic": post.topic,
+            "author_id": user1.user_id,
+            "img": post.img,
+            "caption": post.caption,
+            "anonymous": post.anonymous,
+            "likes": post.likes,
+            "comments": post.comments,
+            "date": post.date,
+            "post_id": post.post_id
+            })
+        data = response.json
+        post.post_id = data['data']['post_id']
+        assert response.status_code == 200, "Bad response, got " + str(response.status_code)
+        assert data["success"] == True, f"Post creation test failed for: {str(post.to_dict())}, error: {data.get('error', None)}"
+        assert Post.find(post.post_id) is not None, "Post was not found in database"
+
+        # logout of first user
+        response = test_client.post("/api/user/logout", json={})
+        data = response.json
+        assert response.status_code == 200, "Bad response logging out, got " + str(response.status_code)
+        assert data["success"] == True, f"Logging out failed, got success {data.get('success', None)}"
+
+        # create second user
+        user2 = generate_random.generate_user(True)
+        response = test_client.post("/api/user/createaccount", json={
+            "username": user2.username,
+            "email": user2.email,
+            "password": user2.password,
+        })
+        data = response.json
+        assert response.status_code == 200, "Bad create account reponse " + str(response.status_code)
+        assert data["success"] == True, f"User creation failed, got success {data.get('success', None)}"
+        user2 = User.find_by_email(user2.email)
+
+        # view first user's profile while logged into second user
+        response = test_client.post("/api/user/getprofile", json={
+            "username_or_id": user1.username
+        })
+        data = response.json
+        assert response.status_code == 200, "Bad getprofile response " + str(response.status_code)
+        assert data["success"] == True, f"getprofile failed, got success {data.get('success', None)}"
+        assert data["data"]["username"] == user1.username, f"Returned username is incorrect, got {data['data'].get('username', None)}"
+        assert post.post_id in data["data"]["posts"], "User's posts not returned"
+    finally:
+        if User.find_by_email(user1.email):
+            User.delete_by_email(user1.email)
+        if User.find_by_email(user2.email):
+            User.delete_by_email(user2.email)
+        if Post.find(post.post_id):
+            Post.delete(post.post_id)
+        if "user_id" in session:
+            session.pop("user_id")
+        test_client.cookie_jar.clear()
+def test_not_logged_in_getprofile(test_client):
+    try:
+        # create first user
+        user1 = generate_random.generate_user(True)
+        response = test_client.post("/api/user/createaccount", json={
+            "username": user1.username,
+            "email": user1.email,
+            "password": user1.password,
+        })
+        assert response.status_code == 200, "Bad create account reponse " + str(response.status_code)
+        user1 = User.find_by_email(user1.email)
+
+        # user creates a post
+        post = Post(title="title", topic="topic", author_id=user1.user_id)
+        response = test_client.post("/api/post/createpost", json={
+            "title": post.title,
+            "topic": post.topic,
+            "author_id": user1.user_id,
+            "img": post.img,
+            "caption": post.caption,
+            "anonymous": post.anonymous,
+            "likes": post.likes,
+            "comments": post.comments,
+            "date": post.date,
+            "post_id": post.post_id
+            })
+        data = response.json
+        post.post_id = data['data']['post_id']
+        assert response.status_code == 200, "Bad response, got " + str(response.status_code)
+        assert data["success"] == True, f"Post creation test failed for: {str(post.to_dict())}, error: {data.get('error', None)}"
+        assert Post.find(post.post_id) is not None, "Post was not found in database"
+
+        # logout of first user
+        response = test_client.post("/api/user/logout", json={})
+        data = response.json
+        assert response.status_code == 200, "Bad response logging out, got " + str(response.status_code)
+        assert data["success"] == True, f"Logging out failed, got success {data.get('success', None)}"
+
+        # view first user's profile while not logged in
+        response = test_client.post("/api/user/getprofile", json={
+            "username_or_id": user1.username
+        })
+        data = response.json
+        assert response.status_code == 200, "Bad getprofile response " + str(response.status_code)
+        assert data["success"] == True, f"getprofile failed, got success {data.get('success', None)}"
+        assert data["data"]["username"] == user1.username, f"Returned username is incorrect, got {data['data'].get('username', None)}"
+        assert "posts" not in data["data"], "list of posts still returned"
+    finally:
+        if User.find_by_email(user1.email):
+            User.delete_by_email(user1.email)
+        if Post.find(post.post_id):
+            Post.delete(post.post_id)
+        if "user_id" in session:
+            session.pop("user_id")
+        test_client.cookie_jar.clear()
