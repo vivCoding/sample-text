@@ -88,8 +88,6 @@ def get_user():
 def get_profile():
 	# do not proceed if user is not logged in
 	user_id = session.get('user_id', None)
-	if user_id is None:
-		return jsonify({ "success": False }), 401
 	try:
 		data = request.get_json()
 		username_or_id = data["username_or_id"]
@@ -103,12 +101,16 @@ def get_profile():
 			# we also want to sort the posts made, and not return the ones that are not anonymous
 			# if the person logged in is getting their own profile, view everything
 			if user.user_id != user_id:
-				filtered_posts = []
-				for post_id in user.posts:
-					post = Post.find(post_id)
-					if post is not None and not post.anonymous: 
-						filtered_posts.append(post_id)
-				return_dict["posts"] = filtered_posts
+				if user_id is None:
+					for key in ["followers", "following", "posts", "followed_topics", "liked_posts", "comments", "saved_posts"]:
+						return_dict.pop(key)
+				else:
+					filtered_posts = []
+					for post_id in user.posts:
+						post = Post.find(post_id)
+						if post is not None and not post.anonymous: 
+							filtered_posts.append(post_id)
+					return_dict["posts"] = filtered_posts
 			return jsonify({ "success": True, "data": return_dict }), 200
 		else:
 			return jsonify({ "success": False }), 404

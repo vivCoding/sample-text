@@ -122,7 +122,6 @@ Returns user profile given username
     }
 }
 ```
-- Response status 401 if user is not authorized (e.g. does not have valid session cookie)
 - Response status 404 if given username could not be found
 
 ## `POST /api/user/getaccount`
