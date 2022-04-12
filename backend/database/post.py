@@ -6,7 +6,7 @@ from bson.objectid import ObjectId
 class Post:
     collection = "posts"
 
-    def __init__(self, title, topic, author_id, img="", caption="", anonymous=False, likes=[], comments=[], saves=[], date=datetime.now().strftime('%Y/%m/%d, %H:%M:%S'), post_id="") -> None:
+    def __init__(self, title, topic, author_id, img="", caption="", anonymous=False, likes=[], loves=[], comments=[], saves=[], date=datetime.now().strftime('%Y/%m/%d, %H:%M:%S'), post_id="") -> None:
         self.title = title
         self.topic = topic
         self.author_id = author_id
@@ -14,6 +14,7 @@ class Post:
         self.caption = caption
         self.anonymous = anonymous
         self.likes = likes
+        self.loves = loves
         self.comments = comments
         self.saves = saves
         self.date = date
@@ -29,6 +30,7 @@ class Post:
             "caption": self.caption,
             "anonymous": self.anonymous,
             "likes": self.likes,
+            "loves": self.loves,
             "comments": self.comments,
             "saves": self.saves,
             "date": self.date
@@ -139,6 +141,7 @@ class Post:
                 caption=res["caption"],
                 anonymous=res["anonymous"],
                 likes=res["likes"],
+                loves=res["loves"],
                 comments=res["comments"],
                 saves=res["saves"],
                 date=res["date"],
@@ -162,7 +165,6 @@ class Post:
                 }
             })
 
-            
             new_value = { "$pull": { "liked_posts": post_id } }
             for _id in res["likes"]:
                 filter = { "_id": ObjectId(_id) }
