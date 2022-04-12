@@ -103,6 +103,47 @@ class Post:
             print(e)
             return False
 
+    # Updates this object's loves in MongoDB, and returns whether it was successful
+    def love(self, user_id: str) -> bool:
+        try:
+            db = Connection.client[Connection.database]
+            col = db[Post.collection]
+            filter = { "post_id": self.post_id }
+            new_value = { "$addToSet": { "loves": user_id } }
+            col.update_one(filter, new_value, upsert=True)
+            if user_id not in self.loves:
+                self.loves.append(user_id)
+            
+            usercol = db[User.collection]
+            filter = { "_id": ObjectId(user_id) }
+            new_value = { "$addToSet": { "loved_posts": self.post_id } }
+            usercol.update_one(filter, new_value)
+
+            return True
+        except Exception as e:
+            print(e)
+            return False
+
+    # Updates this object's loves in MongoDB, and returns whether it was successful
+    def unlove(self, user_id: str) -> bool:
+        try:
+            db = Connection.client[Connection.database]
+            col = db[Post.collection]
+            filter = { "post_id": self.post_id }
+            new_value = { "$pull": { "loves": user_id } }
+            col.update_one(filter, new_value)
+            self.loves.remove(user_id)
+
+            usercol = db[User.collection]
+            filter = { "_id": ObjectId(user_id) }
+            new_value = { "$pull": { "loved_posts": self.post_id } }
+            usercol.update_one(filter, new_value)
+
+            return True
+        except Exception as e:
+            print(e)
+            return False
+
     # Updates this object's comments in MongoDB, and returns whether it was successful
     def add_comment(self, user_id: str, comment: str) -> bool:
         try: 
