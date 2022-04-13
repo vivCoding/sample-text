@@ -379,6 +379,11 @@ class User:
                 filter = { "post_id": post_id }
                 postcol.update_one(filter, new_value)
 
+            new_value = { "$pull": { "loves": str(res["_id"]) } }
+            for post_id in res["loved_posts"]:
+                filter = { "post_id": post_id }
+                postcol.update_one(filter, new_value)
+
             new_value = { "$pull": { "comments": { "$elemMatch": { "user_id": str(res["_id"]) } } } }
             for post_id in res["comments"]:
                 filter = { "post_id": post_id }

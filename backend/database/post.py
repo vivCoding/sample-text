@@ -211,6 +211,10 @@ class Post:
                 filter = { "_id": ObjectId(_id) }
                 user_col.update_one(filter, new_value)
 
+            new_value = { "$pull": { "loved_posts": post_id } }
+            for _id in res["loves"]:
+                filter = { "_id": ObjectId(_id) }
+                user_col.update_one(filter, new_value)
             
             new_value = { "$pull": { "comments": post_id }}
             for comment in res["comments"]:
