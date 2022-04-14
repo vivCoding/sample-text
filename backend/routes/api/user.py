@@ -365,7 +365,7 @@ def block_user():
 		print(e)
 		return jsonify({"success": False }), 500
 
-@user_blueprint.route('/blockuser', methods=["POST"])
+@user_blueprint.route('/unblockuser', methods=["POST"])
 def unblock_user():
 	user_id = session.get('user_id', None)
 	if user_id is None:
