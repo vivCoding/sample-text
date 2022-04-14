@@ -137,3 +137,18 @@ def test_delete_user_by_email(mongodb):
         good_user.push()
     User.delete_by_email(good_user.email)
     assert User.find_by_email(good_user.email) is None, "User was not deleted"
+
+def test_blocking(mongodb):
+    user = generate_user(True)
+    if User.find_by_email(user.email) is None:
+        user.push()
+    if User.find_by_email(good_user.email) is None:
+        good_user.push()
+
+    assert user.block(good_user.user_id) == 3, "Failed to block user"
+    assert good_user.user_id in user.blocked and len(user.blocked) == 1, "User not added into blocked"
+
+    User.delete_by_email(user.email)
+    User.delete_by_email(good_user.email)
+    assert User.find_by_email(good_user.email) is None, "User was not deleted"
+    assert User.find_by_email(user.email) is None, "User was not deleted"

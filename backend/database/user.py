@@ -278,7 +278,12 @@ class User:
         except Exception as e:
             print(e)
             return 0
-
+            
+    # makes current user follow given id
+    # 0 - db error
+    # 1 - given id isnt valid
+    # 2 - not in blocked
+    # 3 - success
     def unblock(self, user_id) -> int:
         if Connection.client is None:
             return 0
@@ -292,7 +297,7 @@ class User:
             col = db[User.collection]
             
             self.blocked.remove(user_id)
-            
+
             new_value = { "$set": { "blocked": self.blocked } }
             col.update_one({ "_id" : ObjectId(self.user_id) }, new_value)
             

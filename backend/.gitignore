@@ -7,3 +7,4 @@ bin/
 lib/
 *.cfg
 .pytest_cache
+app.py
