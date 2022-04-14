@@ -1,4 +1,5 @@
 from gettext import find
+from tkinter import N
 from .connect import Connection
 from bson.objectid import ObjectId
 
@@ -6,7 +7,7 @@ class User:
     collection = "users"
 
 
-    def __init__(self, username, email, password, name="", bio="", profile_img="", following=[], followers=[], followed_topics = [], posts=[], liked_posts = [], comments=[], saved_posts=[], user_id="") -> None:
+    def __init__(self, username, email, password, name="", bio="", profile_img="", following=[], followers=[], followed_topics = [], posts=[], liked_posts = [], comments=[], saved_posts=[], user_id="", blocked=[]) -> None:
         self.user_id = user_id
         self.username = username
         self.email = email
@@ -21,6 +22,7 @@ class User:
         self.liked_posts = liked_posts
         self.comments = comments
         self.saved_posts = saved_posts
+        self.blocked = blocked
 
     def __eq__(self, other) -> bool:
         if isinstance(other, User):
@@ -41,7 +43,8 @@ class User:
             "followed_topics": self.followed_topics,
             "liked_posts": self.liked_posts,
             "comments": self.comments,
-            "saved_posts": self.saved_posts
+            "saved_posts": self.saved_posts,
+            "blocked": self.blocked
         }
 
     # Pushes this object to MongoDB, and returns the user id if it was successful. If error, return None
@@ -64,7 +67,8 @@ class User:
                 "followed_topics": self.followed_topics,
                 "liked_posts": self.liked_posts,
                 "comments": self.comments,
-                "saved_posts": self.saved_posts
+                "saved_posts": self.saved_posts,
+                "blocked": self.blocked
             }
             result = col.insert_one(doc)
             self.user_id = str(result.inserted_id)
@@ -219,6 +223,7 @@ class User:
     # 1 - given id isnt valid
     # 2 - already following
     # 3 - success
+    # 4 - in blocked
     def follow(self, user_id) -> int:
         if Connection.client is None:
             return 0
@@ -228,6 +233,8 @@ class User:
                 return 1
             if user_id in self.following:
                 return 2
+            if user_id in self.blocked:
+                return 4
             db = Connection.client[Connection.database]
             col = db[User.collection]
             
@@ -243,6 +250,55 @@ class User:
             return 3
         except Exception as e:
             print (e)
+            return 0
+    
+    # makes current user follow given id
+    # 0 - db error
+    # 1 - given id isnt valid
+    # 2 - already blocked
+    # 3 - success
+    def block(self, user_id) -> int:
+        if Connection.client is None:
+            return 0
+        try:
+            user_to_block = User.find_by_id(user_id)
+            if user_to_block is None:
+                return 1
+            if user_to_block in self.blocked:
+                return 2
+            db = Connection.client[Connection.database]
+            col = db[User.collection]
+            
+            self.blocked.append(user_id)
+
+            new_value = { "$set": { "blocked": self.blocked } }
+            col.update_one({ "_id" : ObjectId(self.user_id) }, new_value)
+
+            return 3
+        except Exception as e:
+            print(e)
+            return 0
+
+    def unblock(self, user_id) -> int:
+        if Connection.client is None:
+            return 0
+        try:
+            user_to_unblock = User.find_by_id(user_id)
+            if user_to_unblock is None:
+                return 1
+            if user_to_unblock not in self.blocked:
+                return 2
+            db = Connection.client[Connection.database]
+            col = db[User.collection]
+            
+            self.blocked.remove(user_id)
+            
+            new_value = { "$set": { "blocked": self.blocked } }
+            col.update_one({ "_id" : ObjectId(self.user_id) }, new_value)
+            
+            return 3
+        except Exception as e:
+            print(e)
             return 0
 
     # makes current user follow given id
