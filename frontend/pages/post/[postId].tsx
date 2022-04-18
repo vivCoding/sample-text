@@ -19,6 +19,10 @@ import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import { LoadingButton } from '@mui/lab';
+import LoveBorderIcon from '@mui/icons-material/FavoriteBorder';
+import LoveIcon from '@mui/icons-material/Favorite';
+import ThumbDownOffAltIcon from '@mui/icons-material/ThumbDownOffAlt';
+import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import {
     deletePost, getPost, likePost, unlikePost, unsavePost, savePost, commentOnPost,
 } from '../../src/api/post';
@@ -64,7 +68,11 @@ const PostPage: NextPage = () => {
     const [likeCount, setLikeCount] = useState(0)
     const [hasSavedPost, setHasSavedPost] = useState(false)
     const [commentValue, setCommentValue] = useState('')
-    const [isAdding, setIsAdding] = useState(false)
+    const [isAddingComment, setIsAddingComment] = useState(false)
+    const [hasLovedPost, setHasLovedPost] = useState(false)
+    const [loveCount, setLoveCount] = useState(0)
+    const [hasDislikedPost, setHasDislikedPost] = useState(false)
+    const [dislikeCount, setDislikeCount] = useState(0)
 
     const isSelfPost = useMemo(() => userId && post.authorId && post.authorId === userId, [userId, post])
     useEffect(() => {
@@ -146,12 +154,20 @@ const PostPage: NextPage = () => {
         }
     }
 
+    const handleLove = (): void => {
+        // TODO handleLove
+    }
+
+    const handleDislike = (): void => {
+        // TODO handleDislike
+    }
+
     const handleCommentOnChange : ChangeEventHandler<HTMLInputElement> = (e) => {
         setCommentValue(e.target.value)
     }
 
     const handleComment = (): void => {
-        setIsAdding(true)
+        setIsAddingComment(true)
         commentOnPost(post.postId, commentValue).then((res) => {
             if (res.success && res.data) {
                 setComments(res.data.comments)
@@ -160,7 +176,7 @@ const PostPage: NextPage = () => {
             } else {
                 toast.error('There was an error in commenting on the post', TOAST_OPTIONS)
             }
-            setIsAdding(false)
+            setIsAddingComment(false)
         })
     }
 
@@ -258,6 +274,9 @@ const PostPage: NextPage = () => {
                             <Skeleton variant="rectangular" width="50%" sx={{ mr: 'auto' }} />
                             <Stack direction="row" justifyContent="end" spacing={1} sx={{ my: 1 }}>
                                 <IconButton>
+                                    <LoveBorderIcon />
+                                </IconButton>
+                                <IconButton>
                                     <ThumbUpOffAltIcon />
                                 </IconButton>
                                 <IconButton>
@@ -319,15 +338,39 @@ const PostPage: NextPage = () => {
                                 <StyledChip label={post.topic} onClick={() => router.push(`/topic/${post.topic}`)} />
                             </Stack>
                             <Stack direction="row" spacing={1} sx={{ mt: 1, mb: 2 }}>
-                                <Tooltip title="Like Post">
+                                <Tooltip title={hasLovedPost ? 'Unlove Post' : 'Love Post'}>
                                     <Stack direction="row" alignItems="center">
-                                        <IconButton onClick={handleLike}>
+                                        <IconButton onClick={handleLove} disabled={hasLikedPost || hasDislikedPost}>
+                                            {hasLovedPost
+                                                ? <LoveIcon />
+                                                : <LoveBorderIcon />}
+                                        </IconButton>
+                                        <Typography variant="button">
+                                            {loveCount}
+                                        </Typography>
+                                    </Stack>
+                                </Tooltip>
+                                <Tooltip title={hasLikedPost ? 'Unlike Post' : 'Like Post'}>
+                                    <Stack direction="row" alignItems="center">
+                                        <IconButton onClick={handleLike} disabled={hasLovedPost || hasDislikedPost}>
                                             {hasLikedPost
                                                 ? <ThumbUpIcon />
                                                 : <ThumbUpOffAltIcon />}
                                         </IconButton>
                                         <Typography variant="button">
                                             {likeCount}
+                                        </Typography>
+                                    </Stack>
+                                </Tooltip>
+                                <Tooltip title={hasDislikedPost ? 'Remove Dislike' : 'Dislike Post'}>
+                                    <Stack direction="row" alignItems="center">
+                                        <IconButton onClick={handleLike} disabled={hasLovedPost || hasLikedPost}>
+                                            {hasDislikedPost
+                                                ? <ThumbDownIcon />
+                                                : <ThumbDownOffAltIcon />}
+                                        </IconButton>
+                                        <Typography variant="button">
+                                            {dislikeCount}
                                         </Typography>
                                     </Stack>
                                 </Tooltip>
@@ -341,8 +384,7 @@ const PostPage: NextPage = () => {
                                         </Typography>
                                     </Stack>
                                 </Tooltip>
-                                <Tooltip title="Save Post">
-                                    {/* TODO: set icon and save tooltip title conditionally */}
+                                <Tooltip title={hasSavedPost ? 'Unsave Post' : 'Save Post'}>
                                     <IconButton onClick={handleSave}>
                                         {hasSavedPost
                                             ? <BookmarkIcon />
@@ -376,12 +418,12 @@ const PostPage: NextPage = () => {
                                 value={commentValue}
                                 error={commentValue.length > 500}
                                 helperText={`${commentValue.length} / 500`}
-                                disabled={isAdding}
+                                disabled={isAddingComment}
                             />
                             <Stack direction="row" justifyContent="flex-end">
                                 <LoadingButton
                                     variant="contained"
-                                    loading={isAdding}
+                                    loading={isAddingComment}
                                     onClick={handleComment}
                                     disabled={commentValue.length === 0 || commentValue.length > 500}
                                 >

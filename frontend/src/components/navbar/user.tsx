@@ -16,6 +16,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
 import TagIcon from '@mui/icons-material/Tag';
 import { PanoramaFishEyeSharp } from '@mui/icons-material';
+import ForumIcon from '@mui/icons-material/Forum';
 import Link from '../common/Link'
 import { NavBtnStyle, Page } from '.';
 import ProfileAvatar from '../common/ProfileAvatar'
@@ -115,6 +116,11 @@ const Navbar = (): JSX.Element => {
         router.push('/post/create')
     }
 
+    const handleGoMessage = (): void => {
+        // TODO go to message page
+        router.push('/convos')
+    }
+
     const handleSearchChange = async (): Promise<void> => {
         if (searchValue === '') return
         setSearchLoading(true)
@@ -201,6 +207,11 @@ const Navbar = (): JSX.Element => {
                         <Tooltip title="Create Post" sx={{ mx: 1 }}>
                             <IconButton onClick={handleGoCreate}>
                                 <AddBoxIcon />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Conversations" sx={{ mx: 1 }}>
+                            <IconButton onClick={handleGoMessage}>
+                                <ForumIcon />
                             </IconButton>
                         </Tooltip>
                         {username

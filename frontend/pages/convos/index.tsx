@@ -14,7 +14,7 @@ import { setCurrentUser } from '../../src/store';
 import { ID } from '../../src/types/misc';
 import LazyPost from '../../src/components/LazyPost';
 
-const TimelinePage: NextPage = () => {
+const ConvosPage: NextPage = () => {
     const router = useRouter()
     const dispatch = useDispatch()
 
@@ -40,19 +40,14 @@ const TimelinePage: NextPage = () => {
 
     useEffect(() => {
         if (username && !loading) {
-            getTimeline().then((res) => {
-                if (res.success && res.data) {
-                    setTimeline(res.data)
-                }
-                setLoadingTimeline(false)
-            })
+            // TODO
         }
     }, [username, loading])
 
     if (loading) {
         return (
             <Box>
-                <Helmet title="Create Post" />
+                <Helmet title="Conversations" />
                 <UserNavbar />
                 <Box sx={{
                     display: 'flex', height: '90vh', alignItems: 'center', justifyContent: 'center',
@@ -66,37 +61,19 @@ const TimelinePage: NextPage = () => {
 
     return (
         <Box>
-            <Helmet title="Timeline" />
+            <Helmet title="Conversations" />
             <UserNavbar />
             <Container maxWidth="md" sx={{ mt: 6, mb: 20 }}>
                 <Typography variant="h3" fontWeight="300">
-                    Timeline
+                    Conversations
                 </Typography>
-                {/* TODO add sort here */}
                 <Divider sx={{ my: 5 }} />
                 <Stack>
-                    {loadingTimeline
-                        ? <CircularProgress />
-                        : (
-                            timeline.length === 0
-                                ? (
-                                    <>
-                                        <Typography variant="h6">Nothing to see here!</Typography>
-                                        <Typography variant="h6">Follow users and topics to see posts here</Typography>
-                                    </>
-                                )
-                                : (
-                                    timeline.map((postId) => (
-                                        <Box key={postId} sx={{ my: 1 }}>
-                                            <LazyPost key={postId} postId={postId} />
-                                        </Box>
-                                    ))
-                                )
-                        )}
+                    {/* TODO */}
                 </Stack>
             </Container>
         </Box>
     )
 };
 
-export default TimelinePage;
+export default ConvosPage;

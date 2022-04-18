@@ -11,11 +11,13 @@ export interface ProfileType {
     name?: string,
     bio?: string,
     profileImg?: string,
-    posts: ID[],
-    savedPosts: ID[],
-    followers: ID[],
-    following: ID[],
-    followedTopics: ID[],
+    posts?: ID[],
+    followers?: ID[],
+    following?: ID[],
+    followedTopics?: ID[],
+    likedPosts?: ID[],
+    comments?: ID[],
+    savedPosts?: ID[],
 }
 
 export interface UserType extends AccountType, ProfileType {
