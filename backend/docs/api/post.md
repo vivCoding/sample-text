@@ -13,6 +13,7 @@ Creates a post, validates given parameters, and stores into MongoDB. Returns the
     "caption": string,
     "anonymous": string,
     "likes": list(str),
+	"loves": list(str),
     "comments": list(list(str, str)),
     "saves": listr(str),
     "date": string,
@@ -33,6 +34,7 @@ Creates a post, validates given parameters, and stores into MongoDB. Returns the
         "caption": string,
         "anonymous": string,
         "likes": list(str),
+		"loves": list(str),
         "comments": list(list(str, str)),
         "saves": list(str),
         "date": string,
@@ -89,6 +91,7 @@ Returns info of requested post
         "caption": string,
         "anonymous": string,
         "likes": list(str),
+		"loves": list(str),
         "comments": list(str),
         "saves": list(str),
         "date": string,
@@ -146,7 +149,54 @@ Unlikes a post, removing the user_id from the list of users. Returns the new num
 ```
 - Response status code 401 if user is not logged in
 - Response status code 404 if post does not exist
-- Response status code 500 if exception occurs during execution1
+- Response status code 500 if exception occurs during execution
+
+## `POST /api/post/lovepost`
+
+Loves a post, incrementing the total and recording the user who loved the post in MongoDB. Returns the new number of loves on the post
+
+### Request Body
+```json
+{
+    "post_id": string
+}
+```
+### Response Types
+```json
+{
+    "success": boolean,
+    "data": {
+        "loveCount": int
+    }
+}
+```
+- Response status code 401 user is not logged in
+- Response status code 404 post does not exist
+- Response status code 500 exception during execution
+
+## `POST /api/post/unlovepost`
+
+Unloves a post, decrements the total and removes the user_id from the list of users. Returns the new number of loves
+
+### Request Body
+```json
+{
+    "post_id": string
+}
+```
+
+### Response Types
+```json
+{
+    "success": boolean,
+    "data": {
+        "loveCount": int
+    }
+}
+```
+- Response status code 401 if user is not logged in
+- Response status code 404 if post does not exist
+- Response status code 500 if exception occurs during execution
 
 ## `POST /api/post/commentonpost`
 
@@ -196,6 +246,7 @@ Save a post in MongoDB for the logged in user. Returns the post that was saved
         "caption": string,
         "anonymous": string,
         "likes": list(str),
+		"loves": list(str),
         "comments": list(list(str, str)),
         "saves": list(str),
         "date": string,
@@ -229,6 +280,7 @@ Unsaves a post in MongoDB for the logged in user
         "caption": string,
         "anonymous": string,
         "likes": list(str),
+		"loves": list(str),
         "comments": list(list(str, str)),
         "saves": list(str),
         "date": string,
