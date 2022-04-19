@@ -40,6 +40,24 @@ def test_post(mongodb):
     assert user.user_id not in Post.find(post.post_id).likes, "user_id not removed from list of users who liked"
     assert post.post_id not in User.find_by_username(user.username).liked_posts, "post_id not removed from user's list of liked posts"
 
+    # test dislike post
+    post.dislike(user.user_id)
+    post2.dislike(user2.user_id)
+    post3.dislike(user3.user_id)
+    post = Post.find(post.post_id)
+    user = User.find_by_email(user.email)
+    assert len(post.dislikes) == 1, "Dislikes not updated correctly"
+    assert user.user_id in post.dislikes, "user_id not added to list of users who disliked"
+    assert post.post_id in user.disliked_posts, "post_id not added to user's list of disliked posts"
+
+    # test undislike post
+    post.undislike(user.user_id)
+    post = Post.find(post.post_id)
+    user = User.find_by_email(user.email)
+    assert len(post.dislikes) == 0, "Dislikes not updated correctly"
+    assert user.user_id not in post.dislikes, "user_id not removed from list of users who disliked"
+    assert post.post_id not in user.disliked_posts, "post_id not removed from user's list of disliked posts"
+
     # test love post
     post.love(user.user_id)
     post2.love(user.user_id)
@@ -77,6 +95,7 @@ def test_post(mongodb):
     Post.delete(post2.post_id)
     user2 = User.find_by_username(user2.username)
     assert post2.post_id not in user2.liked_posts, "post_id not removed from user's list of liked posts"
+    assert post2.post_id not in user2.disliked_posts, "post_id not removed from user's list of disliked posts"
     assert post2.post_id not in user2.loved_posts, "post_id not removed from user's list of loved posts"
     assert post2.post_id not in user2.comments, "post_id not removed from user's list of comments"
 
@@ -85,6 +104,7 @@ def test_post(mongodb):
     User.delete_by_username(user3.username)
     post3 = Post.find(post3.post_id)
     assert user3.user_id not in post3.likes and len(post3.likes) == 0, "user_id not removed from post's likes after deleting user"
+    assert user3.user_id not in post3.dislikes and len(post3.dislikes) == 0, "user_id not removed from post's dislikes after deleting user"
     assert user3.user_id not in post3.loves and len(post3.loves) == 0, "user_id not removed from post's loves after deleting user"
     assert [{"user_id": user3.user_id}, {"comment": "comment3"}] not in post3.comments, "comment not removed from post after deleting user"
 
