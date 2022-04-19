@@ -6,7 +6,7 @@ from bson.objectid import ObjectId
 class Post:
     collection = "posts"
 
-    def __init__(self, title, topic, author_id, img="", caption="", anonymous=False, likes=[], loves=[], comments=[], saves=[], date=datetime.now().strftime('%Y/%m/%d, %H:%M:%S'), post_id="") -> None:
+    def __init__(self, title, topic, author_id, img="", caption="", anonymous=False, likes=[], dislikes=[], loves=[], comments=[], saves=[], date=datetime.now().strftime('%Y/%m/%d, %H:%M:%S'), post_id="") -> None:
         self.title = title
         self.topic = topic
         self.author_id = author_id
@@ -14,6 +14,7 @@ class Post:
         self.caption = caption
         self.anonymous = anonymous
         self.likes = likes
+        self.dislikes = dislikes
         self.loves = loves
         self.comments = comments
         self.saves = saves
@@ -30,6 +31,7 @@ class Post:
             "caption": self.caption,
             "anonymous": self.anonymous,
             "likes": self.likes,
+            "dislikes": self.dislikes,
             "loves": self.loves,
             "comments": self.comments,
             "saves": self.saves,
@@ -103,6 +105,47 @@ class Post:
             print(e)
             return False
 
+    # Updates this object's dislikes in MongoDB, and returns whether it was successful
+    def dislike(self, user_id: str) -> bool:
+        try: 
+            db = Connection.client[Connection.database]
+            col = db[Post.collection]
+            filter = { "post_id" : self.post_id }
+            new_value = { "$addToSet": { "dislikes": user_id } }
+            col.update_one(filter, new_value, upsert=True)
+            if user_id not in self.likes:
+                self.dislikes.append(user_id)
+
+            usercol = db[User.collection]
+            filter = { "_id": ObjectId(user_id) }
+            new_value = { "$addToSet": { "disliked_posts": self.post_id } }
+            usercol.update_one(filter, new_value)
+
+            return True
+        except Exception as e:
+            print(e)
+            return False
+
+    # Updates this object's dislikes in MongoDB, and returns whether it was successful
+    def undislike(self, user_id: str) -> bool:
+        try:
+            db = Connection.client[Connection.database]
+            col = db[Post.collection]
+            filter = { "post_id": self.post_id }
+            new_value = { "$pull": { "dislikes": user_id } }
+            col.update_one(filter, new_value)
+            self.dislikes.remove(user_id)
+
+            usercol = db[User.collection]
+            filter = { "_id": ObjectId(user_id) }
+            new_value = { "$pull": { "disliked_posts": self.post_id } }
+            usercol.update_one(filter, new_value)
+
+            return True
+        except Exception as e:
+            print(e)
+            return False
+
     # Updates this object's loves in MongoDB, and returns whether it was successful
     def love(self, user_id: str) -> bool:
         try:
@@ -121,7 +164,7 @@ class Post:
 
             return True
         except Exception as e:
-            print(e)
+            print (e)
             return False
 
     # Updates this object's loves in MongoDB, and returns whether it was successful
@@ -138,10 +181,8 @@ class Post:
             filter = { "_id": ObjectId(user_id) }
             new_value = { "$pull": { "loved_posts": self.post_id } }
             usercol.update_one(filter, new_value)
-
-            return True
         except Exception as e:
-            print(e)
+            print (e)
             return False
 
     # Updates this object's comments in MongoDB, and returns whether it was successful
@@ -182,6 +223,7 @@ class Post:
                 caption=res["caption"],
                 anonymous=res["anonymous"],
                 likes=res["likes"],
+                dislikes=res["dislikes"],
                 loves=res["loves"],
                 comments=res["comments"],
                 saves=res["saves"],
@@ -208,6 +250,11 @@ class Post:
 
             new_value = { "$pull": { "liked_posts": post_id } }
             for _id in res["likes"]:
+                filter = { "_id": ObjectId(_id) }
+                user_col.update_one(filter, new_value)
+
+            new_value = { "$pull": { "disliked_posts": post_id } }
+            for _id in res["dislikes"]:
                 filter = { "_id": ObjectId(_id) }
                 user_col.update_one(filter, new_value)
 
