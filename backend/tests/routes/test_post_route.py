@@ -204,6 +204,121 @@ def test_unlike_post(test_client):
             Post.delete(post.post_id)
         test_client.cookie_jar.clear()
 
+def test_love_post(test_client):
+    try:
+        # simulate logged in user
+        user = generate_user(True)
+        response = test_client.post("/api/user/createaccount", json={
+            "username": user.username,
+            "email": user.email,
+            "password": user.password,
+        })
+        assert response.status_code == 200, "Bad create account reponse " + str(response.status_code)
+
+        # user creates a post
+        data = response.json
+        userId = data["data"]["userId"]
+        post = Post(title="My second post", topic="games", author_id=userId)
+        response = test_client.post("/api/post/createpost", json={
+            "title": post.title,
+            "topic": post.topic,
+            "author_id": post.author_id,
+            "img": post.img,
+            "caption": post.caption,
+            "anonymous": post.anonymous,
+            "likes": post.likes,
+            "comments": post.comments,
+            "date": post.date,
+            "post_id": post.post_id
+            })
+        assert response.status_code == 200, "Bad create post response, got " + str(response.status_code)
+        data = response.json
+        post.post_id = data['data']['post_id']
+        assert data["success"] == True, f"Post creation test failed for: {str(post.to_dict())}, error: {data.get('error', None)}"
+        assert Post.find(post.post_id) is not None, "Post was not found in database"
+
+        # track initial number of loves on this post
+        loveCount = len(post.loves)
+        # user loves this post
+        response = test_client.post("/api/post/lovepost", json={
+            "post_id": post.post_id
+            })
+        data = response.json
+        assert response.status_code == 200, "Bad lovepost response, got " + str(response.status_code)
+        post = Post.find(post.post_id)
+        user = User.find_by_email(user.email)
+        assert data["success"] == True and len(post.loves) == loveCount + 1 and userId in post.loves and post.post_id in user.loved_posts, f"Love post test failed for post {post.post_id}, got success {data.get('success', None)}"
+    finally:
+        if User.find_by_email(user.email):
+            User.delete_by_email(user.email)
+        if Post.find(post.post_id):
+            Post.delete(post.post_id)
+        test_client.cookie_jar.clear()
+
+def test_unlove_post(test_client):
+    try:
+        # simulate logged in user
+        user = generate_user(True)
+        response = test_client.post("/api/user/createaccount", json={
+            "username": user.username,
+            "email": user.email,
+            "password": user.password,
+        })
+        assert response.status_code == 200, "Bad create account reponse " + str(response.status_code)
+
+        # user creates a post
+        data = response.json
+        userId = data["data"]["userId"]
+        post = Post(title="My second post", topic="games", author_id=userId)
+        response = test_client.post("/api/post/createpost", json={
+            "title": post.title,
+            "topic": post.topic,
+            "author_id": post.author_id,
+            "img": post.img,
+            "caption": post.caption,
+            "anonymous": post.anonymous,
+            "likes": post.likes,
+            "comments": post.comments,
+            "date": post.date,
+            "post_id": post.post_id
+            })
+        assert response.status_code == 200, "Bad create post response, got " + str(response.status_code)
+        data = response.json
+        post.post_id = data['data']['post_id']
+        assert data["success"] == True, f"Post creation test failed for: {str(post.to_dict())}, error: {data.get('error', None)}"
+        assert Post.find(post.post_id) is not None, "Post was not found in database"
+
+        # track initial number of loves on this post
+        loveCount = len(post.loves)
+        # user loves this post
+        response = test_client.post("/api/post/lovepost", json={
+            "post_id": post.post_id
+            })
+        data = response.json
+        assert response.status_code == 200, "Bad lovepost response, got " + str(response.status_code)
+        post = Post.find(post.post_id)
+        user = User.find_by_email(user.email)
+        assert data["success"] == True and len(post.loves) == loveCount + 1 and userId in post.loves and post.post_id in user.loved_posts, f"Love post test failed for post {post.post_id}, got success {data.get('success', None)}"
+    
+        # track initial number of loves
+        loveCount = len(post.loves)
+        # user unloves the post
+        response = test_client.post("/api/post/unlovepost", json={
+            "post_id": post.post_id
+        })
+        data = response.json
+        assert response.status_code == 200, "Bad unlove post response, got " + str(response.status_code)
+        post = Post.find(post.post_id)
+        user = User.find_by_email(user.email)
+        assert data["success"] == True and len(post.loves) == loveCount - 1 and userId not in post.loves and post.post_id not in user.loved_posts, f"Unlove post test failed for post {post.post_id}, got success {data.get('success', None)}"
+    
+    finally:
+        if User.find_by_email(user.email):
+            User.delete_by_email(user.email)
+        if Post.find(post.post_id):
+            Post.delete(post.post_id)
+        test_client.cookie_jar.clear()
+
 def test_comment_on_post(test_client):
     try:
         # simulate logged in user
