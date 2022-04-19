@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request, session
+from database.conversation import Conversation
 from utils.encrypt import encrypt
 from utils.validate_fields import check_account_fields, check_email, check_password, check_username
 from database.user import User
@@ -264,9 +265,12 @@ def delete_user():
 		user = User.find_by_id(user_id)
 		if user is not None:
 			if user.password == password:
+				print("not my problem")
 				# delete this user's posts
 				for post_id in user.posts:
 					Post.delete(post_id)
+				for convo_id in user.conversations:
+					Conversation.delete(convo_id)
 				# delete this user
 				User.delete_by_id(user_id)
 				session.pop('user_id')
@@ -344,6 +348,76 @@ def unfollow_topic():
 			else:
 				return jsonify({ "success": False }), 200
 		return jsonify({ "Success": False }), 404
+	except Exception as e:
+		print(e)
+		return jsonify({ "success": False }), 500
+
+@user_blueprint.route('/createconversation', methods=["POST"])
+def create_convo():
+	user_id = session.get('user_id', None)
+	if user_id is None:
+		return jsonify({ "success": False }), 401
+	try:
+		data = request.get_json()
+		ret = Conversation.create(user_id, data["recipient"])
+		if ret == 2:
+			return jsonify({ "success": True , "status": ret}), 200
+		else:
+			return jsonify({ "success": False , "status": ret }), 200
+	except Exception as e:
+		print(e)
+		return jsonify({ "success": False }), 500
+
+@user_blueprint.route('/deleteconversation', methods=["POST"])
+def delete_convo():
+	user_id = session.get('user_id', None)
+	if user_id is None:
+		return jsonify({ "success": False }), 401
+	try:
+		data = request.get_json()
+		ret = Conversation.delete(data["conversation_id"])
+		if ret == 1:
+			return jsonify({ "success": True , "status": ret}), 200
+		else:
+			return jsonify({ "success": False , "status": ret }), 200
+	except Exception as e:
+		print(e)
+		return jsonify({ "success": False }), 500
+
+@user_blueprint.route('/sendprivatemessage', methods=["POST"])
+def send_message():
+	user_id = session.get('user_id', None)
+	if user_id is None:
+		return jsonify({ "success": False }), 401
+	try:
+		data = request.get_json()
+		convo = Conversation.find_by_id(data["conversation_id"])
+		if convo == None:
+			return jsonify({ "Success": False }), 404
+		else:
+			ret = convo.add_message(user_id, data["message"])
+			if ret == 1:
+				return jsonify({ "success": True , "status": ret}), 200
+			return jsonify({ "success": False , "status": ret }), 200
+	except Exception as e:
+		print(e)
+		return jsonify({ "success": False }), 500
+
+@user_blueprint.route('/getconversation', methods=["POST"])
+def get_conversation():
+	user_id = session.get('user_id', None)
+	if user_id is None:
+		return jsonify({ "success": False }), 401
+	try:
+		data = request.get_json()
+		convo = Conversation.find_by_id(data["conversation_id"])
+		if convo == None:
+			return jsonify({ "Success": False }), 404
+		else:
+			return jsonify({
+				"success": True,
+				"data": convo.to_dict()
+			}), 200
 	except Exception as e:
 		print(e)
 		return jsonify({ "success": False }), 500

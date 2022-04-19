@@ -1,4 +1,6 @@
 from gettext import find
+
+import database
 from .connect import Connection
 from bson.objectid import ObjectId
 
@@ -6,7 +8,7 @@ class User:
     collection = "users"
 
 
-    def __init__(self, username, email, password, name="", bio="", profile_img="", following=[], followers=[], followed_topics = [], posts=[], liked_posts = [], comments=[], saved_posts=[], user_id="") -> None:
+    def __init__(self, username, email, password, name="", bio="", profile_img="", following=[], followers=[], followed_topics = [], posts=[], liked_posts = [], comments=[], saved_posts=[], conversations=[], user_id="") -> None:
         self.user_id = user_id
         self.username = username
         self.email = email
@@ -20,6 +22,7 @@ class User:
         self.followed_topics = followed_topics
         self.liked_posts = liked_posts
         self.comments = comments
+        self.conversations = conversations
         self.saved_posts = saved_posts
 
     def __eq__(self, other) -> bool:
@@ -41,7 +44,8 @@ class User:
             "followed_topics": self.followed_topics,
             "liked_posts": self.liked_posts,
             "comments": self.comments,
-            "saved_posts": self.saved_posts
+            "saved_posts": self.saved_posts,
+            "conversations": self.conversations
         }
 
     # Pushes this object to MongoDB, and returns the user id if it was successful. If error, return None
@@ -64,7 +68,8 @@ class User:
                 "followed_topics": self.followed_topics,
                 "liked_posts": self.liked_posts,
                 "comments": self.comments,
-                "saved_posts": self.saved_posts
+                "saved_posts": self.saved_posts,
+                "conversations":self.conversations
             }
             result = col.insert_one(doc)
             self.user_id = str(result.inserted_id)
@@ -313,6 +318,38 @@ class User:
             print(e)
             return False
 
+    def add_conversation(self, convo_id):
+        if Connection.client is None:
+            return False
+        try:
+            if convo_id in self.conversations:
+                return False            
+            db = Connection.client[Connection.database]
+            col = db[User.collection]
+            self.conversations.append(str(convo_id))
+            new_value = { "$set": { "conversations": self.conversations } }
+            col.update_one({ "_id" : ObjectId(self.user_id) }, new_value)
+            return True
+        except Exception as e:
+            print(e)
+            return False
+
+    def remove_conversation(self, convo_id):
+        if Connection.client is None:
+            return False
+        try:
+            if convo_id not in self.conversations:
+                return False            
+            db = Connection.client[Connection.database]
+            col = db[User.collection]
+            self.conversations.remove(convo_id)
+            new_value = { "$set": { "conversations": self.conversations } }
+            col.update_one({ "_id" : ObjectId(self.user_id) }, new_value)
+            return True
+        except Exception as e:
+            print(e)
+            return False
+
     # Static method that finds and returns a specific user from the collection based on filters
     @staticmethod
     def find(filters: dict):
@@ -336,6 +373,7 @@ class User:
                 liked_posts=res["liked_posts"],
                 comments=res["comments"],
                 saved_posts=res["saved_posts"],
+                conversations=res["conversations"],
                 user_id= str(res["_id"])
             )
         except Exception as e:
