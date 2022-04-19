@@ -364,7 +364,7 @@ const PostPage: NextPage = () => {
                                 </Tooltip>
                                 <Tooltip title={hasDislikedPost ? 'Remove Dislike' : 'Dislike Post'}>
                                     <Stack direction="row" alignItems="center">
-                                        <IconButton onClick={handleLike} disabled={hasLovedPost || hasLikedPost}>
+                                        <IconButton onClick={handleDislike} disabled={hasLovedPost || hasLikedPost}>
                                             {hasDislikedPost
                                                 ? <ThumbDownIcon />
                                                 : <ThumbDownOffAltIcon />}

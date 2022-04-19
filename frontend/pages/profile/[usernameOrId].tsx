@@ -12,18 +12,20 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import EditIcon from '@mui/icons-material/Edit';
 import { toast } from 'react-toastify';
-import { followUser, getUser, unfollowUser } from '../../../src/api/user';
-import { getProfile } from '../../../src/api/user/profile';
-import Helmet from '../../../src/components/common/Helmet';
-import Link from '../../../src/components/common/Link';
-import ProfileAvatar from '../../../src/components/common/ProfileAvatar';
-import LazyPost from '../../../src/components/LazyPost';
-import LazyUserCard from '../../../src/components/LazyUserCard';
-import UserNavbar from '../../../src/components/navbar/user';
-import { setCurrentUser } from '../../../src/store';
-import { ReduxStoreType } from '../../../src/types/redux';
-import { ProfileType } from '../../../src/types/user';
-import { TOAST_OPTIONS } from '../../../src/constants/toast';
+import ShieldIcon from '@mui/icons-material/Shield';
+import RemoveModeratorIcon from '@mui/icons-material/RemoveModerator';
+import { followUser, getUser, unfollowUser } from '../../src/api/user';
+import { getProfile } from '../../src/api/user/profile';
+import Helmet from '../../src/components/common/Helmet';
+import Link from '../../src/components/common/Link';
+import ProfileAvatar from '../../src/components/common/ProfileAvatar';
+import LazyPost from '../../src/components/LazyPost';
+import LazyUserCard from '../../src/components/LazyUserCard';
+import UserNavbar from '../../src/components/navbar/user';
+import { setCurrentUser } from '../../src/store';
+import { ReduxStoreType } from '../../src/types/redux';
+import { ProfileType } from '../../src/types/user';
+import { TOAST_OPTIONS } from '../../src/constants/toast';
 
 const StyledChip = styled(Chip)({
     margin: 5,
@@ -43,8 +45,10 @@ const UserProfilePage: NextPage = () => {
     const [loadingUser, setLoadingUser] = useState(userId === undefined)
     const [profile, setProfile] = useState({} as ProfileType)
     const [loadingProfile, setLoadingProfile] = useState(true)
+    const [userline, setUserline] = useState([] as string[])
     const [tabValue, setTabValue] = useState(0)
     const [followLoading, setFollowLoading] = useState(false)
+    const [blockLoading, setBlockLoading] = useState(false)
 
     const [isLoggedIn, setLoggedIn] = useState(userId !== undefined)
     const isSelf = useMemo(() => (
@@ -57,6 +61,7 @@ const UserProfilePage: NextPage = () => {
 
     const hasBlocked = useMemo(() => (
         false
+        // TODO
     ), [userId, profile])
 
     useEffect(() => {
@@ -65,8 +70,6 @@ const UserProfilePage: NextPage = () => {
                 if (res.success && res.data) {
                     dispatch(setCurrentUser(res.data))
                     setLoggedIn(true)
-                } else {
-                    router.push('/404')
                 }
                 setLoadingUser(false)
             })
@@ -87,6 +90,12 @@ const UserProfilePage: NextPage = () => {
             })
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [router, query, loadingUser])
+
+    useEffect(() => {
+        if (!loadingUser && query.usernameOrId) {
+            // TODO fill useEffect getUserline
+        }
     }, [router, query, loadingUser])
 
     const handleTabChange = (e: SyntheticEvent, newValue: number): void => {
@@ -187,56 +196,56 @@ const UserProfilePage: NextPage = () => {
                             <Typography variant="body1" fontWeight="normal">{profile.bio}</Typography>
                         </Grid>
                         {isLoggedIn && (
-                            <>
-                                <Grid item xs={12}>
-                                    {isSelf ? (
-                                        <Button variant="contained" component={Link} href="/settings" startIcon={<EditIcon />}>Edit Profile</Button>
-                                    )
-                                        : isFollowing
-                                            ? (
+                            <Grid item xs={12}>
+                                {isSelf ? (
+                                    <Button variant="contained" component={Link} href="/settings" startIcon={<EditIcon />}>Edit Profile</Button>
+                                )
+                                    : (
+                                        <>
+                                            {isFollowing
+                                                ? (
+                                                    <LoadingButton
+                                                        variant="contained"
+                                                        startIcon={<PersonRemoveIcon />}
+                                                        onClick={handleUnfollow}
+                                                        loading={followLoading}
+                                                    >
+                                                        Unfollow
+                                                    </LoadingButton>
+                                                ) : (
+                                                    <LoadingButton
+                                                        variant="contained"
+                                                        startIcon={<PersonAddIcon />}
+                                                        onClick={handleFollow}
+                                                        loading={followLoading}
+                                                    >
+                                                        Follow
+                                                    </LoadingButton>
+                                                )}
+                                            {hasBlocked ? (
                                                 <LoadingButton
                                                     variant="contained"
-                                                    startIcon={<PersonRemoveIcon />}
-                                                    onClick={handleUnfollow}
-                                                    loading={followLoading}
+                                                    startIcon={<RemoveModeratorIcon />}
+                                                    onClick={handleUnblockUser}
+                                                    loading={blockLoading}
+                                                    sx={{ ml: 2 }}
                                                 >
-                                                    Unfollow
+                                                    Unblock
                                                 </LoadingButton>
                                             ) : (
                                                 <LoadingButton
                                                     variant="contained"
-                                                    startIcon={<PersonAddIcon />}
-                                                    onClick={handleFollow}
-                                                    loading={followLoading}
+                                                    startIcon={<ShieldIcon />}
+                                                    onClick={handleBlockUser}
+                                                    loading={blockLoading}
+                                                    sx={{ ml: 2 }}
                                                 >
-                                                    Follow
+                                                    Block
                                                 </LoadingButton>
                                             )}
-                                </Grid>
-                                {!isSelf && (
-                                    <Grid item xs={12}>
-                                        {hasBlocked ? (
-                                            <LoadingButton
-                                                variant="contained"
-                                                startIcon={<PersonRemoveIcon />}
-                                                onClick={handleUnfollow}
-                                                loading={followLoading}
-                                            >
-                                                Unblock
-                                            </LoadingButton>
-                                        ) : (
-                                            <LoadingButton
-                                                variant="contained"
-                                                startIcon={<PersonAddIcon />}
-                                                onClick={handleFollow}
-                                                loading={followLoading}
-                                            >
-                                                Block
-                                            </LoadingButton>
-                                        )}
-                                    </Grid>
-                                )}
-                            </>
+                                        </>
+                                    )}
+                            </Grid>
                         )}
                     </Grid>
                     {isLoggedIn && (
@@ -264,8 +273,7 @@ const UserProfilePage: NextPage = () => {
                         <Divider sx={{ mt: 5, mb: 1 }} />
                         <Tabs value={tabValue} onChange={handleTabChange}>
                             <Tab label="Posts" />
-                            <Tab label="Liked" />
-                            <Tab label="Commented" />
+                            <Tab label="Userline" />
                             <Tab label="Saved" />
                             <Tab label="Followers" />
                             <Tab label="Following" />
@@ -290,37 +298,13 @@ const UserProfilePage: NextPage = () => {
                             )}
                             {tabValue === 1 && (
                                 <>
-                                    <Typography variant="h4" sx={{ mb: 3 }}>Liked Posts</Typography>
+                                    <Typography variant="h4" sx={{ mb: 3 }}>Posts Made</Typography>
                                     <Stack>
-                                        {profile.likedPosts?.length === 0
-                                            ? <Typography variant="h6">No posts liked</Typography>
-                                            : (
-                                                profile.likedPosts?.map((postId) => (
-                                                    <Box key={postId} sx={{ my: 1 }}>
-                                                        <LazyPost key={postId} postId={postId} />
-                                                    </Box>
-                                                ))
-                                            )}
+                                        {/* TODO add userline stuff */}
                                     </Stack>
                                 </>
                             )}
                             {tabValue === 2 && (
-                                <>
-                                    <Typography variant="h4" sx={{ mb: 3 }}>Posts Commented</Typography>
-                                    <Stack>
-                                        {profile.comments?.length === 0
-                                            ? <Typography variant="h6">No commented posts</Typography>
-                                            : (
-                                                profile.comments?.map((postId) => (
-                                                    <Box key={postId} sx={{ my: 1 }}>
-                                                        <LazyPost key={postId} postId={postId} />
-                                                    </Box>
-                                                ))
-                                            )}
-                                    </Stack>
-                                </>
-                            )}
-                            {tabValue === 3 && (
                                 <>
                                     <Typography variant="h4" sx={{ mb: 3 }}>Saved Posts</Typography>
                                     <Stack>
@@ -336,7 +320,7 @@ const UserProfilePage: NextPage = () => {
                                     </Stack>
                                 </>
                             )}
-                            {tabValue === 4 && (
+                            {tabValue === 3 && (
                                 <>
                                     <Typography variant="h4" sx={{ mb: 3 }}>Followers</Typography>
                                     <Stack>
@@ -352,7 +336,7 @@ const UserProfilePage: NextPage = () => {
                                     </Stack>
                                 </>
                             )}
-                            {tabValue === 5 && (
+                            {tabValue === 4 && (
                                 <>
                                     <Typography variant="h4" sx={{ mb: 3 }}>Following</Typography>
                                     <Stack>
@@ -368,7 +352,7 @@ const UserProfilePage: NextPage = () => {
                                     </Stack>
                                 </>
                             )}
-                            {tabValue === 6 && (
+                            {tabValue === 5 && (
                                 <>
                                     <Typography variant="h4" sx={{ mb: 3 }}>Followed Topics</Typography>
                                     {profile.followedTopics?.length === 0
