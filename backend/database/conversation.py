@@ -81,9 +81,7 @@ class Conversation:
             if currConvo == None:
                 return 0
             User.find_by_id(currConvo.user1).remove_conversation(conversation_id)
-            print("user1 with id: " + currConvo.user1)
             User.find_by_id(currConvo.user2).remove_conversation(conversation_id)
-            print("user2 with id: " + currConvo.user2)
             db = Connection.client[Connection.database]
             col = db[Conversation.collection]
             res = col.delete_one({ "_id": ObjectId(conversation_id) })
