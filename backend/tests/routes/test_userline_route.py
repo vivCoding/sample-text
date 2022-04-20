@@ -54,9 +54,10 @@ def test_generate_userline(test_client):
         post1.add_comment(user1.user_id, "Cool post man!")
         # user1 saves the post
         user1.save_post(post1.post_id)
-        # TODO: user1 dislikes the post
-
-        # TODO: user1 loves the post
+        # user1 dislikes the post
+        post1.dislike(user1.user_id)
+        # user1 loves the post
+        post1.love(user1.user_id)
         # generate userline
         response = test_client.post("/api/userline/generateuserline")
         assert response.status_code == 200, "Bad response, got " + str(response.status_code)
@@ -68,6 +69,8 @@ def test_generate_userline(test_client):
         assert [post2.post_id, "Liked", post2.date] in userline, "post2 like was not in user1's userline"
         assert [post1.post_id, "Commented", post1.date] in userline, "post1 comment was not in user1's userline"
         assert [post1.post_id, "Saved", post1.date] in userline, "post1 save was not in user1's userline"
+        assert [post1.post_id, "Disliked", post1.date] in userline, "post1 dislike was not in user1's userline"
+        assert [post1.post_id, "Loved", post1.date] in userline, "post1 love was not in user1's userline"
         # assert that posts are sorted by creation time
         sortedUserline = sorted(userline, key = lambda x:datetime.strptime(x[2], '%Y/%m/%d, %H:%M:%S'), reverse=True)
         assert userline == sortedUserline, "userline is not sorted correctly"

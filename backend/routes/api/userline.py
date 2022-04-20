@@ -28,20 +28,34 @@ def generate_userline():
 			# interactions: like, comment, save, dislike, love
 			# get posts user has liked
 			for post_id in user.liked_posts:
-				date = Post.find(post_id).date
-				userline.append([post_id, "Liked", date])
+				post = Post.find(post_id)
+				if post:
+					date = post.date
+					userline.append([post_id, "Liked", date])
 			# get posts user has commented on
 			for post_id in user.comments:
-				date = Post.find(post_id).date
-				userline.append([post_id, "Commented", date])
+				post = Post.find(post_id)
+				if post:
+					date = post.date
+					userline.append([post_id, "Commented", date])
 			# get user's saved posts
 			for post_id in user.saved_posts:
-				date = Post.find(post_id).date
-				userline.append([post_id, "Saved", date])
-			# TODO: get posts user has disliked
-
-			# TODO: get posts user has loved
-
+				post = Post.find(post_id)
+				if post:
+					date = post.date
+					userline.append([post_id, "Saved", date])
+			# get posts user has disliked
+			for post_id in user.disliked_posts:
+				post = Post.find(post_id)
+				if post:
+					date = post.date
+					userline.append([post_id, "Disliked", date])
+			# get posts user has loved
+			for post_id in user.loved_posts:
+				post = Post.find(post_id)
+				if post:
+					date = post.date
+					userline.append([post_id, "Loved", date])
 			# sort mp by post creation time
 			userline = sorted(userline, key = lambda x:datetime.strptime(x[2], '%Y/%m/%d, %H:%M:%S'), reverse=True)
 			#print(userline)
