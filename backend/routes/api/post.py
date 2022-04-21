@@ -145,7 +145,51 @@ def unlike_post():
 				"success": True,
 				"data": { "likeCount": len(post.likes) }
 			}), 200
-		return jsonify({ "success": False }), 500
+		return jsonify({ "success": False }), 404
+	except Exception as e:
+		print(e)
+		return jsonify({"success": False }), 500
+
+@post_blueprint.route('/dislikepost', methods=["POST"])
+def dislike_post():
+	# do not proceed if user is not logged in
+	# if they are logged in, they should have their user_id in their session cookie
+	user_id = session.get('user_id', None)
+	if user_id is None:
+		return jsonify({ "success": False }), 401
+	try:
+		data = request.get_json()
+		post_id = data["post_id"]
+		post = Post.find(post_id)
+		if post is not None:
+			post.dislike(user_id)
+			return jsonify({
+				"success": True,
+				"data": { "dislikeCount": len(post.dislikes) }
+			}), 200
+		return jsonify({ "success": False }), 404
+	except Exception as e:
+		print(e)
+		return jsonify({"success": False }), 500
+
+@post_blueprint.route('/undislikepost', methods=["POST"])
+def undislike_post():
+	# do not proceed if user is not logged in
+	# if they are logged in, they should have their user_id in their session cookie
+	user_id = session.get('user_id', None)
+	if user_id is None:
+		return jsonify({ "success": False }), 401
+	try:
+		data = request.get_json()
+		post_id = data["post_id"]
+		post = Post.find(post_id)
+		if post is not None:
+			post.undislike(user_id)
+			return jsonify({
+				"success": True,
+				"data": { "dislikeCount": len(post.dislikes) }
+			}), 200
+		return jsonify({ "success": False }), 404
 	except Exception as e:
 		print(e)
 		return jsonify({"success": False }), 500

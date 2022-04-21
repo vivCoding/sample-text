@@ -151,6 +151,53 @@ Unlikes a post, removing the user_id from the list of users. Returns the new num
 - Response status code 404 if post does not exist
 - Response status code 500 if exception occurs during execution
 
+## `POST /api/post/dislikepost`
+
+Dislikes a post, increments the dislike count and records the user who disliked the post in MongoDB. Returns the new number of dislikes on the post
+
+### Request Body
+```json
+{
+    "post_id": string
+}
+```
+### Response Types
+```json
+{
+    "success": boolean,
+    "data": {
+        "likeCount": int
+    } | undefined
+}
+```
+- Response status code 401 user is not logged in
+- Response status code 404 post does not exist
+- Response status code 500 exception during execution
+
+## `POST /api/post/undislikepost`
+
+Unlikes a post, removing the user_id from the list of users. Returns the new number of likes
+
+### Request Body
+```json
+{
+    "post_id": string
+}
+```
+
+### Response Types
+```json
+{
+    "success": boolean,
+    "data": {
+        "likeCount": int
+    } | undefined
+}
+```
+- Response status code 401 if user is not logged in
+- Response status code 404 if post does not exist
+- Response status code 500 if exception occurs during execution
+
 ## `POST /api/post/lovepost`
 
 Loves a post, incrementing the total and recording the user who loved the post in MongoDB. Returns the new number of loves on the post
@@ -167,7 +214,7 @@ Loves a post, incrementing the total and recording the user who loved the post i
     "success": boolean,
     "data": {
         "loveCount": int
-    }
+    } | undefined
 }
 ```
 - Response status code 401 user is not logged in
@@ -191,7 +238,7 @@ Unloves a post, decrements the total and removes the user_id from the list of us
     "success": boolean,
     "data": {
         "loveCount": int
-    }
+    } | undefined
 }
 ```
 - Response status code 401 if user is not logged in
