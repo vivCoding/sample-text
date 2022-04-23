@@ -115,3 +115,35 @@ export const commentOnPost = async (postId: string, comment: string): Promise<Ge
     }
     return response.data as GeneralResponseType
 }
+
+export const lovePost = async (postId: string): Promise<GeneralResponseType> => {
+    const response = await client.post('/post/lovepost', { post_id: postId }).catch(() => ({ status: 404, data: { success: false, error: 404 } }))
+    if (response.status === 401) {
+        return { success: false, error: 401 }
+    }
+    return response.data as GeneralResponseType
+}
+
+export const unlovePost = async (postId: string): Promise<GeneralResponseType> => {
+    const response = await client.post('/post/unlovepost', { post_id: postId }).catch(() => ({ status: 404, data: { success: false, error: 404 } }))
+    if (response.status === 401) {
+        return { success: false, error: 401 }
+    }
+    return response.data as GeneralResponseType
+}
+
+export const dislikePost = async (postId: string): Promise<GeneralResponseType> => {
+    const response = await client.post('/post/dislikepost', { post_id: postId }).catch(() => ({ status: 404, data: { success: false, error: 404 } }))
+    if (response.status === 401) {
+        return { success: false, error: 401 }
+    }
+    return response.data as GeneralResponseType
+}
+
+export const undislikePost = async (postId: string): Promise<GeneralResponseType> => {
+    const response = await client.post('/post/undislikepost', { post_id: postId }).catch(() => ({ status: 404, data: { success: false, error: 404 } }))
+    if (response.status === 401) {
+        return { success: false, error: 401 }
+    }
+    return response.data as GeneralResponseType
+}

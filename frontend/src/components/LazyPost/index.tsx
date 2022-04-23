@@ -72,7 +72,7 @@ const LazyPost = ({ postId }: LazyPostProps): JSX.Element => {
 
     if (postLoading) {
         return (
-            <Card>
+            <Card sx={{ width: '100%' }}>
                 <CardContent>
                     <Skeleton variant="text" height={70} width="50%" />
                     <Stack direction="row" spacing={2}>
@@ -94,7 +94,7 @@ const LazyPost = ({ postId }: LazyPostProps): JSX.Element => {
     }
 
     return (
-        <Card>
+        <Card sx={{ width: '100%' }}>
             <CardHeader
                 avatar={<ProfileAvatar size={25} picture64={authorPfp} />}
                 title={isAnonymous ? 'Anonymous' : `u/${authorName}`}

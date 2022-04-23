@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Blueprint, jsonify, request, session
 from utils.encrypt import encrypt
 from utils.validate_fields import check_post_fields, check_comment, check_topic
@@ -33,6 +34,7 @@ def create_post():
 					data.get("caption", ""),
 					data.get("anonymous", ""),
 				)
+				new_post.date = datetime.now().strftime('%Y/%m/%d, %H:%M:%S')
 				# add this post under its topic in the database
 				parent_topic = Topic.find_by_name(new_post.topic)
 				if parent_topic is None:

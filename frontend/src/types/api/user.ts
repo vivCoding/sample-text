@@ -1,4 +1,5 @@
 import { BaseResponseType, FetcherResponseType } from '.';
+import { ID } from '../misc';
 import { AccountType, ProfileType, UserType } from '../user';
 
 export interface UserResponseType extends BaseResponseType {
@@ -13,27 +14,9 @@ export interface AccountResponseType extends BaseResponseType {
     data?: AccountType,
 }
 
-// unused swr stuff, ignore
-export interface ProfileFetcherResponseType extends FetcherResponseType {
-    data?: ProfileType
-}
-// unused swr stuff, ignore
-export interface ProfileHookResponseType {
-    loading: boolean,
-    error: boolean,
-    auth: boolean,
-    found: boolean,
-    data?: ProfileType
-}
-
-// unused swr stuff, ignore
-export interface AccountFetchResponseType extends FetcherResponseType {
-    data?: AccountType
-}
-// unused swr stuff, ignore
-export interface AccountHookResponseType {
-    loading: boolean,
-    error: boolean,
-    auth: boolean,
-    username?: string,
+export interface UserlineResponseType extends BaseResponseType {
+    data?: {
+        postId: ID,
+        interactionType: string,
+    } []
 }

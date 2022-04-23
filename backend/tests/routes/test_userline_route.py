@@ -16,7 +16,7 @@ def test_generate_userline(test_client):
             "username": user1.username,
             "email": user1.email,
             "password": user1.password
-            })
+        })
         data = response.json
         assert response.status_code == 200, "Bad response, got " + str(response.status_code)
         assert data["success"] == True, f"User creation test failed for: {str(user1.to_dict())}, error: {data.get('error', None)}"
@@ -59,7 +59,7 @@ def test_generate_userline(test_client):
         # user1 loves the post
         post1.love(user1.user_id)
         # generate userline
-        response = test_client.post("/api/userline/generateuserline")
+        response = test_client.post("/api/userline/generateuserline", json={ "user_id": user1.user_id })
         assert response.status_code == 200, "Bad response, got " + str(response.status_code)
         data = response.json
         userline = data['data']

@@ -21,7 +21,8 @@ def generate_userline():
 	if user_id is None:
 		return jsonify({ "success": False }), 401
 	try:
-		user = User.find_by_id(user_id)
+		data = request.get_json()
+		user = User.find_by_id(data["user_id"])
 		if user is not None:
 			userline = []
 			# generate userline
