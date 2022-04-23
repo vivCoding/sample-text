@@ -126,7 +126,7 @@ const ProfilePage: NextPage = () => {
                                 <Box key={postId} sx={{ my: 1 }}>
                                     <LazyPost key={postId} postId={postId} />
                                 </Box>
-                            ))
+                            )).reverse()
                         )}
                 </Stack>
             </Container>

@@ -24,7 +24,7 @@ import LoveIcon from '@mui/icons-material/Favorite';
 import ThumbDownOffAltIcon from '@mui/icons-material/ThumbDownOffAlt';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import {
-    deletePost, getPost, likePost, unlikePost, unsavePost, savePost, commentOnPost,
+    deletePost, getPost, likePost, unlikePost, unsavePost, savePost, commentOnPost, unlovePost, lovePost, undislikePost, dislikePost,
 } from '../../src/api/post';
 import { getUser } from '../../src/api/user';
 import { getProfile } from '../../src/api/user/profile';
@@ -99,7 +99,11 @@ const PostPage: NextPage = () => {
                 setPost(res.data)
                 setHasLikedPost(res.data.likes.find((userLike) => userLike === userId) !== undefined)
                 setLikeCount(res.data.likes.length)
+                setHasLovedPost(res.data.loves.find((userLove) => userLove === userId) !== undefined)
+                setLoveCount(res.data.loves.length)
                 setHasSavedPost(savedPosts !== undefined && savedPosts.find((savePostId) => savePostId === postId) !== undefined)
+                setHasDislikedPost(res.data.dislikes.find((userDislike) => userDislike === userId) !== undefined)
+                setDislikeCount(res.data.dislikes.length)
                 setComments(res.data.comments)
                 if (res.data.authorId && res.data.authorId === userId && username) {
                     setAuthorName(username)
@@ -155,11 +159,47 @@ const PostPage: NextPage = () => {
     }
 
     const handleLove = (): void => {
-        // TODO handleLove
+        if (hasLovedPost) {
+            unlovePost(post.postId).then((res) => {
+                if (res.success && res.data) {
+                    setLoveCount(res.data.loveCount)
+                    setHasLovedPost(false)
+                } else {
+                    toast.error('There was an error in unloving the post', TOAST_OPTIONS)
+                }
+            })
+        } else {
+            lovePost(post.postId).then((res) => {
+                if (res.success && res.data) {
+                    setLoveCount(res.data.loveCount)
+                    setHasLovedPost(true)
+                } else {
+                    toast.error('There was an error in loving the post', TOAST_OPTIONS)
+                }
+            })
+        }
     }
 
     const handleDislike = (): void => {
-        // TODO handleDislike
+        if (hasDislikedPost) {
+            undislikePost(post.postId).then((res) => {
+                if (res.success && res.data) {
+                    setDislikeCount(res.data.dislikeCount)
+                    setHasDislikedPost(false)
+                } else {
+                    toast.error('There was an error in undisliking the post', TOAST_OPTIONS)
+                }
+            })
+        } else {
+            dislikePost(post.postId).then((res) => {
+                if (res.success && res.data) {
+                    setDislikeCount(res.data.dislikeCount)
+                    setHasDislikedPost(true)
+                } else {
+                    toast.error('There was an error in disliking the post', TOAST_OPTIONS)
+                }
+            })
+        }
     }
 
     const handleCommentOnChange : ChangeEventHandler<HTMLInputElement> = (e) => {

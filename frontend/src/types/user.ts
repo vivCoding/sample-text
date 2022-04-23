@@ -16,6 +16,8 @@ export interface ProfileType {
     following?: ID[],
     followedTopics?: ID[],
     likedPosts?: ID[],
+    lovedPosts?: ID[],
+    dislikedPosts?: ID[],
     comments?: ID[],
     savedPosts?: ID[],
 }

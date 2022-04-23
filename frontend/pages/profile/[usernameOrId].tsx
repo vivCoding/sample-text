@@ -14,8 +14,13 @@ import EditIcon from '@mui/icons-material/Edit';
 import { toast } from 'react-toastify';
 import ShieldIcon from '@mui/icons-material/Shield';
 import RemoveModeratorIcon from '@mui/icons-material/RemoveModerator';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import ThumbDownIcon from '@mui/icons-material/ThumbDown';
+import LoveIcon from '@mui/icons-material/Favorite';
+import CommentIcon from '@mui/icons-material/Comment';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
 import { followUser, getUser, unfollowUser } from '../../src/api/user';
-import { getProfile } from '../../src/api/user/profile';
+import { getProfile, getUserline } from '../../src/api/user/profile';
 import Helmet from '../../src/components/common/Helmet';
 import Link from '../../src/components/common/Link';
 import ProfileAvatar from '../../src/components/common/ProfileAvatar';
@@ -45,7 +50,7 @@ const UserProfilePage: NextPage = () => {
     const [loadingUser, setLoadingUser] = useState(userId === undefined)
     const [profile, setProfile] = useState({} as ProfileType)
     const [loadingProfile, setLoadingProfile] = useState(true)
-    const [userline, setUserline] = useState([] as string[])
+    const [userline, setUserline] = useState([] as { postId: string, interactionType: string }[])
     const [tabValue, setTabValue] = useState(0)
     const [followLoading, setFollowLoading] = useState(false)
     const [blockLoading, setBlockLoading] = useState(false)
@@ -93,10 +98,14 @@ const UserProfilePage: NextPage = () => {
     }, [router, query, loadingUser])
 
     useEffect(() => {
-        if (!loadingUser && query.usernameOrId) {
-            // TODO fill useEffect getUserline
+        if (!loadingProfile && profile.userId) {
+            getUserline(profile.userId).then((res) => {
+                if (res.success && res.data) {
+                    setUserline(res.data)
+                }
+            })
         }
-    }, [router, query, loadingUser])
+    }, [router, query, loadingProfile, profile])
 
     const handleTabChange = (e: SyntheticEvent, newValue: number): void => {
         setTabValue(newValue)
@@ -273,7 +282,7 @@ const UserProfilePage: NextPage = () => {
                         <Divider sx={{ mt: 5, mb: 1 }} />
                         <Tabs value={tabValue} onChange={handleTabChange}>
                             <Tab label="Posts" />
-                            <Tab label="Userline" />
+                            <Tab label="Interactions" />
                             <Tab label="Saved" />
                             <Tab label="Followers" />
                             <Tab label="Following" />
@@ -291,7 +300,7 @@ const UserProfilePage: NextPage = () => {
                                                     <Box key={postId} sx={{ my: 1 }}>
                                                         <LazyPost key={postId} postId={postId} />
                                                     </Box>
-                                                ))
+                                                )).reverse()
                                             )}
                                     </Stack>
                                 </>
@@ -300,7 +309,24 @@ const UserProfilePage: NextPage = () => {
                                 <>
                                     <Typography variant="h4" sx={{ mb: 3 }}>Posts Made</Typography>
                                     <Stack>
-                                        {/* TODO add userline stuff */}
+                                        {userline.length === 0
+                                            ? <Typography variant="h6">No Interactions made</Typography>
+                                            : (
+                                                userline.map((post) => (
+                                                    <Stack direction="row" alignItems="center" key={post.postId} sx={{ my: 1 }}>
+                                                        {post.interactionType === 'Liked'
+                                                            ? <ThumbUpIcon fontSize="large" sx={{ mr: 5 }} />
+                                                            : post.interactionType === 'Commented'
+                                                                ? <CommentIcon fontSize="large" sx={{ mr: 5 }} />
+                                                                : post.interactionType === 'Loved'
+                                                                    ? <LoveIcon fontSize="large" sx={{ mr: 5 }} />
+                                                                    : post.interactionType === 'Disliked'
+                                                                        ? <ThumbDownIcon fontSize="large" sx={{ mr: 5 }} />
+                                                                        : <BookmarkIcon fontSize="large" sx={{ mr: 5 }} />}
+                                                        <LazyPost key={post.postId} postId={post.postId} />
+                                                    </Stack>
+                                                ))
+                                            )}
                                     </Stack>
                                 </>
                             )}

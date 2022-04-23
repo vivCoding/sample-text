@@ -1,7 +1,7 @@
 import {
     AppBar, Button,
     Box, IconButton, Toolbar, Tooltip, Menu, MenuItem, Badge,
-    Typography, Skeleton, Stack, Backdrop, CircularProgress, TextField, styled, alpha, InputBase, InputAdornment, Popper, Autocomplete,
+    Typography, Skeleton, Stack, Backdrop, CircularProgress, TextField, styled, alpha, InputBase, InputAdornment, Popper, Autocomplete, useTheme,
 } from '@mui/material';
 import TextFieldsIcon from '@mui/icons-material/TextFields';
 import { ChangeEventHandler, MouseEventHandler, useState } from 'react';
@@ -17,13 +17,16 @@ import ClearIcon from '@mui/icons-material/Clear';
 import TagIcon from '@mui/icons-material/Tag';
 import { PanoramaFishEyeSharp } from '@mui/icons-material';
 import ForumIcon from '@mui/icons-material/Forum';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import LightModeIcon from '@mui/icons-material/Brightness4';
 import Link from '../common/Link'
-import { NavBtnStyle, Page } from '.';
+import NavBar, { NavBtnStyle, Page } from '.';
 import ProfileAvatar from '../common/ProfileAvatar'
 import { ReduxStoreType } from '../../types/redux';
 import { logoutUser } from '../../api/user';
 import { getProfile } from '../../api/user/profile';
 import { getTopic } from '../../api/topic';
+import ModeSwitch from '../common/ModeSwitch'
 
 const Search = styled('div')(({ theme }) => ({
     position: 'relative',
@@ -67,20 +70,13 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     },
 }));
 
-const settings: Page[] = [
-    {
-        label: 'Settings',
-        path: '/settings',
-        icon: <SettingsOutlinedIcon />,
-    },
-]
-
 const Navbar = (): JSX.Element => {
     const [showUserMenu, setShowUserMenu] = useState(false)
     const [menuAnchorEl, setMenuAnchorEl]: [Element | undefined, any] = useState(undefined)
 
     const { username, profileImg } = useSelector((state: ReduxStoreType) => state.user)
     const router = useRouter()
+    const theme = useTheme()
 
     const [loadingLogout, setLogoutLoading] = useState(false)
     const [searchValue, setSearchValue] = useState('')
@@ -137,6 +133,10 @@ const Navbar = (): JSX.Element => {
         setSearchLoading(false)
     }
 
+    if (!username) {
+        return <NavBar />
+    }
+
     return (
         <>
             <AppBar
@@ -145,14 +145,14 @@ const Navbar = (): JSX.Element => {
                 enableColorOnDark
                 sx={{
                     px: 3,
-                    backgroundColor: '#282828',
+                    backgroundColor: theme.palette.mode === 'dark' ? '#282828' : '#FFFFFF',
                 }}
             >
                 <Toolbar disableGutters sx={{ width: '100%' }}>
                     <Tooltip
                         title="Timeline"
                         sx={{
-                            mr: 2, color: 'white', '&:hover': { backgroundColor: 'rgba(0,0,0,0)' },
+                            mr: 2, color: theme.palette.text.primary, '&:hover': { backgroundColor: 'rgba(0,0,0,0)' },
                         }}
                     >
                         <IconButton component={Link} noLinkStyle href="/timeline">
@@ -183,7 +183,7 @@ const Navbar = (): JSX.Element => {
                                 noLinkStyle
                                 href={option.type === 'user' ? `/profile/${option.data}` : `/topic/${option.data}`}
                                 sx={{
-                                    color: 'white', width: '100%', display: 'flex', p: 2, justifyContent: 'flex-start',
+                                    color: theme.palette.text.primary, width: '100%', display: 'flex', p: 2, justifyContent: 'flex-start',
                                 }}
                                 startIcon={option.type === 'user' ? <PersonIcon /> : <TagIcon />}
                             >
@@ -213,6 +213,9 @@ const Navbar = (): JSX.Element => {
                             <IconButton onClick={handleGoMessage}>
                                 <ForumIcon />
                             </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Toggle Color Scheme" sx={{ mx: 1 }}>
+                            <ModeSwitch />
                         </Tooltip>
                         {username
                             ? (
@@ -256,28 +259,26 @@ const Navbar = (): JSX.Element => {
                                     component={Link}
                                     noLinkStyle
                                     href={`/profile/${username}`}
-                                    sx={{ color: 'white', '&:hover': { backgroundColor: 'rgba(0,0,0,0)' } }}
+                                    sx={{ color: theme.palette.text.primary, '&:hover': { backgroundColor: 'rgba(0,0,0,0)' } }}
                                     startIcon={<PersonIcon />}
                                 >
                                     My Profile
                                 </Button>
                             </MenuItem>
-                            {settings.map((setting) => (
-                                <MenuItem key={setting.label} onClick={handleCloseUserMenu}>
-                                    <Button
-                                        component={Link}
-                                        noLinkStyle
-                                        href={setting.path}
-                                        sx={{ color: 'white', '&:hover': { backgroundColor: 'rgba(0,0,0,0)' } }}
-                                        startIcon={setting.icon}
-                                    >
-                                        {setting.label}
-                                    </Button>
-                                </MenuItem>
-                            ))}
+                            <MenuItem>
+                                <Button
+                                    component={Link}
+                                    noLinkStyle
+                                    href="/settings"
+                                    sx={{ color: theme.palette.text.primary, '&:hover': { backgroundColor: 'rgba(0,0,0,0)' } }}
+                                    startIcon={<SettingsOutlinedIcon />}
+                                >
+                                    Settings
+                                </Button>
+                            </MenuItem>
                             <MenuItem onClick={handleLogout}>
                                 <Button
-                                    sx={{ color: 'white', '&:hover': { backgroundColor: 'rgba(0,0,0,0)' } }}
+                                    sx={{ color: theme.palette.text.primary, '&:hover': { backgroundColor: 'rgba(0,0,0,0)' } }}
                                     startIcon={<LogoutIcon />}
                                 >
                                     Logout
@@ -288,7 +289,7 @@ const Navbar = (): JSX.Element => {
                 </Toolbar>
             </AppBar>
             <Backdrop
-                sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+                sx={{ color: '#fff', zIndex: (t) => t.zIndex.drawer + 1 }}
                 open={loadingLogout}
             >
                 <CircularProgress color="inherit" />

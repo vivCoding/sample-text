@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux'
 import useSWR from 'swr'
 import { userFetcher } from '.'
 import { setCurrentProfile } from '../../store'
-import { ProfileFetcherResponseType, ProfileHookResponseType, ProfileResponseType } from '../../types/api/user'
+import { ProfileResponseType, UserlineResponseType } from '../../types/api/user'
 import { ID } from '../../types/misc'
 import { ProfileType } from '../../types/user'
 import client from '../client'
@@ -22,6 +22,7 @@ export const getProfile = async (usernameOrId: string): Promise<ProfileResponseT
         resData.data.savedPosts = resData.data.saved_posts
         resData.data.followedTopics = resData.data.followed_topics
         resData.data.likedPosts = resData.data.liked_posts
+        resData.data.lovedPosts = resData.data.loved_posts
     }
     return response.data as ProfileResponseType
 }
@@ -39,31 +40,26 @@ export const editProfile = async (
         resData.data.savedPosts = resData.data.saved_posts
         resData.data.followedTopics = resData.data.followed_topics
         resData.data.likedPosts = resData.data.liked_posts
+        resData.data.lovedPosts = resData.data.loved_posts
     }
     return response.data as ProfileResponseType
 }
 
-// unused swr stuff, ignore
-export const useUserProfile = (username?: string): ProfileHookResponseType => {
-    const { username: currentUsername, auth: accountAuth } = useUserAccount()
-    const dispatch = useDispatch()
-
-    const { data, error, isValidating } = useSWR<ProfileFetcherResponseType>(username ? ['/user/getprofile', username] : null, userFetcher)
-    const [profile, setProfile]: [ProfileType | undefined, any] = useState(undefined)
-
-    if (accountAuth && data && data.status === 200 && data.data) {
-        if ((currentUsername && username && currentUsername === username) || (currentUsername && !username)) {
-            dispatch(setCurrentProfile(data.data))
-        } else {
-            setProfile(data.data)
-        }
+export const getUserline = async (userId: string): Promise<UserlineResponseType> => {
+    const response = await client.post('/userline/generateuserline', { user_id: userId }).catch(() => ({ status: 404, data: undefined }))
+    if (response.status === 404) {
+        return { success: false, error: 404, errorMessage: 'User does not exist!' }
     }
-
-    return {
-        loading: isValidating,
-        error: error !== undefined || (data !== undefined && data.status !== 200),
-        auth: accountAuth && data !== undefined && data.status !== 401,
-        found: data !== undefined && data.status === 200,
-        data: profile,
+    if (response.status === 401) {
+        return { success: false, error: 401 }
     }
+    const resData = response.data as any
+    const posts: { postId: ID, interactionType: string }[] = []
+    if (resData && resData.data) {
+        resData.data.forEach((val: any) => {
+            posts.push({ postId: val[0], interactionType: val[1] })
+        })
+        response.data.data = posts
+    }
+    return response.data as UserlineResponseType
 }
