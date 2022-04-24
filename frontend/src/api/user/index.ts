@@ -47,6 +47,8 @@ export const loginUser = async (loginField: string, password: string): Promise<U
     if (resData.data) {
         resData.data.savedPosts = resData.data.saved_posts
         resData.data.followedTopics = resData.data.followed_topics
+        resData.data.likedPosts = resData.data.liked_posts
+        resData.data.lovedPosts = resData.data.loved_posts
     }
     return resData as UserResponseType
 }
@@ -68,6 +70,8 @@ export const getUser = async (): Promise<UserResponseType> => {
     if (resData.data) {
         resData.data.savedPosts = resData.data.saved_posts
         resData.data.followedTopics = resData.data.followed_topics
+        resData.data.likedPosts = resData.data.liked_posts
+        resData.data.lovedPosts = resData.data.loved_posts
     }
     return response.data as UserResponseType
 }

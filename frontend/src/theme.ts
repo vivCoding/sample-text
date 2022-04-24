@@ -1,20 +1,5 @@
-import { createTheme } from '@mui/material/styles';
+import { createContext } from 'react';
 
-// Create a theme instance.
-const theme = createTheme({
-    typography: {
-        fontFamily: 'Roboto',
-    },
-    components: {
-        MuiButtonBase: {
-            defaultProps: {
-                disableRipple: true,
-            },
-        },
-    },
-    palette: {
-        mode: 'dark',
-    },
-});
+const ThemeModeContext = createContext({ toggleColorMode: () => { } });
 
-export default theme;
+export default ThemeModeContext

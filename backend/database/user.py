@@ -7,8 +7,7 @@ from bson.objectid import ObjectId
 class User:
     collection = "users"
 
-
-    def __init__(self, username, email, password, name="", bio="", profile_img="", following=[], followers=[], followed_topics = [], posts=[], liked_posts = [], comments=[], saved_posts=[], conversations=[], onlyRecieveMsgFromFollowing=False, user_id="") -> None:
+    def __init__(self, username, email, password, name="", bio="", profile_img="", following=[], followers=[], followed_topics = [], posts=[], liked_posts = [], disliked_posts=[], loved_posts=[], comments=[], saved_posts=[], conversations=[], onlyRecieveMsgFromFollowing=False, user_id="") -> None:
         self.user_id = user_id
         self.username = username
         self.email = email
@@ -21,6 +20,8 @@ class User:
         self.posts = posts
         self.followed_topics = followed_topics
         self.liked_posts = liked_posts
+        self.disliked_posts = disliked_posts
+        self.loved_posts = loved_posts
         self.comments = comments
         self.conversations = conversations
         self.saved_posts = saved_posts
@@ -44,6 +45,8 @@ class User:
             "posts": self.posts,
             "followed_topics": self.followed_topics,
             "liked_posts": self.liked_posts,
+            "disliked_posts": self.disliked_posts,
+            "loved_posts": self.loved_posts,
             "comments": self.comments,
             "saved_posts": self.saved_posts,
             "conversations": self.conversations,
@@ -69,6 +72,8 @@ class User:
                 "posts": self.posts,
                 "followed_topics": self.followed_topics,
                 "liked_posts": self.liked_posts,
+                "disliked_posts": self.disliked_posts,
+                "loved_posts": self.loved_posts,
                 "comments": self.comments,
                 "saved_posts": self.saved_posts,
                 "conversations":self.conversations,
@@ -390,6 +395,8 @@ class User:
                 posts=res["posts"],
                 followed_topics=res["followed_topics"],
                 liked_posts=res["liked_posts"],
+                disliked_posts=res["disliked_posts"],
+                loved_posts=res["loved_posts"],
                 comments=res["comments"],
                 saved_posts=res["saved_posts"],
                 conversations=res["conversations"],
@@ -429,6 +436,16 @@ class User:
             postcol = db["posts"]
             new_value = { "$pull": { "likes": str(res["_id"]) } }
             for post_id in res["liked_posts"]:
+                filter = { "post_id": post_id }
+                postcol.update_one(filter, new_value)
+
+            new_value = { "$pull": { "dislikes": str(res["_id"]) } }
+            for post_id in res["disliked_posts"]:
+                filter = { "post_id": post_id }
+                postcol.update_one(filter, new_value)
+
+            new_value = { "$pull": { "loves": str(res["_id"]) } }
+            for post_id in res["loved_posts"]:
                 filter = { "post_id": post_id }
                 postcol.update_one(filter, new_value)
 
