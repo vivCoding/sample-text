@@ -359,9 +359,9 @@ def create_convo():
 		return jsonify({ "success": False }), 401
 	try:
 		data = request.get_json()
-		ret = Conversation.create(user_id, data["recipient"])
-		if ret == 2:
-			return jsonify({ "success": True , "status": ret}), 200
+		ret, convo_id = Conversation.create(user_id, data["recipient"])
+		if ret == 3:
+			return jsonify({ "success": True , "status": ret, "convo_id": convo_id}), 200
 		else:
 			return jsonify({ "success": False , "status": ret }), 200
 	except Exception as e:
@@ -396,7 +396,7 @@ def send_message():
 			return jsonify({ "Success": False }), 404
 		else:
 			ret = convo.add_message(user_id, data["message"])
-			if ret == 1:
+			if ret == 2:
 				return jsonify({ "success": True , "status": ret}), 200
 			return jsonify({ "success": False , "status": ret }), 200
 	except Exception as e:

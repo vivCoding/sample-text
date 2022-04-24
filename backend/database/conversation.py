@@ -84,7 +84,7 @@ class Conversation:
                 return 2
             User.find_by_id(user).add_conversation(conversation_id)
             recipientUser.add_conversation(conversation_id)
-            return 3
+            return 3, conversation_id
         return 4
 
     @staticmethod
