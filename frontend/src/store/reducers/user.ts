@@ -11,11 +11,12 @@ export const userSlice = createSlice({
     reducers: {
         setCurrentUser: (state, action: PayloadAction<UserType>) => {
             const {
-                userId, username, email, name, bio, profileImg, posts, savedPosts, followers, following, followedTopics,
+                userId, username, email, allowDms, name, bio, profileImg, posts, savedPosts, followers, following, followedTopics,
             } = action.payload
             state.userId = userId
             state.username = username
             state.email = email
+            state.allowDms = allowDms
             state.name = name
             state.bio = bio
             state.profileImg = profileImg
@@ -32,8 +33,9 @@ export const userSlice = createSlice({
         },
         setCurrentProfile: (state, action: PayloadAction<ProfileType>) => {
             const {
-                name, bio, profileImg, posts, savedPosts, followers, following, followedTopics,
+                allowDms, name, bio, profileImg, posts, savedPosts, followers, following, followedTopics,
             } = action.payload
+            state.allowDms = allowDms
             state.name = name
             state.bio = bio
             state.profileImg = profileImg

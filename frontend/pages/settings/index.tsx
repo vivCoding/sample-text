@@ -2,7 +2,7 @@ import type { NextPage } from 'next';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import {
-    Button, Stack, Grid, Container, Paper, IconButton, Divider, LinearProgress, CircularProgress,
+    Button, Stack, Grid, Container, Paper, IconButton, Divider, LinearProgress, CircularProgress, Switch,
 } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { ChangeEventHandler, useEffect, useState } from 'react';
@@ -61,12 +61,15 @@ const Settings: NextPage = () => {
     const [emailError, setEmailError] = useState('')
     const [passwordError, setPasswordError] = useState('')
 
+    const [allowDms, setAllowDms] = useState(false)
+
     const [changingPassword, setChangingPassword] = useState(false)
     const [oldPassword, setOldPassword] = useState('')
     const [newPassword, setNewPassword] = useState('')
     const [confirm, setConfirm] = useState('')
 
     const [profileLoading, setProfileLoading] = useState(false)
+    const [messageLoading, setMessageLoading] = useState(false)
     const [accountLoading, setAccountLoading] = useState(false)
     const [passwordLoading, setPasswordLoading] = useState(false)
 
@@ -286,6 +289,24 @@ const Settings: NextPage = () => {
                             <FormRow title="Display Name" value={name} disabled={profileLoading} onSave={handleSaveName} charLimit={LENGTH_LIMIT.USER.NAME} />
                             <Grid item xs={12}><Divider /></Grid>
                             <FormRow title="Biography" value={bio} multiline disabled={profileLoading} onSave={handleSaveBio} charLimit={LENGTH_LIMIT.USER.BIO} />
+                        </Grid>
+                    </Paper>
+                    <Typography
+                        variant="h4"
+                        sx={{ mt: 10, mb: 3 }}
+                        fontWeight="light"
+                    >
+                        Messaging
+                    </Typography>
+                    <Paper variant="outlined">
+                        {messageLoading && <LinearProgress />}
+                        <Grid container alignItems="center" justifyContent="center" spacing={3} sx={{ p: 4 }}>
+                            <Grid item xs={6}>
+                                <Typography variant="h6">Allow DMs from non-followers</Typography>
+                            </Grid>
+                            <Grid item xs={6}>
+                                <Switch />
+                            </Grid>
                         </Grid>
                     </Paper>
                     <Typography

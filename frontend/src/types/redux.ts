@@ -6,6 +6,7 @@ export interface UserSliceType {
     email?: string,
     name?: string,
     bio?: string,
+    allowDms?: boolean,
     profileImg?: string,
     posts?: ID[],
     savedPosts?: ID[],

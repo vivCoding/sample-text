@@ -113,8 +113,7 @@ const Navbar = (): JSX.Element => {
     }
 
     const handleGoMessage = (): void => {
-        // TODO go to message page
-        router.push('/convos')
+        router.push('/conversations')
     }
 
     const handleSearchChange = async (): Promise<void> => {

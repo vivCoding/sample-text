@@ -19,6 +19,7 @@ import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import LoveIcon from '@mui/icons-material/Favorite';
 import CommentIcon from '@mui/icons-material/Comment';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
+import ChatIcon from '@mui/icons-material/Chat';
 import { followUser, getUser, unfollowUser } from '../../src/api/user';
 import { getProfile, getUserline } from '../../src/api/user/profile';
 import Helmet from '../../src/components/common/Helmet';
@@ -54,6 +55,7 @@ const UserProfilePage: NextPage = () => {
     const [tabValue, setTabValue] = useState(0)
     const [followLoading, setFollowLoading] = useState(false)
     const [blockLoading, setBlockLoading] = useState(false)
+    const [messageLoading, setMessageLoading] = useState(false)
 
     const [isLoggedIn, setLoggedIn] = useState(userId !== undefined)
     const isSelf = useMemo(() => (
@@ -145,6 +147,13 @@ const UserProfilePage: NextPage = () => {
         // TODO unblock user
     }
 
+    const handleMessage = (): void => {
+        setMessageLoading(true)
+        // TODO: check message
+        router.push('/convos/nice')
+        setMessageLoading(false)
+    }
+
     if (loadingUser) {
         return (
             <Box>
@@ -159,6 +168,7 @@ const UserProfilePage: NextPage = () => {
             </Box>
         )
     }
+
     if (loadingProfile) {
         return (
             <Box>
@@ -215,7 +225,7 @@ const UserProfilePage: NextPage = () => {
                                                 ? (
                                                     <LoadingButton
                                                         variant="contained"
-                                                        startIcon={<PersonRemoveIcon />}
+                                                        endIcon={<PersonRemoveIcon />}
                                                         onClick={handleUnfollow}
                                                         loading={followLoading}
                                                     >
@@ -224,17 +234,26 @@ const UserProfilePage: NextPage = () => {
                                                 ) : (
                                                     <LoadingButton
                                                         variant="contained"
-                                                        startIcon={<PersonAddIcon />}
+                                                        endIcon={<PersonAddIcon />}
                                                         onClick={handleFollow}
                                                         loading={followLoading}
                                                     >
                                                         Follow
                                                     </LoadingButton>
                                                 )}
+                                            <LoadingButton
+                                                variant="contained"
+                                                endIcon={<ChatIcon />}
+                                                onClick={handleMessage}
+                                                loading={messageLoading}
+                                                sx={{ ml: 2 }}
+                                            >
+                                                Message
+                                            </LoadingButton>
                                             {hasBlocked ? (
                                                 <LoadingButton
                                                     variant="contained"
-                                                    startIcon={<RemoveModeratorIcon />}
+                                                    endIcon={<RemoveModeratorIcon />}
                                                     onClick={handleUnblockUser}
                                                     loading={blockLoading}
                                                     sx={{ ml: 2 }}
@@ -244,7 +263,7 @@ const UserProfilePage: NextPage = () => {
                                             ) : (
                                                 <LoadingButton
                                                     variant="contained"
-                                                    startIcon={<ShieldIcon />}
+                                                    endIcon={<ShieldIcon />}
                                                     onClick={handleBlockUser}
                                                     loading={blockLoading}
                                                     sx={{ ml: 2 }}
@@ -280,7 +299,7 @@ const UserProfilePage: NextPage = () => {
                 {isLoggedIn && (
                     <>
                         <Divider sx={{ mt: 5, mb: 1 }} />
-                        <Tabs value={tabValue} onChange={handleTabChange}>
+                        <Tabs variant="scrollable" value={tabValue} onChange={handleTabChange}>
                             <Tab label="Posts" />
                             <Tab label="Interactions" />
                             <Tab label="Saved" />
@@ -307,7 +326,7 @@ const UserProfilePage: NextPage = () => {
                             )}
                             {tabValue === 1 && (
                                 <>
-                                    <Typography variant="h4" sx={{ mb: 3 }}>Posts Made</Typography>
+                                    <Typography variant="h4" sx={{ mb: 3 }}>Post Interactions</Typography>
                                     <Stack>
                                         {userline.length === 0
                                             ? <Typography variant="h6">No Interactions made</Typography>

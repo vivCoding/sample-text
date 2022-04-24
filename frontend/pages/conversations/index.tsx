@@ -9,19 +9,17 @@ import Helmet from '../../src/components/common/Helmet';
 import UserNavbar from '../../src/components/navbar/user';
 import { ReduxStoreType } from '../../src/types/redux';
 import { getUser } from '../../src/api/user';
-import { getTimeline } from '../../src/api/timeline'
 import { setCurrentUser } from '../../src/store';
-import { ID } from '../../src/types/misc';
-import LazyPost from '../../src/components/LazyPost';
+import { Conversation } from '../../src/types/conversation';
+import ConversationCard from '../../src/components/Conversation/ConversationCard';
 
 const ConvosPage: NextPage = () => {
     const router = useRouter()
     const dispatch = useDispatch()
 
     const { username } = useSelector((state: ReduxStoreType) => state.user)
-    const [timeline, setTimeline] = useState([] as ID[])
     const [loading, setLoading] = useState(username === undefined)
-    const [loadingTimeline, setLoadingTimeline] = useState(true)
+    const [convos, setConvos] = useState([] as Conversation[])
 
     useEffect(() => {
         if (!username) {
@@ -40,7 +38,7 @@ const ConvosPage: NextPage = () => {
 
     useEffect(() => {
         if (username && !loading) {
-            // TODO
+            // TODO get convos
         }
     }, [username, loading])
 
@@ -63,13 +61,13 @@ const ConvosPage: NextPage = () => {
         <Box>
             <Helmet title="Conversations" />
             <UserNavbar />
-            <Container maxWidth="md" sx={{ mt: 6, mb: 20 }}>
+            <Container maxWidth="md" sx={{ mt: 6, mb: 20, width: '90vw' }}>
                 <Typography variant="h3" fontWeight="300">
                     Conversations
                 </Typography>
                 <Divider sx={{ my: 5 }} />
                 <Stack>
-                    {/* TODO */}
+                    <ConversationCard conversationId="nice" />
                 </Stack>
             </Container>
         </Box>

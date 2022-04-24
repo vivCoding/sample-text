@@ -11,6 +11,7 @@ export interface ProfileType {
     name?: string,
     bio?: string,
     profileImg?: string,
+    allowDms?: boolean,
     posts?: ID[],
     followers?: ID[],
     following?: ID[],

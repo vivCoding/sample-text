@@ -58,7 +58,7 @@ const TimelinePage: NextPage = () => {
     if (loading) {
         return (
             <Box>
-                <Helmet title="Create Post" />
+                <Helmet title="Timeline" />
                 <UserNavbar />
                 <Box sx={{
                     display: 'flex', height: '90vh', alignItems: 'center', justifyContent: 'center',
@@ -74,7 +74,7 @@ const TimelinePage: NextPage = () => {
         <Box>
             <Helmet title="Timeline" />
             <UserNavbar />
-            <Container maxWidth="md" sx={{ mt: 6, mb: 20 }}>
+            <Container maxWidth="md" sx={{ mt: 6, mb: 20, width: '90vw' }}>
                 <Stack direction="row" alignItems="center" justifyContent="flex-end">
                     <Typography variant="h3" fontWeight="300" sx={{ mr: 'auto' }}>
                         Timeline
@@ -85,11 +85,15 @@ const TimelinePage: NextPage = () => {
                     </IconButton>
                 </Stack>
                 <Divider sx={{ my: 5 }} />
-                <Stack>
-                    {loadingTimeline
-                        ? <CircularProgress />
-                        : (
-                            timeline.length === 0
+                {loadingTimeline
+                    ? (
+                        <Stack direction="row" justifyContent="center" sx={{ mt: 10 }}>
+                            <CircularProgress />
+                        </Stack>
+                    )
+                    : (
+                        <Stack>
+                            {timeline.length === 0
                                 ? (
                                     <>
                                         <Typography variant="h6">Nothing to see here!</Typography>
@@ -108,9 +112,9 @@ const TimelinePage: NextPage = () => {
                                                 <LazyPost key={postId} postId={postId} />
                                             </Box>
                                         ))
-                                )
-                        )}
-                </Stack>
+                                )}
+                        </Stack>
+                    )}
             </Container>
         </Box>
     )
