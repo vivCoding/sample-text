@@ -20,12 +20,13 @@ def test_create_users(mongodb):
 
 def test_create_convo(mongodb):
     ret, convo_id = Conversation.create(user1.user_id, user2.user_id)
-    print(user1.user_id)
-    print(ret)
-    print(convo_id)
     assert ret == 3 and convo_id is not None, "Failed to make the conversation"
     global good_convo_id 
     good_convo_id = convo_id
+
+def test_create_dupe_convo(mongodb):
+    ret, convo_id = Conversation.create(user1.user_id, user2.user_id)
+    assert ret == 4 and convo_id is None, "Conversation was erroneously made"
 
 def test_create_convo_invalid_user(mongodb):
     ret, convo_id = Conversation.create("55153a8014829a865bbf700d", user2.user_id)
@@ -72,5 +73,15 @@ def test_add_message_restriction_following(mongodb):
     user2.follow(user1)
     ret = convo.add_message(user1.user_id, "testmessage")
     assert ret == 2, "Message was not sent"
+
+def test_delete_conversation(mongodb):
+    ret = Conversation.delete(good_convo_id)
+    assert good_convo_id not in user1.conversations and good_convo_id not in user2.conversations, "Conversation was not removed from the users"
+    assert ret == 1 and Conversation.find_by_id(good_convo_id) is None, "Conversation was not deleted"
+
+def test_delete_conversation_invalid(mongodb):
+    ret = Conversation.delete("55153a8014829a865bbf700d")
+    assert ret == 0, "Some conversation was erroneously deleted"
+    
 
 
