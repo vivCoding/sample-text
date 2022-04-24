@@ -71,21 +71,24 @@ class Conversation:
     # 2 - db error 
     # 3 - success
     # 4 - convo already exits
+    # 5 - can't create convo w/ yourself
     @staticmethod
     def create(user: str, recipient: str):
         recipientUser = User.find_by_id(recipient)
         if User.find_by_id(user) == None or recipientUser == None:
-            return 0
+            return 0, None
+        if user == recipient:
+            return 5, None
         if recipientUser.onlyRecieveMsgFromFollowing and user not in recipientUser.following:
-            return 1
+            return 1, None
         if Conversation.find_by_participants(user, recipient) == None: #convo doesn't exist -> can create
             conversation_id = Conversation(None, user, recipient, []).push()
             if conversation_id == None: #convo failed to push to db
-                return 2
+                return 2, None
             User.find_by_id(user).add_conversation(conversation_id)
             recipientUser.add_conversation(conversation_id)
             return 3, conversation_id
-        return 4
+        return 4, None
 
     @staticmethod
     def delete(conversation_id: str):

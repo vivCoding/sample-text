@@ -423,7 +423,7 @@ def get_conversation():
 		return jsonify({ "success": False }), 500
 
 @user_blueprint.route('/updatemessagesetting', methods=["POST"])
-def follow_user():
+def update_message_setting():
 	user_id = session.get('user_id', None)
 	if user_id is None:
 		return jsonify({ "success": False }), 401
