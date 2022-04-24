@@ -38,9 +38,19 @@ class Conversation:
             print (e)
             return None
     
+    # send msg to convo
+    # 0 - db error
+    # 1 - user requesting to start convo isnt in recipient's following list
+    # 2 - sucess
     def add_message(self, author_id, message):
         if Connection.client is None:
             return 0
+        recipientUserId = self.user1
+        if author_id == self.user1:
+            recipientUserId = self.user2
+        recipientUser = User.find_by_id(recipientUserId)
+        if recipientUser.onlyRecieveMsgFromFollowing and author_id not in recipientUser.following:
+            return 1
         try:
             db = Connection.client[Connection.database]
             col = db[Conversation.collection]
@@ -50,29 +60,32 @@ class Conversation:
             new_value = { "$set": { "messages": self.messages } }
             col.update_one({ "_id" : ObjectId(self.convo_id) }, new_value)
 
-            return 1
+            return 2
         except Exception as e:
             print (e)
             return 0
 
     # create convo given 2 user ids
     # 0 - recipient user id doesn't exist
-    # 1 - db error
-    # 2 - success
-    # 3 - convo already exits
+    # 1 - user requesting to start convo isnt in recipient's following list
+    # 2 - db error 
+    # 3 - success
+    # 4 - convo already exits
     @staticmethod
     def create(user: str, recipient: str):
-        
-        if User.find_by_id(user) == None or User.find_by_id(recipient) == None:
+        recipientUser = User.find_by_id(recipient)
+        if User.find_by_id(user) == None or recipientUser == None:
             return 0
+        if recipientUser.onlyRecieveMsgFromFollowing and user not in recipientUser.following:
+            return 1
         if Conversation.find_by_participants(user, recipient) == None: #convo doesn't exist -> can create
             conversation_id = Conversation(None, user, recipient, []).push()
             if conversation_id == None: #convo failed to push to db
-                return 1
+                return 2
             User.find_by_id(user).add_conversation(conversation_id)
-            User.find_by_id(recipient).add_conversation(conversation_id)
-            return 2
-        return 3
+            recipientUser.add_conversation(conversation_id)
+            return 3
+        return 4
 
     @staticmethod
     def delete(conversation_id: str):

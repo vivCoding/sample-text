@@ -8,7 +8,7 @@ class User:
     collection = "users"
 
 
-    def __init__(self, username, email, password, name="", bio="", profile_img="", following=[], followers=[], followed_topics = [], posts=[], liked_posts = [], comments=[], saved_posts=[], conversations=[], user_id="") -> None:
+    def __init__(self, username, email, password, name="", bio="", profile_img="", following=[], followers=[], followed_topics = [], posts=[], liked_posts = [], comments=[], saved_posts=[], conversations=[], onlyRecieveMsgFromFollowing=False, user_id="") -> None:
         self.user_id = user_id
         self.username = username
         self.email = email
@@ -24,6 +24,7 @@ class User:
         self.comments = comments
         self.conversations = conversations
         self.saved_posts = saved_posts
+        self.onlyRecieveMsgFromFollowing = onlyRecieveMsgFromFollowing
 
     def __eq__(self, other) -> bool:
         if isinstance(other, User):
@@ -45,7 +46,8 @@ class User:
             "liked_posts": self.liked_posts,
             "comments": self.comments,
             "saved_posts": self.saved_posts,
-            "conversations": self.conversations
+            "conversations": self.conversations,
+            "message_setting": self.onlyRecieveMsgFromFollowing
         }
 
     # Pushes this object to MongoDB, and returns the user id if it was successful. If error, return None
@@ -69,7 +71,8 @@ class User:
                 "liked_posts": self.liked_posts,
                 "comments": self.comments,
                 "saved_posts": self.saved_posts,
-                "conversations":self.conversations
+                "conversations":self.conversations,
+                "message_setting":self.onlyRecieveMsgFromFollowing
             }
             result = col.insert_one(doc)
             self.user_id = str(result.inserted_id)
@@ -217,6 +220,22 @@ class User:
             self.name = old_name
             self.bio = old_bio
             self.profile_img = old_profile_img
+            return False
+    
+    # Updates this object's password in MongoDB, and returns whether it was successful
+    def update_message_setting(self, onlyRecieveMsgFromFollowing) -> bool:
+        if Connection.client is None:
+            return False
+        try: 
+            db = Connection.client[Connection.database]
+            col = db[User.collection]
+            filter = { "_id" : ObjectId(self.user_id) }
+            new_value = { "$set": { "onlyRecieveMsgFromFollowing": self.onlyRecieveMsgFromFollowing } }
+            col.update_one(filter, new_value)
+            self.onlyRecieveMsgFromFollowing = onlyRecieveMsgFromFollowing
+            return True
+        except Exception as e:
+            print (e)
             return False
     
     # makes current user follow given id

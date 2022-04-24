@@ -421,3 +421,20 @@ def get_conversation():
 	except Exception as e:
 		print(e)
 		return jsonify({ "success": False }), 500
+
+@user_blueprint.route('/updatemessagesetting', methods=["POST"])
+def follow_user():
+	user_id = session.get('user_id', None)
+	if user_id is None:
+		return jsonify({ "success": False }), 401
+	try:
+		data = request.get_json()
+		user = User.find_by_id(user_id)
+		if user is not None:
+			status = user.update_message_setting(data["message_setting"])
+			return jsonify({ "success": True }), 200
+		else:
+			return jsonify({ "success": False }), 404
+	except Exception as e:
+		print(e)
+		return jsonify({"success": False }), 500
