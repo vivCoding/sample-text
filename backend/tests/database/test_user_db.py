@@ -137,3 +137,9 @@ def test_delete_user_by_email(mongodb):
         good_user.push()
     User.delete_by_email(good_user.email)
     assert User.find_by_email(good_user.email) is None, "User was not deleted"
+
+def test_change_message_setting(mongodb):
+    old_setting = good_user.onlyRecieveMsgFromFollowing
+    good_user.update_message_setting(not old_setting)
+    assert good_user.onlyRecieveMsgFromFollowing != old_setting
+    good_user.update_message_setting(old_setting), "Message change was not made"
