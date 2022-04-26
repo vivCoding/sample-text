@@ -1,12 +1,13 @@
 from gettext import find
+
+import database
 from .connect import Connection
 from bson.objectid import ObjectId
 
 class User:
     collection = "users"
 
-
-    def __init__(self, username, email, password, name="", bio="", profile_img="", following=[], followers=[], followed_topics = [], posts=[], liked_posts=[], disliked_posts=[], loved_posts=[], comments=[], saved_posts=[], user_id="") -> None:
+    def __init__(self, username, email, password, name="", bio="", profile_img="", following=[], followers=[], followed_topics = [], posts=[], liked_posts = [], disliked_posts=[], loved_posts=[], comments=[], saved_posts=[], conversations=[], onlyRecieveMsgFromFollowing=False, user_id="") -> None:
         self.user_id = user_id
         self.username = username
         self.email = email
@@ -22,7 +23,9 @@ class User:
         self.disliked_posts = disliked_posts
         self.loved_posts = loved_posts
         self.comments = comments
+        self.conversations = conversations
         self.saved_posts = saved_posts
+        self.onlyRecieveMsgFromFollowing = onlyRecieveMsgFromFollowing
 
     def __eq__(self, other) -> bool:
         if isinstance(other, User):
@@ -45,7 +48,9 @@ class User:
             "disliked_posts": self.disliked_posts,
             "loved_posts": self.loved_posts,
             "comments": self.comments,
-            "saved_posts": self.saved_posts
+            "saved_posts": self.saved_posts,
+            "conversations": self.conversations,
+            "message_setting": self.onlyRecieveMsgFromFollowing
         }
 
     # Pushes this object to MongoDB, and returns the user id if it was successful. If error, return None
@@ -70,7 +75,9 @@ class User:
                 "disliked_posts": self.disliked_posts,
                 "loved_posts": self.loved_posts,
                 "comments": self.comments,
-                "saved_posts": self.saved_posts
+                "saved_posts": self.saved_posts,
+                "conversations":self.conversations,
+                "message_setting":self.onlyRecieveMsgFromFollowing
             }
             result = col.insert_one(doc)
             self.user_id = str(result.inserted_id)
@@ -220,6 +227,22 @@ class User:
             self.profile_img = old_profile_img
             return False
     
+    # Updates this object's password in MongoDB, and returns whether it was successful
+    def update_message_setting(self, onlyRecieveMsgFromFollowing) -> bool:
+        if Connection.client is None:
+            return False
+        try: 
+            db = Connection.client[Connection.database]
+            col = db[User.collection]
+            filter = { "_id" : ObjectId(self.user_id) }
+            new_value = { "$set": { "onlyRecieveMsgFromFollowing": self.onlyRecieveMsgFromFollowing } }
+            col.update_one(filter, new_value)
+            self.onlyRecieveMsgFromFollowing = onlyRecieveMsgFromFollowing
+            return True
+        except Exception as e:
+            print (e)
+            return False
+    
     # makes current user follow given id
     # 0 - db error
     # 1 - given id isnt valid
@@ -319,6 +342,38 @@ class User:
             print(e)
             return False
 
+    def add_conversation(self, convo_id):
+        if Connection.client is None:
+            return False
+        try:
+            if convo_id in self.conversations:
+                return False            
+            db = Connection.client[Connection.database]
+            col = db[User.collection]
+            self.conversations.append(str(convo_id))
+            new_value = { "$set": { "conversations": self.conversations } }
+            col.update_one({ "_id" : ObjectId(self.user_id) }, new_value)
+            return True
+        except Exception as e:
+            print(e)
+            return False
+
+    def remove_conversation(self, convo_id):
+        if Connection.client is None:
+            return False
+        try:
+            if convo_id not in self.conversations:
+                return False            
+            db = Connection.client[Connection.database]
+            col = db[User.collection]
+            self.conversations.remove(convo_id)
+            new_value = { "$set": { "conversations": self.conversations } }
+            col.update_one({ "_id" : ObjectId(self.user_id) }, new_value)
+            return True
+        except Exception as e:
+            print(e)
+            return False
+
     # Static method that finds and returns a specific user from the collection based on filters
     @staticmethod
     def find(filters: dict):
@@ -344,6 +399,7 @@ class User:
                 loved_posts=res["loved_posts"],
                 comments=res["comments"],
                 saved_posts=res["saved_posts"],
+                conversations=res["conversations"],
                 user_id= str(res["_id"])
             )
         except Exception as e:
