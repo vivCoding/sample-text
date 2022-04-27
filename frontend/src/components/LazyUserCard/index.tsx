@@ -38,20 +38,7 @@ const LazyUserCard = ({ userId }: LazyUserCardProps): JSX.Element => {
         return (
             <Card>
                 <CardContent>
-                    <Skeleton variant="text" height={70} width="50%" />
-                    <Stack direction="row" spacing={2}>
-                        <Skeleton variant="text" height={30} width="40%" />
-                        <Skeleton variant="text" height={30} width="60%" />
-                    </Stack>
-                    <Stack direction="row" spacing={2}>
-                        <Skeleton variant="text" height={30} width="10%" />
-                        <Skeleton variant="text" height={30} width="70%" />
-                        <Skeleton variant="text" height={30} width="20%" />
-                    </Stack>
-                    <Stack direction="row" spacing={2}>
-                        <Skeleton variant="text" height={30} width="70%" />
-                        <Skeleton variant="text" height={30} width="30%" />
-                    </Stack>
+                    <Skeleton variant="text" height={50} width="50%" />
                 </CardContent>
             </Card>
         )

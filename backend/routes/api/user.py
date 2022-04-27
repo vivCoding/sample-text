@@ -265,7 +265,6 @@ def delete_user():
 		user = User.find_by_id(user_id)
 		if user is not None:
 			if user.password == password:
-				print("not my problem")
 				# delete this user's posts
 				for post_id in user.posts:
 					Post.delete(post_id)
@@ -422,6 +421,25 @@ def get_conversation():
 		print(e)
 		return jsonify({ "success": False }), 500
 
+@user_blueprint.route('/getconversationbyparticipants', methods=["POST"])
+def has_conversation():
+	user_id = session.get('user_id', None)
+	if user_id is None:
+		return jsonify({ "success": False }), 401
+	try:
+		data = request.get_json()
+		convo = Conversation.find_by_participants(data["user1"], data["user2"])
+		if convo == None:
+			return jsonify({ "success": False }), 404
+		else:
+			return jsonify({
+				"success": True,
+				"data": convo.to_dict()
+			}), 200
+	except Exception as e:
+		print (e)
+		return jsonify({ "success": False }), 500
+
 @user_blueprint.route('/updatemessagesetting', methods=["POST"])
 def update_message_setting():
 	user_id = session.get('user_id', None)
@@ -431,7 +449,14 @@ def update_message_setting():
 		data = request.get_json()
 		user = User.find_by_id(user_id)
 		if user is not None:
-			status = user.update_message_setting(data["message_setting"])
+			new_setting = data["message_setting"]
+			status = user.update_message_setting(new_setting)
+			# if new_setting:
+			# 	for convo_id in user.conversations:
+			# 		convo = Conversation.find_by_id(convo_id)
+			# 		other_user = convo.user2 if convo.user1 == user_id else convo.user2
+			# 		if other_user not in user.following:
+			# 			Conversation.delete(convo_id)
 			return jsonify({ "success": True }), 200
 		else:
 			return jsonify({ "success": False }), 404

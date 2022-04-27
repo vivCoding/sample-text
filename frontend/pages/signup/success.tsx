@@ -27,9 +27,7 @@ const SignupSuccess: NextPage = () => {
     const [bio, setBio] = useState('')
     const [profileImg, setProfileImg] = useState('')
 
-    const {
-        userId, username, posts, savedPosts, followedTopics, followers, following,
-    } = useSelector((state: ReduxStoreType) => state.user)
+    const { username } = useSelector((state: ReduxStoreType) => state.user)
     const dispatch = useDispatch()
 
     useEffect(() => {
@@ -49,13 +47,10 @@ const SignupSuccess: NextPage = () => {
     const handleFinish = (): void => {
         setLoadingEditing(true)
         editProfile({ name, bio, profileImg }).then((res) => {
-            if (res.success && userId && username && posts && savedPosts && followedTopics && followers && following) {
-                dispatch(setCurrentProfile({
-                    userId, username, name, bio, profileImg, posts, savedPosts, followedTopics, followers, following,
-                }))
+            if (res.success && res.data) {
+                dispatch(setCurrentProfile(res.data))
                 router.push(`/profile/${username}`)
             } else {
-                console.log(res.success, userId, username, posts, savedPosts, followedTopics, followers, following)
                 toast.error(res.errorMessage ?? 'Error!', TOAST_OPTIONS)
             }
             setLoadingEditing(false)

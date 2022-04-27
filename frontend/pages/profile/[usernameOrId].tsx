@@ -19,6 +19,7 @@ import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import LoveIcon from '@mui/icons-material/Favorite';
 import CommentIcon from '@mui/icons-material/Comment';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
+import ChatIcon from '@mui/icons-material/Chat';
 import { followUser, getUser, unfollowUser } from '../../src/api/user';
 import { getProfile, getUserline } from '../../src/api/user/profile';
 import Helmet from '../../src/components/common/Helmet';
@@ -27,10 +28,11 @@ import ProfileAvatar from '../../src/components/common/ProfileAvatar';
 import LazyPost from '../../src/components/LazyPost';
 import LazyUserCard from '../../src/components/LazyUserCard';
 import UserNavbar from '../../src/components/navbar/user';
-import { setCurrentUser } from '../../src/store';
+import { addConversation, setCurrentUser } from '../../src/store';
 import { ReduxStoreType } from '../../src/types/redux';
 import { ProfileType } from '../../src/types/user';
 import { TOAST_OPTIONS } from '../../src/constants/toast';
+import { createConversation, getConversationByParticipants } from '../../src/api/user/conversation';
 
 const StyledChip = styled(Chip)({
     margin: 5,
@@ -45,7 +47,9 @@ const UserProfilePage: NextPage = () => {
     const router = useRouter()
     const { query } = useRouter()
     const dispatch = useDispatch()
-    const { userId, username } = useSelector((state: ReduxStoreType) => state.user)
+    const {
+        userId, username, following, messageSetting,
+    } = useSelector((state: ReduxStoreType) => state.user)
 
     const [loadingUser, setLoadingUser] = useState(userId === undefined)
     const [profile, setProfile] = useState({} as ProfileType)
@@ -54,6 +58,8 @@ const UserProfilePage: NextPage = () => {
     const [tabValue, setTabValue] = useState(0)
     const [followLoading, setFollowLoading] = useState(false)
     const [blockLoading, setBlockLoading] = useState(false)
+    const [messageLoading, setMessageLoading] = useState(false)
+    const [canSendMessage, setCanSendMessage] = useState(false)
 
     const [isLoggedIn, setLoggedIn] = useState(userId !== undefined)
     const isSelf = useMemo(() => (
@@ -87,6 +93,14 @@ const UserProfilePage: NextPage = () => {
             getProfile(query.usernameOrId as string).then((res) => {
                 if (res.success && res.data) {
                     setProfile(res.data)
+                    if (!res.data.messageSetting) {
+                        setCanSendMessage(true)
+                    } else {
+                        // const otherSetting = res.data.messageSetting
+                        const otherFollowsYou = res.data.following?.find((followingId) => userId === followingId) !== undefined
+                        // const youFollowOther = following?.find((followingId) => res.data?.userId === followingId) !== undefined
+                        setCanSendMessage(otherFollowsYou)
+                    }
                     window.history.replaceState(null, `${res.data.username}'s Profile`, `/profile/${res.data.username}`)
                 } else {
                     router.push('/404')
@@ -137,6 +151,27 @@ const UserProfilePage: NextPage = () => {
         })
     }
 
+    const handleMessage = async (): Promise<void> => {
+        setMessageLoading(true)
+        if (canSendMessage && userId && profile.userId) {
+            const res = await getConversationByParticipants(userId, profile.userId)
+            if (res.success && res.data) {
+                router.push(`/conversations/${res.data.convoId}`)
+            } else if (res.error !== 401 && res.error !== 500) {
+                const createRes = await createConversation(profile.userId)
+                if (createRes.success && createRes.data) {
+                    dispatch(addConversation(createRes.data.convoId))
+                    router.push(`/conversations/${createRes.data.convoId}`)
+                } else {
+                    toast.error('Error! Could not create conversation', TOAST_OPTIONS)
+                }
+            } else {
+                toast.error('Error! Could not access conversation!', TOAST_OPTIONS)
+            }
+        }
+        setMessageLoading(false)
+    }
+
     const handleBlockUser = (): void => {
         // TODO block user
     }
@@ -159,6 +194,7 @@ const UserProfilePage: NextPage = () => {
             </Box>
         )
     }
+
     if (loadingProfile) {
         return (
             <Box>
@@ -215,7 +251,7 @@ const UserProfilePage: NextPage = () => {
                                                 ? (
                                                     <LoadingButton
                                                         variant="contained"
-                                                        startIcon={<PersonRemoveIcon />}
+                                                        endIcon={<PersonRemoveIcon />}
                                                         onClick={handleUnfollow}
                                                         loading={followLoading}
                                                     >
@@ -224,17 +260,28 @@ const UserProfilePage: NextPage = () => {
                                                 ) : (
                                                     <LoadingButton
                                                         variant="contained"
-                                                        startIcon={<PersonAddIcon />}
+                                                        endIcon={<PersonAddIcon />}
                                                         onClick={handleFollow}
                                                         loading={followLoading}
                                                     >
                                                         Follow
                                                     </LoadingButton>
                                                 )}
+                                            {canSendMessage && (
+                                                <LoadingButton
+                                                    variant="contained"
+                                                    endIcon={<ChatIcon />}
+                                                    onClick={handleMessage}
+                                                    loading={messageLoading}
+                                                    sx={{ ml: 2 }}
+                                                >
+                                                    Message
+                                                </LoadingButton>
+                                            )}
                                             {hasBlocked ? (
                                                 <LoadingButton
                                                     variant="contained"
-                                                    startIcon={<RemoveModeratorIcon />}
+                                                    endIcon={<RemoveModeratorIcon />}
                                                     onClick={handleUnblockUser}
                                                     loading={blockLoading}
                                                     sx={{ ml: 2 }}
@@ -244,7 +291,7 @@ const UserProfilePage: NextPage = () => {
                                             ) : (
                                                 <LoadingButton
                                                     variant="contained"
-                                                    startIcon={<ShieldIcon />}
+                                                    endIcon={<ShieldIcon />}
                                                     onClick={handleBlockUser}
                                                     loading={blockLoading}
                                                     sx={{ ml: 2 }}
@@ -280,7 +327,7 @@ const UserProfilePage: NextPage = () => {
                 {isLoggedIn && (
                     <>
                         <Divider sx={{ mt: 5, mb: 1 }} />
-                        <Tabs value={tabValue} onChange={handleTabChange}>
+                        <Tabs variant="scrollable" value={tabValue} onChange={handleTabChange}>
                             <Tab label="Posts" />
                             <Tab label="Interactions" />
                             <Tab label="Saved" />
@@ -307,7 +354,7 @@ const UserProfilePage: NextPage = () => {
                             )}
                             {tabValue === 1 && (
                                 <>
-                                    <Typography variant="h4" sx={{ mb: 3 }}>Posts Made</Typography>
+                                    <Typography variant="h4" sx={{ mb: 3 }}>Post Interactions</Typography>
                                     <Stack>
                                         {userline.length === 0
                                             ? <Typography variant="h6">No Interactions made</Typography>

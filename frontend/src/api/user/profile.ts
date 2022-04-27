@@ -1,13 +1,7 @@
-import { useState } from 'react'
-import { useDispatch } from 'react-redux'
-import useSWR from 'swr'
-import { userFetcher } from '.'
-import { setCurrentProfile } from '../../store'
+import { GeneralResponseType } from '../../types/api'
 import { ProfileResponseType, UserlineResponseType } from '../../types/api/user'
 import { ID } from '../../types/misc'
-import { ProfileType } from '../../types/user'
 import client from '../client'
-import { useUserAccount } from './account'
 
 export const getProfile = async (usernameOrId: string): Promise<ProfileResponseType> => {
     const response = await client.post('/user/getprofile', { username_or_id: usernameOrId }).catch(() => ({ status: 404, data: undefined }))
@@ -22,7 +16,9 @@ export const getProfile = async (usernameOrId: string): Promise<ProfileResponseT
         resData.data.savedPosts = resData.data.saved_posts
         resData.data.followedTopics = resData.data.followed_topics
         resData.data.likedPosts = resData.data.liked_posts
+        resData.data.dislikedPosts = resData.data.disliked_posts
         resData.data.lovedPosts = resData.data.loved_posts
+        resData.data.messageSetting = resData.data.message_setting
     }
     return response.data as ProfileResponseType
 }
@@ -41,6 +37,8 @@ export const editProfile = async (
         resData.data.followedTopics = resData.data.followed_topics
         resData.data.likedPosts = resData.data.liked_posts
         resData.data.lovedPosts = resData.data.loved_posts
+        resData.data.dislikedPosts = resData.data.disliked_posts
+        resData.data.messageSetting = resData.data.message_setting
     }
     return response.data as ProfileResponseType
 }
@@ -62,4 +60,12 @@ export const getUserline = async (userId: string): Promise<UserlineResponseType>
         response.data.data = posts
     }
     return response.data as UserlineResponseType
+}
+
+export const updateMessageSetting = async (newMessageSetting: boolean): Promise<GeneralResponseType> => {
+    const response = await client.post('/user/updatemessagesetting', { message_setting: newMessageSetting }).catch(() => ({ status: 404, data: undefined }))
+    if (response.status === 401) {
+        return { success: false, error: 401 }
+    }
+    return response.data as GeneralResponseType
 }

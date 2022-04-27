@@ -52,7 +52,7 @@ export const getPost = async (postId: ID): Promise<PostResponseType> => {
         }
         resData.data.comments = comments
     }
-    return response.data as PostResponseType
+    return resData as PostResponseType
 }
 
 export const deletePost = async (postId: string): Promise<GeneralResponseType> => {
@@ -113,7 +113,7 @@ export const commentOnPost = async (postId: string, comment: string): Promise<Ge
         }
         resData.data.comments = comments
     }
-    return response.data as GeneralResponseType
+    return resData as GeneralResponseType
 }
 
 export const lovePost = async (postId: string): Promise<GeneralResponseType> => {

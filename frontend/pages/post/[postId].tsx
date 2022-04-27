@@ -288,7 +288,7 @@ const PostPage: NextPage = () => {
         <Box>
             <Helmet title={`${(post.title ?? '') === '' ? 'Post' : post.title} | Sample Text`} />
             <UserNavbar />
-            <Container maxWidth="md" sx={{ mt: 6, mb: 20 }}>
+            <Container maxWidth="md" sx={{ mt: 6, mb: 20, width: '90vw' }}>
                 <BackButton />
                 {postLoading ? (
                     <>

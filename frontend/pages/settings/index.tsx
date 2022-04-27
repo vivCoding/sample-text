@@ -2,7 +2,7 @@ import type { NextPage } from 'next';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import {
-    Button, Stack, Grid, Container, Paper, IconButton, Divider, LinearProgress, CircularProgress,
+    Button, Stack, Grid, Container, Paper, IconButton, Divider, LinearProgress, CircularProgress, Switch,
 } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { ChangeEventHandler, useEffect, useState } from 'react';
@@ -24,7 +24,7 @@ import { updateEmail, updatePassword, updateUsername } from '../../src/api/user/
 import FormRow from '../../src/components/settings/FormRow'
 
 import 'react-toastify/dist/ReactToastify.min.css'
-import { editProfile } from '../../src/api/user/profile';
+import { editProfile, updateMessageSetting } from '../../src/api/user/profile';
 import { TOAST_OPTIONS } from '../../src/constants/toast';
 import { deleteUser, getUser } from '../../src/api/user';
 import PasswordField from '../../src/components/common/PasswordField';
@@ -34,7 +34,7 @@ const Settings: NextPage = () => {
     const router = useRouter()
 
     const {
-        username, email, name, bio, profileImg,
+        username, email, name, bio, profileImg, messageSetting: messageSettingStore,
     } = useSelector((state: ReduxStoreType) => state.user)
     const dispatch = useDispatch()
 
@@ -61,12 +61,15 @@ const Settings: NextPage = () => {
     const [emailError, setEmailError] = useState('')
     const [passwordError, setPasswordError] = useState('')
 
+    const [messageSetting, setMessageSetting] = useState(messageSettingStore)
+
     const [changingPassword, setChangingPassword] = useState(false)
     const [oldPassword, setOldPassword] = useState('')
     const [newPassword, setNewPassword] = useState('')
     const [confirm, setConfirm] = useState('')
 
     const [profileLoading, setProfileLoading] = useState(false)
+    const [messageLoading, setMessageLoading] = useState(false)
     const [accountLoading, setAccountLoading] = useState(false)
     const [passwordLoading, setPasswordLoading] = useState(false)
 
@@ -128,6 +131,19 @@ const Settings: NextPage = () => {
         }
         toast.error(res.errorMessage ?? 'Error!', TOAST_OPTIONS)
         return false
+    }
+
+    const handleMessageSettingChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+        setMessageLoading(true)
+        updateMessageSetting(!messageSetting).then((res) => {
+            if (res.success) {
+                setMessageSetting(!messageSetting)
+                toast.success('Successfully changed DMs setting!', TOAST_OPTIONS)
+            } else {
+                toast.error(res.errorMessage ?? 'Error! Could not change DMs setting.', TOAST_OPTIONS)
+            }
+            setMessageLoading(false)
+        })
     }
 
     const handleSaveUsername = async (val: string): Promise<boolean> => {
@@ -286,6 +302,24 @@ const Settings: NextPage = () => {
                             <FormRow title="Display Name" value={name} disabled={profileLoading} onSave={handleSaveName} charLimit={LENGTH_LIMIT.USER.NAME} />
                             <Grid item xs={12}><Divider /></Grid>
                             <FormRow title="Biography" value={bio} multiline disabled={profileLoading} onSave={handleSaveBio} charLimit={LENGTH_LIMIT.USER.BIO} />
+                        </Grid>
+                    </Paper>
+                    <Typography
+                        variant="h4"
+                        sx={{ mt: 10, mb: 3 }}
+                        fontWeight="light"
+                    >
+                        Messaging
+                    </Typography>
+                    <Paper variant="outlined">
+                        {messageLoading && <LinearProgress />}
+                        <Grid container alignItems="center" justifyContent="center" spacing={3} sx={{ p: 4 }}>
+                            <Grid item xs={6}>
+                                <Typography variant="h6">Restrict incoming DMs to followers</Typography>
+                            </Grid>
+                            <Grid item xs={6}>
+                                <Switch checked={messageSetting} onChange={handleMessageSettingChange} />
+                            </Grid>
                         </Grid>
                     </Paper>
                     <Typography

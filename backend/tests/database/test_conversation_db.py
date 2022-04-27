@@ -70,7 +70,7 @@ def test_add_message_no_restriction(mongodb):
 def test_add_message_restriction_following(mongodb):
     convo = Conversation.find_by_id(good_convo_id)
     user2.update_message_setting(True)
-    user2.follow(user1)
+    user2.follow(user1.user_id)
     ret = convo.add_message(user1.user_id, "testmessage")
     assert ret == 2, "Message was not sent"
 

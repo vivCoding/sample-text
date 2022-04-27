@@ -9,19 +9,16 @@ import Helmet from '../../src/components/common/Helmet';
 import UserNavbar from '../../src/components/navbar/user';
 import { ReduxStoreType } from '../../src/types/redux';
 import { getUser } from '../../src/api/user';
-import { getTimeline } from '../../src/api/timeline'
 import { setCurrentUser } from '../../src/store';
-import { ID } from '../../src/types/misc';
-import LazyPost from '../../src/components/LazyPost';
+import { ConversationType } from '../../src/types/conversation';
+import ConversationCard from '../../src/components/Conversation/ConversationCard';
 
 const ConvosPage: NextPage = () => {
     const router = useRouter()
     const dispatch = useDispatch()
 
-    const { username } = useSelector((state: ReduxStoreType) => state.user)
-    const [timeline, setTimeline] = useState([] as ID[])
+    const { username, conversations } = useSelector((state: ReduxStoreType) => state.user)
     const [loading, setLoading] = useState(username === undefined)
-    const [loadingTimeline, setLoadingTimeline] = useState(true)
 
     useEffect(() => {
         if (!username) {
@@ -37,12 +34,6 @@ const ConvosPage: NextPage = () => {
             })
         }
     }, [router, dispatch, username])
-
-    useEffect(() => {
-        if (username && !loading) {
-            // TODO
-        }
-    }, [username, loading])
 
     if (loading) {
         return (
@@ -63,13 +54,16 @@ const ConvosPage: NextPage = () => {
         <Box>
             <Helmet title="Conversations" />
             <UserNavbar />
-            <Container maxWidth="md" sx={{ mt: 6, mb: 20 }}>
+            <Container maxWidth="md" sx={{ mt: 6, mb: 20, width: '90vw' }}>
                 <Typography variant="h3" fontWeight="300">
                     Conversations
                 </Typography>
                 <Divider sx={{ my: 5 }} />
                 <Stack>
-                    {/* TODO */}
+                    {conversations?.length === 0 && <Typography variant="h6">No Conversations</Typography>}
+                    {conversations?.map((conversation) => (
+                        <ConversationCard key={conversation} conversationId={conversation} />
+                    ))}
                 </Stack>
             </Container>
         </Box>

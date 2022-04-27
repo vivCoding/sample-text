@@ -6,12 +6,14 @@ export interface UserSliceType {
     email?: string,
     name?: string,
     bio?: string,
+    messageSetting?: boolean,
     profileImg?: string,
     posts?: ID[],
     savedPosts?: ID[],
     followers?: ID[],
     following?: ID[],
     followedTopics?: ID[],
+    conversations?: ID[],
 }
 
 export interface ReduxStoreType {
