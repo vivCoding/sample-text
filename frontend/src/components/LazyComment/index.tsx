@@ -13,7 +13,7 @@ interface LazyCommentProps {
     comment: Comment,
 }
 
-const LazyComment = ({ comment }: LazyCommentProps): JSX.Element => {
+const LazyComment = ({ comment }: LazyCommentProps): JSX.Element | null => {
     const [commentLoading, setCommentLoading] = useState(true)
     const [authorName, setAuthorName] = useState('')
     const [authorPfp, setAuthorPfp] = useState('')
@@ -24,6 +24,7 @@ const LazyComment = ({ comment }: LazyCommentProps): JSX.Element => {
             if (res.success && res.data) {
                 setAuthorName(res.data.username)
                 setAuthorPfp(res.data.profileImg ?? '')
+                // TODO check blocking
             }
             setCommentLoading(false)
         }

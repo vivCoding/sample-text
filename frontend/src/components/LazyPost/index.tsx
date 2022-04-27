@@ -23,7 +23,7 @@ interface LazyPostProps {
     postId: ID,
 }
 
-const LazyPost = ({ postId }: LazyPostProps): JSX.Element => {
+const LazyPost = ({ postId }: LazyPostProps): JSX.Element | null => {
     const router = useRouter()
     const { userId, username, profileImg } = useSelector((state: ReduxStoreType) => state.user)
 
@@ -32,6 +32,7 @@ const LazyPost = ({ postId }: LazyPostProps): JSX.Element => {
     const [authorName, setAuthorName] = useState('')
     const [authorPfp, setAuthorPfp] = useState('')
     const [isAnonymous, setIsAnonymous] = useState(false)
+    const [shouldShow, setShouldShow] = useState(false)
 
     useEffect(() => {
         const getPostAndAuthor = async (): Promise<void> => {
@@ -42,25 +43,20 @@ const LazyPost = ({ postId }: LazyPostProps): JSX.Element => {
                     setAuthorName(username)
                     setAuthorPfp(profileImg ?? '')
                     setPostLoading(false)
+                    setShouldShow(true)
                 } else if (res.data.anonymous) {
                     setIsAnonymous(true)
                     setPostLoading(false)
+                    setShouldShow(true)
                 } else if (res.data.authorId) {
                     const profileRes = await getProfile(res.data.authorId)
                     if (profileRes.success && profileRes.data) {
                         setAuthorName(profileRes.data.username)
                         setAuthorPfp(profileRes.data.profileImg ?? '')
-                    } else if (profileRes.error === 401) {
-                        // show load post error instead
-                    } else {
-                        // show load post error instead
+                        setShouldShow(true)
                     }
                     setPostLoading(false)
                 }
-            } else if (res.error === 401) {
-                // show load post error instead
-            } else {
-                // show load post error instead
             }
         }
         getPostAndAuthor()
@@ -91,6 +87,10 @@ const LazyPost = ({ postId }: LazyPostProps): JSX.Element => {
                 </CardContent>
             </Card>
         )
+    }
+
+    if (!shouldShow) {
+        return null
     }
 
     return (

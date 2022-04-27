@@ -26,14 +26,14 @@ interface ConversationCardProps {
     conversationId: ID,
 }
 
-const ConversationCard = ({ conversationId }: ConversationCardProps): JSX.Element => {
+const ConversationCard = ({ conversationId }: ConversationCardProps): JSX.Element | null => {
     const router = useRouter()
-    const { userId, username, profileImg } = useSelector((state: ReduxStoreType) => state.user)
+    const { userId } = useSelector((state: ReduxStoreType) => state.user)
 
     const [loading, setLoading] = useState(true)
     const [authorName, setAuthorName] = useState('')
     const [authorPfp, setAuthorPfp] = useState('')
-    const [shouldShow, setShouldShow] = useState(true)
+    const [shouldShow, setShouldShow] = useState(false)
     const [lastMessageDate, setLastMessageDate] = useState('')
     const [lastMessage, setLastMessage] = useState('')
 
@@ -44,11 +44,17 @@ const ConversationCard = ({ conversationId }: ConversationCardProps): JSX.Elemen
                 const idToGet = userId === res.data.user1 ? res.data.user2 : res.data.user1
                 const profileRes = await getProfile(idToGet)
                 if (profileRes.success && profileRes.data) {
-                    setAuthorName(profileRes.data.username)
-                    setAuthorPfp(profileRes.data.profileImg ?? '')
-                    const lm = res.data.messages.length === 0 ? undefined : res.data.messages[res.data.messages.length - 1]
-                    setLastMessage(lm ? `${lm.authorId === userId ? 'You' : profileRes.data.username}: ${lm.message}` : 'No messages sent yet')
-                    setLastMessageDate(lm ? lm.timestamp : '')
+                    // TODO check blocking
+                    if (!profileRes.data.messageSetting || (profileRes.data.messageSetting && profileRes.data.following?.find((followingId) => userId === followingId) !== undefined)) {
+                        setAuthorName(profileRes.data.username)
+                        setAuthorPfp(profileRes.data.profileImg ?? '')
+                        const lm = res.data.messages.length === 0 ? undefined : res.data.messages[res.data.messages.length - 1]
+                        setLastMessage(lm ? `${lm.authorId === userId ? 'You' : profileRes.data.username}: ${lm.message}` : 'No messages sent yet')
+                        setLastMessageDate(lm ? lm.timestamp : '')
+                        setShouldShow(true)
+                    } else {
+                        setShouldShow(false)
+                    }
                     setLoading(false)
                 }
             }
@@ -74,6 +80,10 @@ const ConversationCard = ({ conversationId }: ConversationCardProps): JSX.Elemen
                 </CardContent>
             </Card>
         )
+    }
+
+    if (!shouldShow) {
+        return null
     }
 
     return (

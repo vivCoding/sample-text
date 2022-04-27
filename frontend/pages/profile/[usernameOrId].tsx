@@ -96,10 +96,7 @@ const UserProfilePage: NextPage = () => {
                     if (!res.data.messageSetting) {
                         setCanSendMessage(true)
                     } else {
-                        // const otherSetting = res.data.messageSetting
-                        const otherFollowsYou = res.data.following?.find((followingId) => userId === followingId) !== undefined
-                        // const youFollowOther = following?.find((followingId) => res.data?.userId === followingId) !== undefined
-                        setCanSendMessage(otherFollowsYou)
+                        setCanSendMessage(res.data.following?.find((followingId) => userId === followingId) !== undefined)
                     }
                     window.history.replaceState(null, `${res.data.username}'s Profile`, `/profile/${res.data.username}`)
                 } else {

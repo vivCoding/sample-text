@@ -1,6 +1,6 @@
 import type { NextPage } from 'next';
 import {
-    Box, Button, Stack, Container, CircularProgress, Typography, Divider,
+    Box, Stack, Container, CircularProgress, Typography, Divider,
 } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
@@ -10,7 +10,6 @@ import UserNavbar from '../../src/components/navbar/user';
 import { ReduxStoreType } from '../../src/types/redux';
 import { getUser } from '../../src/api/user';
 import { setCurrentUser } from '../../src/store';
-import { ConversationType } from '../../src/types/conversation';
 import ConversationCard from '../../src/components/Conversation/ConversationCard';
 
 const ConvosPage: NextPage = () => {
@@ -18,21 +17,19 @@ const ConvosPage: NextPage = () => {
     const dispatch = useDispatch()
 
     const { username, conversations } = useSelector((state: ReduxStoreType) => state.user)
-    const [loading, setLoading] = useState(username === undefined)
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        if (!username) {
-            getUser().then((res) => {
-                if (res.success && res.data) {
-                    dispatch(setCurrentUser(res.data))
-                } else if (res.error === 401) {
-                    router.push('/401')
-                } else {
-                    router.push('/404')
-                }
-                setLoading(false)
-            })
-        }
+        getUser().then((res) => {
+            if (res.success && res.data) {
+                dispatch(setCurrentUser(res.data))
+            } else if (res.error === 401) {
+                router.push('/401')
+            } else {
+                router.push('/404')
+            }
+            setLoading(false)
+        })
     }, [router, dispatch, username])
 
     if (loading) {

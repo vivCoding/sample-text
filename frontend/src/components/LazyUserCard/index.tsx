@@ -19,6 +19,7 @@ const LazyUserCard = ({ userId }: LazyUserCardProps): JSX.Element => {
     const [authorPfp, setAuthorPfp] = useState('')
 
     useEffect(() => {
+        // TODO check blocking
         const getAuthor = async (): Promise<void> => {
             const res = await getProfile(userId)
             if (res.success && res.data) {

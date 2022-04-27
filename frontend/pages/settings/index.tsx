@@ -314,10 +314,10 @@ const Settings: NextPage = () => {
                     <Paper variant="outlined">
                         {messageLoading && <LinearProgress />}
                         <Grid container alignItems="center" justifyContent="center" spacing={3} sx={{ p: 4 }}>
-                            <Grid item xs={6}>
-                                <Typography variant="h6">Restrict incoming DMs to followers</Typography>
+                            <Grid item xs={7}>
+                                <Typography variant="h6">Restrict incoming DMs to users you follow</Typography>
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid item xs={5}>
                                 <Switch checked={messageSetting} onChange={handleMessageSettingChange} />
                             </Grid>
                         </Grid>

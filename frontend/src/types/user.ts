@@ -22,6 +22,7 @@ export interface ProfileType {
     comments?: ID[],
     savedPosts?: ID[],
     conversations?: ID[],
+    blocked?: ID[]
 }
 
 export interface UserType extends AccountType, ProfileType {
