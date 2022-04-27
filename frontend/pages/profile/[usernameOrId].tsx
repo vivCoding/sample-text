@@ -47,7 +47,9 @@ const UserProfilePage: NextPage = () => {
     const router = useRouter()
     const { query } = useRouter()
     const dispatch = useDispatch()
-    const { userId, username } = useSelector((state: ReduxStoreType) => state.user)
+    const {
+        userId, username, following, messageSetting,
+    } = useSelector((state: ReduxStoreType) => state.user)
 
     const [loadingUser, setLoadingUser] = useState(userId === undefined)
     const [profile, setProfile] = useState({} as ProfileType)
@@ -91,7 +93,14 @@ const UserProfilePage: NextPage = () => {
             getProfile(query.usernameOrId as string).then((res) => {
                 if (res.success && res.data) {
                     setProfile(res.data)
-                    setCanSendMessage(!res.data.messageSetting)
+                    if (!res.data.messageSetting) {
+                        setCanSendMessage(true)
+                    } else {
+                        // const otherSetting = res.data.messageSetting
+                        const otherFollowsYou = res.data.following?.find((followingId) => userId === followingId) !== undefined
+                        // const youFollowOther = following?.find((followingId) => res.data?.userId === followingId) !== undefined
+                        setCanSendMessage(otherFollowsYou)
+                    }
                     window.history.replaceState(null, `${res.data.username}'s Profile`, `/profile/${res.data.username}`)
                 } else {
                     router.push('/404')

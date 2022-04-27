@@ -102,10 +102,10 @@ const ConvosPage: NextPage = () => {
         sendMessage(query.conversationId as string, messageValue).then((res) => {
             if (res.success) {
                 setMessageValue('')
-                setSendLoading(false)
             } else {
-                toast.error('There was an error in sending message. Try again later!', TOAST_OPTIONS)
+                toast.error('Error! Could not send message', TOAST_OPTIONS)
             }
+            setSendLoading(false)
         })
     }
 

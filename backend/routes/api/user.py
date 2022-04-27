@@ -449,7 +449,14 @@ def update_message_setting():
 		data = request.get_json()
 		user = User.find_by_id(user_id)
 		if user is not None:
-			status = user.update_message_setting(data["message_setting"])
+			new_setting = data["message_setting"]
+			status = user.update_message_setting(new_setting)
+			# if new_setting:
+			# 	for convo_id in user.conversations:
+			# 		convo = Conversation.find_by_id(convo_id)
+			# 		other_user = convo.user2 if convo.user1 == user_id else convo.user2
+			# 		if other_user not in user.following:
+			# 			Conversation.delete(convo_id)
 			return jsonify({ "success": True }), 200
 		else:
 			return jsonify({ "success": False }), 404

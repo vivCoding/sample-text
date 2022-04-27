@@ -61,8 +61,10 @@ export const createConversation = async (recipient: ID): Promise<GeneralResponse
         return { success: false, error: 401 }
     }
     const resData = response.data as any
-    if (resData && resData.data) {
-        resData.convoId = resData.convo_id
+    if (resData) {
+        resData.data = {
+            convoId: resData.convo_id,
+        }
     }
     return resData as GeneralResponseType
 }

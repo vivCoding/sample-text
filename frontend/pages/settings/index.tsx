@@ -34,7 +34,7 @@ const Settings: NextPage = () => {
     const router = useRouter()
 
     const {
-        username, email, name, bio, profileImg,
+        username, email, name, bio, profileImg, messageSetting: messageSettingStore,
     } = useSelector((state: ReduxStoreType) => state.user)
     const dispatch = useDispatch()
 
@@ -61,7 +61,7 @@ const Settings: NextPage = () => {
     const [emailError, setEmailError] = useState('')
     const [passwordError, setPasswordError] = useState('')
 
-    const [messageSetting, setMessageSetting] = useState(false)
+    const [messageSetting, setMessageSetting] = useState(messageSettingStore)
 
     const [changingPassword, setChangingPassword] = useState(false)
     const [oldPassword, setOldPassword] = useState('')

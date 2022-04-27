@@ -1,6 +1,6 @@
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import {
-    Card, CardActionArea, CardContent, CardHeader, CardMedia, IconButton, Skeleton, Stack, styled, Tooltip, Typography,
+    Card, CardActionArea, CardContent, CardHeader, CardMedia, IconButton, Skeleton, Stack, styled, Tooltip, Typography, Box,
 } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -33,6 +33,7 @@ const ConversationCard = ({ conversationId }: ConversationCardProps): JSX.Elemen
     const [loading, setLoading] = useState(true)
     const [authorName, setAuthorName] = useState('')
     const [authorPfp, setAuthorPfp] = useState('')
+    const [shouldShow, setShouldShow] = useState(true)
     const [lastMessageDate, setLastMessageDate] = useState('')
     const [lastMessage, setLastMessage] = useState('')
 
@@ -86,9 +87,14 @@ const ConversationCard = ({ conversationId }: ConversationCardProps): JSX.Elemen
                             <IconButton onClick={handleConversationClick}><ArrowForwardIcon /></IconButton>
                         </Tooltip>
                     )}
-                    subheader={`${lastMessage.substring(0, lastMessage.length > 40 ? 40 : lastMessage.length)}${lastMessage.length > 40 ? '...' : ''}`}
+                    subheader={lastMessageDate}
                 />
             </CardActionArea>
+            <CardContent>
+                <OneLineTypography variant="body2">
+                    {lastMessage}
+                </OneLineTypography>
+            </CardContent>
         </Card>
     )
 }
