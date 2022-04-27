@@ -265,7 +265,6 @@ def delete_user():
 		user = User.find_by_id(user_id)
 		if user is not None:
 			if user.password == password:
-				print("not my problem")
 				# delete this user's posts
 				for post_id in user.posts:
 					Post.delete(post_id)
@@ -420,6 +419,25 @@ def get_conversation():
 			}), 200
 	except Exception as e:
 		print(e)
+		return jsonify({ "success": False }), 500
+
+@user_blueprint.route('/getconversationbyparticipants', methods=["POST"])
+def has_conversation():
+	user_id = session.get('user_id', None)
+	if user_id is None:
+		return jsonify({ "success": False }), 401
+	try:
+		data = request.get_json()
+		convo = Conversation.find_by_participants(data["user1"], data["user2"])
+		if convo == None:
+			return jsonify({ "success": False }), 404
+		else:
+			return jsonify({
+				"success": True,
+				"data": convo.to_dict()
+			}), 200
+	except Exception as e:
+		print (e)
 		return jsonify({ "success": False }), 500
 
 @user_blueprint.route('/updatemessagesetting', methods=["POST"])

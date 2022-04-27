@@ -1,9 +1,4 @@
-import { useDispatch, useSelector } from 'react-redux'
-import useSWR from 'swr'
-import { userFetcher } from '.'
-import { setCurrentAccount } from '../../store'
-import { AccountFetchResponseType, AccountHookResponseType, AccountResponseType } from '../../types/api/user'
-import { ReduxStoreType } from '../../types/redux'
+import { AccountResponseType } from '../../types/api/user'
 import client from '../client'
 
 export const getAccount = async (): Promise<AccountResponseType> => {
@@ -42,22 +37,4 @@ export const updatePassword = async (oldPassword: string, newPassword: string): 
         return { success: false, error: 404, errorMessage: 'There was an issue changing your password. Please try again later!' }
     }
     return response.data as AccountResponseType
-}
-// unused swr stuff, ignore
-export const useUserAccount = (): AccountHookResponseType => {
-    const { username } = useSelector((state: ReduxStoreType) => state.user)
-    const dispatch = useDispatch()
-
-    const { data, error, isValidating } = useSWR<AccountFetchResponseType>(username ? null : '/user/getaccount', userFetcher)
-
-    if (data && data.status === 200 && data.data) {
-        dispatch(setCurrentAccount(data.data))
-    }
-
-    return {
-        loading: isValidating,
-        error: error !== undefined || (data !== undefined && data.status !== 200),
-        auth: data !== undefined && data.status === 200,
-        username: username ?? data?.data?.username,
-    }
 }

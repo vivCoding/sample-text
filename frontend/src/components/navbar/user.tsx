@@ -10,7 +10,7 @@ import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/Person';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
@@ -77,6 +77,7 @@ const Navbar = (): JSX.Element => {
     const { username, profileImg } = useSelector((state: ReduxStoreType) => state.user)
     const router = useRouter()
     const theme = useTheme()
+    const dispatch = useDispatch()
 
     const [loadingLogout, setLogoutLoading] = useState(false)
     const [searchValue, setSearchValue] = useState('')

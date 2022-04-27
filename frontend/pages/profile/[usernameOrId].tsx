@@ -28,10 +28,11 @@ import ProfileAvatar from '../../src/components/common/ProfileAvatar';
 import LazyPost from '../../src/components/LazyPost';
 import LazyUserCard from '../../src/components/LazyUserCard';
 import UserNavbar from '../../src/components/navbar/user';
-import { setCurrentUser } from '../../src/store';
+import { addConversation, setCurrentUser } from '../../src/store';
 import { ReduxStoreType } from '../../src/types/redux';
 import { ProfileType } from '../../src/types/user';
 import { TOAST_OPTIONS } from '../../src/constants/toast';
+import { createConversation, getConversationByParticipants } from '../../src/api/user/conversation';
 
 const StyledChip = styled(Chip)({
     margin: 5,
@@ -56,6 +57,7 @@ const UserProfilePage: NextPage = () => {
     const [followLoading, setFollowLoading] = useState(false)
     const [blockLoading, setBlockLoading] = useState(false)
     const [messageLoading, setMessageLoading] = useState(false)
+    const [canSendMessage, setCanSendMessage] = useState(false)
 
     const [isLoggedIn, setLoggedIn] = useState(userId !== undefined)
     const isSelf = useMemo(() => (
@@ -89,6 +91,7 @@ const UserProfilePage: NextPage = () => {
             getProfile(query.usernameOrId as string).then((res) => {
                 if (res.success && res.data) {
                     setProfile(res.data)
+                    setCanSendMessage(!res.data.messageSetting)
                     window.history.replaceState(null, `${res.data.username}'s Profile`, `/profile/${res.data.username}`)
                 } else {
                     router.push('/404')
@@ -139,19 +142,33 @@ const UserProfilePage: NextPage = () => {
         })
     }
 
+    const handleMessage = async (): Promise<void> => {
+        setMessageLoading(true)
+        if (canSendMessage && userId && profile.userId) {
+            const res = await getConversationByParticipants(userId, profile.userId)
+            if (res.success && res.data) {
+                router.push(`/conversations/${res.data.convoId}`)
+            } else if (res.error !== 401 && res.error !== 500) {
+                const createRes = await createConversation(profile.userId)
+                if (createRes.success && createRes.data) {
+                    dispatch(addConversation(createRes.data.convoId))
+                    router.push(`/conversations/${createRes.data.convoId}`)
+                } else {
+                    toast.error('Error! Could not create conversation', TOAST_OPTIONS)
+                }
+            } else {
+                toast.error('Error! Could not access conversation!', TOAST_OPTIONS)
+            }
+        }
+        setMessageLoading(false)
+    }
+
     const handleBlockUser = (): void => {
         // TODO block user
     }
 
     const handleUnblockUser = (): void => {
         // TODO unblock user
-    }
-
-    const handleMessage = (): void => {
-        setMessageLoading(true)
-        // TODO: check message
-        router.push('/convos/nice')
-        setMessageLoading(false)
     }
 
     if (loadingUser) {
@@ -241,15 +258,17 @@ const UserProfilePage: NextPage = () => {
                                                         Follow
                                                     </LoadingButton>
                                                 )}
-                                            <LoadingButton
-                                                variant="contained"
-                                                endIcon={<ChatIcon />}
-                                                onClick={handleMessage}
-                                                loading={messageLoading}
-                                                sx={{ ml: 2 }}
-                                            >
-                                                Message
-                                            </LoadingButton>
+                                            {canSendMessage && (
+                                                <LoadingButton
+                                                    variant="contained"
+                                                    endIcon={<ChatIcon />}
+                                                    onClick={handleMessage}
+                                                    loading={messageLoading}
+                                                    sx={{ ml: 2 }}
+                                                >
+                                                    Message
+                                                </LoadingButton>
+                                            )}
                                             {hasBlocked ? (
                                                 <LoadingButton
                                                     variant="contained"

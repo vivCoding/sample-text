@@ -10,16 +10,15 @@ import UserNavbar from '../../src/components/navbar/user';
 import { ReduxStoreType } from '../../src/types/redux';
 import { getUser } from '../../src/api/user';
 import { setCurrentUser } from '../../src/store';
-import { Conversation } from '../../src/types/conversation';
+import { ConversationType } from '../../src/types/conversation';
 import ConversationCard from '../../src/components/Conversation/ConversationCard';
 
 const ConvosPage: NextPage = () => {
     const router = useRouter()
     const dispatch = useDispatch()
 
-    const { username } = useSelector((state: ReduxStoreType) => state.user)
+    const { username, conversations } = useSelector((state: ReduxStoreType) => state.user)
     const [loading, setLoading] = useState(username === undefined)
-    const [convos, setConvos] = useState([] as Conversation[])
 
     useEffect(() => {
         if (!username) {
@@ -35,12 +34,6 @@ const ConvosPage: NextPage = () => {
             })
         }
     }, [router, dispatch, username])
-
-    useEffect(() => {
-        if (username && !loading) {
-            // TODO get convos
-        }
-    }, [username, loading])
 
     if (loading) {
         return (
@@ -67,7 +60,10 @@ const ConvosPage: NextPage = () => {
                 </Typography>
                 <Divider sx={{ my: 5 }} />
                 <Stack>
-                    <ConversationCard conversationId="nice" />
+                    {conversations?.length === 0 && <Typography variant="h6">No Conversations</Typography>}
+                    {conversations?.map((conversation) => (
+                        <ConversationCard key={conversation} conversationId={conversation} />
+                    ))}
                 </Stack>
             </Container>
         </Box>

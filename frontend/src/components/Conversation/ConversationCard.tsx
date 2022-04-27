@@ -6,12 +6,14 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import PersonIcon from '@mui/icons-material/Person'
+import { toast } from 'react-toastify';
 import { getPost } from '../../api/post';
 import { getProfile } from '../../api/user/profile';
 import { ID } from '../../types/misc';
 import { PostType } from '../../types/post';
 import { ReduxStoreType } from '../../types/redux';
 import ProfileAvatar from '../common/ProfileAvatar';
+import { getConversation } from '../../api/user/conversation';
 
 const OneLineTypography = styled(Typography)({
     overflow: 'hidden',
@@ -28,75 +30,63 @@ const ConversationCard = ({ conversationId }: ConversationCardProps): JSX.Elemen
     const router = useRouter()
     const { userId, username, profileImg } = useSelector((state: ReduxStoreType) => state.user)
 
-    const [conversation, setConversation] = useState({} as PostType)
     const [loading, setLoading] = useState(true)
     const [authorName, setAuthorName] = useState('')
     const [authorPfp, setAuthorPfp] = useState('')
+    const [lastMessageDate, setLastMessageDate] = useState('')
     const [lastMessage, setLastMessage] = useState('')
 
     useEffect(() => {
         const getConversationAuthor = async (): Promise<void> => {
-            // const res = await getPost(postId)
-            // if (res.success && res.data) {
-            //     setConversation(res.data)
-            //     if (res.data.authorId && res.data.authorId === userId && username) {
-            //         setAuthorName(username)
-            //         setAuthorPfp(profileImg ?? '')
-            //         setPostLoading(false)
-            //     } else if (res.data.anonymous) {
-            //         setIsAnonymous(true)
-            //         setPostLoading(false)
-            //     } else if (res.data.authorId) {
-            //         const profileRes = await getProfile(res.data.authorId)
-            //         if (profileRes.success && profileRes.data) {
-            //             setAuthorName(profileRes.data.username)
-            //             setAuthorPfp(profileRes.data.profileImg ?? '')
-            //         } else if (profileRes.error === 401) {
-            //             // show load post error instead
-            //         } else {
-            //             // show load post error instead
-            //         }
-            //         setPostLoading(false)
-            //     }
-            // } else if (res.error === 401) {
-            //     // show load post error instead
-            // } else {
-            //     // show load post error instead
-            // }
+            const res = await getConversation(conversationId)
+            if (res.success && res.data) {
+                const idToGet = userId === res.data.user1 ? res.data.user2 : res.data.user1
+                const profileRes = await getProfile(idToGet)
+                if (profileRes.success && profileRes.data) {
+                    setAuthorName(profileRes.data.username)
+                    setAuthorPfp(profileRes.data.profileImg ?? '')
+                    const lm = res.data.messages.length === 0 ? undefined : res.data.messages[res.data.messages.length - 1]
+                    setLastMessage(lm ? `${lm.authorId === userId ? 'You' : profileRes.data.username}: ${lm.message}` : 'No messages sent yet')
+                    setLastMessageDate(lm ? lm.timestamp : '')
+                    setLoading(false)
+                }
+            }
         }
-        // getPostAndAuthor()
-    }, [userId])
+        if (userId) {
+            getConversationAuthor()
+        }
+    }, [userId, conversationId])
 
     const handleConversationClick = (): void => {
         router.push(`/conversations/${conversationId}`)
     }
 
-    // if (loading) {
-    //     return (
-    //         <Card sx={{ width: '100%' }}>
-    //             <CardContent>
-    //                 <Skeleton variant="text" height={70} width="50%" />
-    //                 <Stack direction="row" spacing={2}>
-    //                     <Skeleton variant="text" height={30} width="40%" />
-    //                     <Skeleton variant="text" height={30} width="60%" />
-    //                 </Stack>
-    //             </CardContent>
-    //         </Card>
-    //     )
-    // }
+    if (loading) {
+        return (
+            <Card sx={{ width: '100%' }}>
+                <CardContent>
+                    <Skeleton variant="text" height={70} width="50%" />
+                    <Stack direction="row" spacing={2}>
+                        <Skeleton variant="text" height={30} width="40%" />
+                        <Skeleton variant="text" height={30} width="60%" />
+                    </Stack>
+                </CardContent>
+            </Card>
+        )
+    }
 
     return (
         <Card sx={{ width: '100%' }}>
             <CardActionArea onClick={handleConversationClick}>
                 <CardHeader
-                    avatar={<ProfileAvatar size={25} picture64={profileImg} />}
-                    title={`u/${username}`}
+                    avatar={<ProfileAvatar size={25} picture64={authorPfp} />}
+                    title={`u/${authorName}`}
                     action={(
                         <Tooltip title="Go to Conversation">
                             <IconButton onClick={handleConversationClick}><ArrowForwardIcon /></IconButton>
                         </Tooltip>
                     )}
-                    subheader="yo i thought that was a good idea"
+                    subheader={`${lastMessage.substring(0, lastMessage.length > 40 ? 40 : lastMessage.length)}${lastMessage.length > 40 ? '...' : ''}`}
                 />
             </CardActionArea>
         </Card>

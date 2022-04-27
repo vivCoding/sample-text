@@ -7,7 +7,11 @@ from bson.objectid import ObjectId
 class User:
     collection = "users"
 
-    def __init__(self, username, email, password, name="", bio="", profile_img="", following=[], followers=[], followed_topics = [], posts=[], liked_posts = [], disliked_posts=[], loved_posts=[], comments=[], saved_posts=[], conversations=[], onlyRecieveMsgFromFollowing=False, user_id="") -> None:
+    def __init__(self,
+        username, email, password, name="", bio="", profile_img="", following=[], followers=[],
+        followed_topics = [], posts=[], liked_posts = [], disliked_posts=[], loved_posts=[], comments=[], saved_posts=[],
+        conversations=[], onlyRecieveMsgFromFollowing=False, user_id=""
+    ) -> None:
         self.user_id = user_id
         self.username = username
         self.email = email
@@ -76,8 +80,8 @@ class User:
                 "loved_posts": self.loved_posts,
                 "comments": self.comments,
                 "saved_posts": self.saved_posts,
-                "conversations":self.conversations,
-                "message_setting":self.onlyRecieveMsgFromFollowing
+                "conversations": self.conversations,
+                "message_setting": self.onlyRecieveMsgFromFollowing
             }
             result = col.insert_one(doc)
             self.user_id = str(result.inserted_id)
@@ -235,7 +239,7 @@ class User:
             db = Connection.client[Connection.database]
             col = db[User.collection]
             filter = { "_id" : ObjectId(self.user_id) }
-            new_value = { "$set": { "onlyRecieveMsgFromFollowing": self.onlyRecieveMsgFromFollowing } }
+            new_value = { "$set": { "message_setting": onlyRecieveMsgFromFollowing } }
             col.update_one(filter, new_value)
             self.onlyRecieveMsgFromFollowing = onlyRecieveMsgFromFollowing
             return True
@@ -400,7 +404,8 @@ class User:
                 comments=res["comments"],
                 saved_posts=res["saved_posts"],
                 conversations=res["conversations"],
-                user_id= str(res["_id"])
+                onlyRecieveMsgFromFollowing=res["message_setting"],
+                user_id= str(res["_id"]),
             )
         except Exception as e:
             print (e)

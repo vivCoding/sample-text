@@ -1,11 +1,14 @@
 import { ID } from './misc';
 
-export interface Message {
-    userId: ID,
+export interface MessageType {
+    authorId: ID,
     message: string,
+    timestamp: string,
 }
 
-export interface Conversation {
+export interface ConversationType {
     convoId: ID,
-    messages: Message[]
+    user1: ID,
+    user2: ID,
+    messages: MessageType[]
 }

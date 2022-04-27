@@ -3,7 +3,9 @@ import {
     Box, Button, Stack, Container, CircularProgress, Typography, Divider, Paper, Grid, InputAdornment, IconButton,
 } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { ChangeEventHandler, useEffect, useState } from 'react';
+import {
+    ChangeEventHandler, useEffect, useLayoutEffect, useState,
+} from 'react';
 import { useRouter } from 'next/router';
 import { LoadingButton } from '@mui/lab';
 import SendIcon from '@mui/icons-material/Send';
@@ -13,24 +15,27 @@ import UserNavbar from '../../src/components/navbar/user';
 import { ReduxStoreType } from '../../src/types/redux';
 import { getUser } from '../../src/api/user';
 import { setCurrentUser } from '../../src/store';
-import { Conversation } from '../../src/types/conversation';
+import { ConversationType, MessageType } from '../../src/types/conversation';
 import ConversationCard from '../../src/components/Conversation/ConversationCard';
 import BackButton from '../../src/components/common/BackButton';
 import MessageCard from '../../src/components/Conversation/Message';
 import StyledTextField from '../../src/components/common/StyledTextField';
 import { TOAST_OPTIONS } from '../../src/constants/toast';
+import { getConversation, sendMessage } from '../../src/api/user/conversation';
 
 const ConvosPage: NextPage = () => {
     const router = useRouter()
+    const { query } = useRouter()
     const dispatch = useDispatch()
 
     const { username } = useSelector((state: ReduxStoreType) => state.user)
     const [loading, setLoading] = useState(username === undefined)
-    const [conversation, setConversation] = useState<Conversation | undefined>(undefined)
-    const [conversationLoading, setConversationLoading] = useState(false)
+    const [conversationLoading, setConversationLoading] = useState(true)
+    const [messages, setMessages] = useState([] as MessageType[])
 
     const [messageValue, setMessageValue] = useState('')
     const [sendLoading, setSendLoading] = useState(false)
+    const [periodicRequest, setPeriodicRequest] = useState<NodeJS.Timer | undefined>(undefined)
 
     useEffect(() => {
         if (!username) {
@@ -47,11 +52,46 @@ const ConvosPage: NextPage = () => {
         }
     }, [router, dispatch, username])
 
-    useEffect(() => {
-        if (username && !loading) {
-            // TODO get conversation
+    const getMessagesPeriodically = (): void => {
+        if (username && !loading && query.conversationId) {
+            getConversation(query.conversationId as string).then((res) => {
+                if (res.success && res.data) {
+                    setMessages(res.data.messages)
+                } else {
+                    toast.error('Error! Could not get conversation')
+                    if (periodicRequest) {
+                        clearInterval(periodicRequest)
+                    }
+                }
+            })
         }
-    }, [username, loading])
+    }
+
+    useEffect(() => {
+        if (username && !loading && query.conversationId && !periodicRequest) {
+            getConversation(query.conversationId as string).then((res) => {
+                if (res.success && res.data) {
+                    setMessages(res.data.messages)
+                    const timer = setInterval(getMessagesPeriodically, 1000)
+                    setPeriodicRequest(timer)
+                } else {
+                    toast.error('Error! Could not get conversation')
+                }
+                setConversationLoading(false)
+            })
+        }
+        return () => {
+            if (periodicRequest) {
+                clearInterval(periodicRequest)
+            }
+        }
+    }, [username, loading, query, periodicRequest])
+
+    // useLayoutEffect(() => {
+    //     if (periodicRequest) {
+    //         clearInterval(periodicRequest)
+    //     }
+    // }, [periodicRequest])
 
     const handleMessageChange : ChangeEventHandler<HTMLInputElement> = (e) => {
         setMessageValue(e.target.value)
@@ -59,16 +99,20 @@ const ConvosPage: NextPage = () => {
 
     const handleMessageSend = (): void => {
         setSendLoading(true)
-        // TODO send message
-        toast.error('There was an error in sending message. Try again later!', TOAST_OPTIONS)
-        setMessageValue('')
-        setSendLoading(false)
+        sendMessage(query.conversationId as string, messageValue).then((res) => {
+            if (res.success) {
+                setMessageValue('')
+                setSendLoading(false)
+            } else {
+                toast.error('There was an error in sending message. Try again later!', TOAST_OPTIONS)
+            }
+        })
     }
 
-    if (loading) {
+    if (loading || conversationLoading) {
         return (
             <Box>
-                <Helmet title="Conversations" />
+                <Helmet title="Messaging" />
                 <UserNavbar />
                 <Box sx={{
                     display: 'flex', height: '90vh', alignItems: 'center', justifyContent: 'center',
@@ -90,9 +134,9 @@ const ConvosPage: NextPage = () => {
                     mt: 5, height: '55vh', overflow: 'auto',
                 }}
                 >
-                    <MessageCard message={{ userId: 'nice', message: 'wow thats kinda pog' }} />
-                    <MessageCard message={{ userId: '62645ad594654c28ffbe0b33', message: 'hmmmmmmmmmmmmmmmmmm yes i do believe that we should do this and that and that and this' }} />
-                    <MessageCard message={{ userId: 'nice', message: 'wow thats kinda pog' }} />
+                    {messages.map((message) => (
+                        <MessageCard key={message.timestamp + message.authorId} message={message} />
+                    ))}
                 </Stack>
                 <Divider sx={{ mt: 1, mb: 3 }} />
                 <StyledTextField
@@ -100,10 +144,12 @@ const ConvosPage: NextPage = () => {
                     placeholder="Send Message"
                     onChange={handleMessageChange}
                     value={messageValue}
+                    helperText={`${messageValue.length} / 200`}
+                    error={messageValue.length > 200}
                     InputProps={{
                         endAdornment: (
                             <InputAdornment position="end">
-                                <IconButton onClick={handleMessageSend} disabled={sendLoading}>
+                                <IconButton onClick={handleMessageSend} disabled={sendLoading || messageValue.length > 200}>
                                     <SendIcon />
                                 </IconButton>
                             </InputAdornment>

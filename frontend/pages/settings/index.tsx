@@ -24,7 +24,7 @@ import { updateEmail, updatePassword, updateUsername } from '../../src/api/user/
 import FormRow from '../../src/components/settings/FormRow'
 
 import 'react-toastify/dist/ReactToastify.min.css'
-import { editProfile } from '../../src/api/user/profile';
+import { editProfile, updateMessageSetting } from '../../src/api/user/profile';
 import { TOAST_OPTIONS } from '../../src/constants/toast';
 import { deleteUser, getUser } from '../../src/api/user';
 import PasswordField from '../../src/components/common/PasswordField';
@@ -61,7 +61,7 @@ const Settings: NextPage = () => {
     const [emailError, setEmailError] = useState('')
     const [passwordError, setPasswordError] = useState('')
 
-    const [allowDms, setAllowDms] = useState(false)
+    const [messageSetting, setMessageSetting] = useState(false)
 
     const [changingPassword, setChangingPassword] = useState(false)
     const [oldPassword, setOldPassword] = useState('')
@@ -131,6 +131,19 @@ const Settings: NextPage = () => {
         }
         toast.error(res.errorMessage ?? 'Error!', TOAST_OPTIONS)
         return false
+    }
+
+    const handleMessageSettingChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+        setMessageLoading(true)
+        updateMessageSetting(!messageSetting).then((res) => {
+            if (res.success) {
+                setMessageSetting(!messageSetting)
+                toast.success('Successfully changed DMs setting!', TOAST_OPTIONS)
+            } else {
+                toast.error(res.errorMessage ?? 'Error! Could not change DMs setting.', TOAST_OPTIONS)
+            }
+            setMessageLoading(false)
+        })
     }
 
     const handleSaveUsername = async (val: string): Promise<boolean> => {
@@ -302,10 +315,10 @@ const Settings: NextPage = () => {
                         {messageLoading && <LinearProgress />}
                         <Grid container alignItems="center" justifyContent="center" spacing={3} sx={{ p: 4 }}>
                             <Grid item xs={6}>
-                                <Typography variant="h6">Allow DMs from non-followers</Typography>
+                                <Typography variant="h6">Restrict incoming DMs to followers</Typography>
                             </Grid>
                             <Grid item xs={6}>
-                                <Switch />
+                                <Switch checked={messageSetting} onChange={handleMessageSettingChange} />
                             </Grid>
                         </Grid>
                     </Paper>
