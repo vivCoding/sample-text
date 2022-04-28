@@ -308,6 +308,7 @@ def test_post_creation(test_client):
         test_client.cookie_jar.clear()
 
 def test_post_deletion(test_client):
+    post = None
     try:
         # simulate logged in user
         user = generate_random.generate_user(True)
@@ -348,7 +349,7 @@ def test_post_deletion(test_client):
     finally:
         if User.find_by_email(user.email):
             User.delete_by_email(user.email)
-        if Post.find(post.post_id):
+        if post is not None and Post.find(post.post_id):
             Post.delete(post.post_id)
         if "user_id" in session:
             session.pop("user_id")
