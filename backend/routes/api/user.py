@@ -102,9 +102,11 @@ def get_profile():
 			# if the person logged in is getting their own profile, view everything
 			if user.user_id != user_id:
 				if user_id is None:
-					for key in ["followers", "following", "posts", "followed_topics", "liked_posts", "comments", "saved_posts"]:
+					for key in ["followers", "following", "posts", "followed_topics", "liked_posts", "comments", "saved_posts", "blocked", "blockedBy"]:
 						return_dict.pop(key)
 				else:
+					if user_id in user.blocked:
+						return jsonify({ "success": False }), 404
 					filtered_posts = []
 					for post_id in user.posts:
 						post = Post.find(post_id)
