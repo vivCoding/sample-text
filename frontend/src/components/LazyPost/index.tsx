@@ -23,15 +23,18 @@ interface LazyPostProps {
     postId: ID,
 }
 
-const LazyPost = ({ postId }: LazyPostProps): JSX.Element => {
+const LazyPost = ({ postId }: LazyPostProps): JSX.Element | null => {
     const router = useRouter()
-    const { userId, username, profileImg } = useSelector((state: ReduxStoreType) => state.user)
+    const {
+        userId, username, profileImg, blocked,
+    } = useSelector((state: ReduxStoreType) => state.user)
 
     const [post, setPost] = useState({} as PostType)
     const [postLoading, setPostLoading] = useState(true)
     const [authorName, setAuthorName] = useState('')
     const [authorPfp, setAuthorPfp] = useState('')
     const [isAnonymous, setIsAnonymous] = useState(false)
+    const [shouldShow, setShouldShow] = useState(false)
 
     useEffect(() => {
         const getPostAndAuthor = async (): Promise<void> => {
@@ -42,29 +45,28 @@ const LazyPost = ({ postId }: LazyPostProps): JSX.Element => {
                     setAuthorName(username)
                     setAuthorPfp(profileImg ?? '')
                     setPostLoading(false)
+                    setShouldShow(true)
                 } else if (res.data.anonymous) {
                     setIsAnonymous(true)
                     setPostLoading(false)
+                    setShouldShow(true)
                 } else if (res.data.authorId) {
-                    const profileRes = await getProfile(res.data.authorId)
-                    if (profileRes.success && profileRes.data) {
-                        setAuthorName(profileRes.data.username)
-                        setAuthorPfp(profileRes.data.profileImg ?? '')
-                    } else if (profileRes.error === 401) {
-                        // show load post error instead
+                    if (blocked?.find((blockedId) => blockedId === (res.data?.authorId ?? '')) !== undefined) {
+                        setShouldShow(false)
                     } else {
-                        // show load post error instead
+                        const profileRes = await getProfile(res.data.authorId)
+                        if (profileRes.success && profileRes.data) {
+                            setAuthorName(profileRes.data.username)
+                            setAuthorPfp(profileRes.data.profileImg ?? '')
+                            setShouldShow(true)
+                        }
                     }
-                    setPostLoading(false)
                 }
-            } else if (res.error === 401) {
-                // show load post error instead
-            } else {
-                // show load post error instead
             }
+            setPostLoading(false)
         }
         getPostAndAuthor()
-    }, [userId, username, profileImg, postId])
+    }, [userId, username, profileImg, postId, blocked])
 
     const handlePostClick = (): void => {
         router.push(`/post/${postId}`)
@@ -92,6 +94,8 @@ const LazyPost = ({ postId }: LazyPostProps): JSX.Element => {
             </Card>
         )
     }
+
+    if (!shouldShow) return null
 
     return (
         <Card sx={{ width: '100%' }}>

@@ -1,8 +1,8 @@
 import {
-    Card, CardContent, CardHeader, Skeleton, Stack, Typography,
+    Card, CardActionArea, CardContent, CardHeader, Skeleton, Stack, Typography,
 } from '@mui/material';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getProfile } from '../../api/user/profile';
 import { Comment } from '../../types/post';
@@ -13,10 +13,16 @@ interface LazyCommentProps {
     comment: Comment,
 }
 
-const LazyComment = ({ comment }: LazyCommentProps): JSX.Element => {
+const LazyComment = ({ comment }: LazyCommentProps): JSX.Element | null => {
+    const router = useRouter()
+    const { userId, username, profileImg } = useSelector((state: ReduxStoreType) => state.user)
+
     const [commentLoading, setCommentLoading] = useState(true)
     const [authorName, setAuthorName] = useState('')
     const [authorPfp, setAuthorPfp] = useState('')
+    const [shouldShow, setShouldShow] = useState(false)
+
+    const isSelf = useMemo(() => comment.userId && userId === comment.userId, [userId, comment])
 
     useEffect(() => {
         const getAuthor = async (): Promise<void> => {
@@ -24,11 +30,17 @@ const LazyComment = ({ comment }: LazyCommentProps): JSX.Element => {
             if (res.success && res.data) {
                 setAuthorName(res.data.username)
                 setAuthorPfp(res.data.profileImg ?? '')
+                setShouldShow(true)
             }
             setCommentLoading(false)
         }
-        getAuthor()
-    }, [comment])
+        if (comment.userId !== userId) {
+            getAuthor()
+        } else {
+            setCommentLoading(false)
+            setShouldShow(true)
+        }
+    }, [userId, comment])
 
     if (commentLoading) {
         return (
@@ -53,12 +65,16 @@ const LazyComment = ({ comment }: LazyCommentProps): JSX.Element => {
         )
     }
 
+    if (!shouldShow) return null
+
     return (
         <Card>
-            <CardHeader
-                avatar={<ProfileAvatar size={25} picture64={authorPfp} />}
-                title={`u/${authorName}`}
-            />
+            <CardActionArea onClick={() => router.push(`/profile/${isSelf ? username : authorName}`)}>
+                <CardHeader
+                    avatar={<ProfileAvatar size={25} picture64={isSelf ? profileImg : authorPfp} />}
+                    title={`u/${isSelf ? username : authorName}`}
+                />
+            </CardActionArea>
             <CardContent sx={{ width: '100%' }}>
                 <Typography variant="body2" color="text.secondary">
                     {comment.comment}

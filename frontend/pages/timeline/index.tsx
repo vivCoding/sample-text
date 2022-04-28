@@ -1,19 +1,19 @@
-import type { NextPage } from 'next';
-import {
-    Box, Button, Stack, Container, CircularProgress, Typography, Divider, IconButton,
-} from '@mui/material';
-import { useDispatch, useSelector } from 'react-redux';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
 import SortIcon from '@mui/icons-material/Sort';
-import Helmet from '../../src/components/common/Helmet';
-import UserNavbar from '../../src/components/navbar/user';
-import { ReduxStoreType } from '../../src/types/redux';
+import {
+    Box, CircularProgress, Container, Divider, IconButton, Stack, Typography,
+} from '@mui/material';
+import type { NextPage } from 'next';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { getTimeline } from '../../src/api/timeline';
 import { getUser } from '../../src/api/user';
-import { getTimeline } from '../../src/api/timeline'
+import Helmet from '../../src/components/common/Helmet';
+import LazyPost from '../../src/components/LazyPost';
+import UserNavbar from '../../src/components/navbar/user';
 import { setCurrentUser } from '../../src/store';
 import { ID } from '../../src/types/misc';
-import LazyPost from '../../src/components/LazyPost';
+import { ReduxStoreType } from '../../src/types/redux';
 
 const TimelinePage: NextPage = () => {
     const router = useRouter()

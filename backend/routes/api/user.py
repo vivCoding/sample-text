@@ -397,6 +397,12 @@ def send_message():
 		if convo == None:
 			return jsonify({ "Success": False }), 404
 		else:
+			user1 = User.find_by_id(convo.user1)
+			user2 = User.find_by_id(convo.user2)
+			c1 = user1.onlyRecieveMsgFromFollowing and user2.user_id not in user1.following
+			c2 = user2.onlyRecieveMsgFromFollowing and user1.user_id not in user2.following
+			if user1.user_id in user2.blocked or user2.user_id in user1.blocked or c1 or c2:
+				return jsonify({ "success": False }), 404
 			ret = convo.add_message(user_id, data["message"])
 			if ret == 2:
 				return jsonify({ "success": True , "status": ret}), 200
@@ -416,6 +422,12 @@ def get_conversation():
 		if convo == None:
 			return jsonify({ "Success": False }), 404
 		else:
+			user1 = User.find_by_id(convo.user1)
+			user2 = User.find_by_id(convo.user2)
+			c1 = user1.onlyRecieveMsgFromFollowing and user2.user_id not in user1.following
+			c2 = user2.onlyRecieveMsgFromFollowing and user1.user_id not in user2.following
+			if user1.user_id in user2.blocked or user2.user_id in user1.blocked or c1 or c2:
+				return jsonify({ "success": False }), 404
 			return jsonify({
 				"success": True,
 				"data": convo.to_dict()
@@ -425,7 +437,7 @@ def get_conversation():
 		return jsonify({ "success": False }), 500
 
 @user_blueprint.route('/getconversationbyparticipants', methods=["POST"])
-def has_conversation():
+def get_conversation_by_participants():
 	user_id = session.get('user_id', None)
 	if user_id is None:
 		return jsonify({ "success": False }), 401
@@ -435,6 +447,12 @@ def has_conversation():
 		if convo == None:
 			return jsonify({ "success": False }), 404
 		else:
+			user1 = User.find_by_id(convo.user1)
+			user2 = User.find_by_id(convo.user2)
+			c1 = user1.onlyRecieveMsgFromFollowing and user2.user_id not in user1.following
+			c2 = user2.onlyRecieveMsgFromFollowing and user1.user_id not in user2.following
+			if user1.user_id in user2.blocked or user2.user_id in user1.blocked or c1 or c2:
+				return jsonify({ "success": False }), 404
 			return jsonify({
 				"success": True,
 				"data": convo.to_dict()

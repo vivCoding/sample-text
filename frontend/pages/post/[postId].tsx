@@ -1,8 +1,16 @@
 import AddCommentIcon from '@mui/icons-material/AddComment';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import CommentIcon from '@mui/icons-material/Comment';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import LoveIcon from '@mui/icons-material/Favorite';
+import LoveBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ShareIcon from '@mui/icons-material/Share';
+import ThumbDownIcon from '@mui/icons-material/ThumbDown';
+import ThumbDownOffAltIcon from '@mui/icons-material/ThumbDownOffAlt';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
+import { LoadingButton } from '@mui/lab';
 import {
     Chip, CircularProgress, Container, Divider, IconButton, Skeleton, Stack, styled, Tooltip,
 } from '@mui/material';
@@ -15,31 +23,23 @@ import {
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
-import ThumbUpIcon from '@mui/icons-material/ThumbUp';
-import BookmarkIcon from '@mui/icons-material/Bookmark';
-import { LoadingButton } from '@mui/lab';
-import LoveBorderIcon from '@mui/icons-material/FavoriteBorder';
-import LoveIcon from '@mui/icons-material/Favorite';
-import ThumbDownOffAltIcon from '@mui/icons-material/ThumbDownOffAlt';
-import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import {
-    deletePost, getPost, likePost, unlikePost, unsavePost, savePost, commentOnPost, unlovePost, lovePost, undislikePost, dislikePost,
+    commentOnPost, deletePost, dislikePost, getPost, likePost, lovePost, savePost, undislikePost, unlikePost, unlovePost, unsavePost,
 } from '../../src/api/post';
 import { getUser } from '../../src/api/user';
 import { getProfile } from '../../src/api/user/profile';
 import BackButton from '../../src/components/common/BackButton';
 import Helmet from '../../src/components/common/Helmet';
 import ProfileAvatar from '../../src/components/common/ProfileAvatar';
+import StyledTextField from '../../src/components/common/StyledTextField';
+import LazyComment from '../../src/components/LazyComment';
 import UserNavbar from '../../src/components/navbar/user';
 import { TOAST_OPTIONS } from '../../src/constants/toast';
 import {
     addSavedPost, removePostId, removeSavedPost, setCurrentUser,
 } from '../../src/store';
-import { PostType, Comment } from '../../src/types/post';
+import { Comment, PostType } from '../../src/types/post';
 import { ReduxStoreType } from '../../src/types/redux';
-import StyledTextField from '../../src/components/common/StyledTextField';
-import LazyComment from '../../src/components/LazyComment';
 
 const StyledChip = styled(Chip)({
     margin: 5,
@@ -54,7 +54,7 @@ const PostPage: NextPage = () => {
     const router = useRouter()
     const dispatch = useDispatch()
     const {
-        userId, username, profileImg, savedPosts,
+        userId, username, profileImg, savedPosts, blocked,
     } = useSelector((state: ReduxStoreType) => state.user)
 
     const [loading, setLoading] = useState(userId === undefined)
@@ -113,16 +113,20 @@ const PostPage: NextPage = () => {
                     setIsAnonymous(true)
                     setPostLoading(false)
                 } else if (res.data.authorId) {
-                    const profileRes = await getProfile(res.data.authorId)
-                    if (profileRes.success && profileRes.data) {
-                        setAuthorName(profileRes.data.username)
-                        setAuthorPfp(profileRes.data.profileImg ?? '')
-                    } else if (profileRes.error === 401) {
-                        router.push('/401')
-                    } else {
+                    if (blocked?.find((blockedId) => blockedId === (res.data?.authorId ?? '')) !== undefined) {
                         router.push('/404')
+                    } else {
+                        const profileRes = await getProfile(res.data.authorId)
+                        if (profileRes.success && profileRes.data) {
+                            setAuthorName(profileRes.data.username)
+                            setAuthorPfp(profileRes.data.profileImg ?? '')
+                        } else if (profileRes.error === 401) {
+                            router.push('/401')
+                        } else {
+                            router.push('/404')
+                        }
+                        setPostLoading(false)
                     }
-                    setPostLoading(false)
                 }
             } else if (res.error === 401) {
                 router.push('/401')
@@ -134,7 +138,7 @@ const PostPage: NextPage = () => {
         if (userId && !loading) {
             getPostAndAuthor()
         }
-    }, [userId, loading, username, savedPosts])
+    }, [userId, loading, username, profileImg, savedPosts, blocked])
 
     const handleLike = (): void => {
         if (hasLikedPost) {
@@ -286,7 +290,7 @@ const PostPage: NextPage = () => {
 
     return (
         <Box>
-            <Helmet title={`${(post.title ?? '') === '' ? 'Post' : post.title} | Sample Text`} />
+            <Helmet title={`${(post.title ?? '') === '' ? 'Post' : post.title} | SAMPLE Text`} />
             <UserNavbar />
             <Container maxWidth="md" sx={{ mt: 6, mb: 20, width: '90vw' }}>
                 <BackButton />

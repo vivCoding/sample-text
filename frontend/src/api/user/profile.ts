@@ -69,3 +69,19 @@ export const updateMessageSetting = async (newMessageSetting: boolean): Promise<
     }
     return response.data as GeneralResponseType
 }
+
+export const blockUser = async (userId: ID): Promise<GeneralResponseType> => {
+    const response = await client.post('/user/blockuser', { user_id: userId }).catch(() => ({ status: 404, data: undefined }))
+    if (response.status === 401) {
+        return { success: false, error: 401 }
+    }
+    return response.data as GeneralResponseType
+}
+
+export const unblockUser = async (userId: ID): Promise<GeneralResponseType> => {
+    const response = await client.post('/user/unblockuser', { user_id: userId }).catch(() => ({ status: 404, data: undefined }))
+    if (response.status === 401) {
+        return { success: false, error: 401 }
+    }
+    return response.data as GeneralResponseType
+}

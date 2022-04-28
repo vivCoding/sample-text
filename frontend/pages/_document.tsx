@@ -11,7 +11,7 @@ export default class MyDocument extends Document {
             <Html lang="en">
                 <Head>
                     {/* PWA primary color */}
-                    <link rel="icon" href="/static/favicon.ico" />
+                    <link rel="icon" href="/favicon.ico" />
                     <link
                         rel="stylesheet"
                         href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"

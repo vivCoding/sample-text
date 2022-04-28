@@ -1,32 +1,25 @@
-import {
-    AppBar, Button,
-    Box, IconButton, Toolbar, Tooltip, Menu, MenuItem, Badge,
-    Typography, Skeleton, Stack, Backdrop, CircularProgress, TextField, styled, alpha, InputBase, InputAdornment, Popper, Autocomplete, useTheme,
-} from '@mui/material';
-import TextFieldsIcon from '@mui/icons-material/TextFields';
-import { ChangeEventHandler, MouseEventHandler, useState } from 'react';
 import AddBoxIcon from '@mui/icons-material/AddBox';
-import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
+import ForumIcon from '@mui/icons-material/Forum';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/Person';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import { useDispatch, useSelector } from 'react-redux';
-import { useRouter } from 'next/router';
 import SearchIcon from '@mui/icons-material/Search';
-import ClearIcon from '@mui/icons-material/Clear';
+import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import TagIcon from '@mui/icons-material/Tag';
-import { PanoramaFishEyeSharp } from '@mui/icons-material';
-import ForumIcon from '@mui/icons-material/Forum';
-import DarkModeIcon from '@mui/icons-material/DarkMode';
-import LightModeIcon from '@mui/icons-material/Brightness4';
-import Link from '../common/Link'
-import NavBar, { NavBtnStyle, Page } from '.';
-import ProfileAvatar from '../common/ProfileAvatar'
-import { ReduxStoreType } from '../../types/redux';
+import TextFieldsIcon from '@mui/icons-material/TextFields';
+import {
+    alpha, AppBar, Autocomplete, Backdrop, Button, CircularProgress, IconButton, InputBase, Menu, MenuItem, Skeleton, Stack, styled, Toolbar, Tooltip, Typography, useTheme,
+} from '@mui/material';
+import { useRouter } from 'next/router';
+import { MouseEventHandler, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import NavBar from '.';
+import { getTopic } from '../../api/topic';
 import { logoutUser } from '../../api/user';
 import { getProfile } from '../../api/user/profile';
-import { getTopic } from '../../api/topic';
-import ModeSwitch from '../common/ModeSwitch'
+import { ReduxStoreType } from '../../types/redux';
+import Link from '../common/Link';
+import ModeSwitch from '../common/ModeSwitch';
+import ProfileAvatar from '../common/ProfileAvatar';
 
 const Search = styled('div')(({ theme }) => ({
     position: 'relative',

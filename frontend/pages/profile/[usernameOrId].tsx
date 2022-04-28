@@ -1,5 +1,17 @@
+import BookmarkIcon from '@mui/icons-material/Bookmark';
+import ChatIcon from '@mui/icons-material/Chat';
+import CommentIcon from '@mui/icons-material/Comment';
+import EditIcon from '@mui/icons-material/Edit';
+import LoveIcon from '@mui/icons-material/Favorite';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
+import RemoveModeratorIcon from '@mui/icons-material/RemoveModerator';
+import ShieldIcon from '@mui/icons-material/Shield';
+import ThumbDownIcon from '@mui/icons-material/ThumbDown';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import { LoadingButton } from '@mui/lab';
 import {
-    Box, Button, CircularProgress, Container, Divider, Grid, Skeleton, Stack, Tab, Tabs, Typography, styled, Chip,
+    Box, Button, Chip, CircularProgress, Container, Divider, Grid, Skeleton, Stack, styled, Tab, Tabs, Typography,
 } from '@mui/material';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -7,32 +19,24 @@ import {
     SyntheticEvent, useEffect, useMemo, useState,
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { LoadingButton } from '@mui/lab';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
-import EditIcon from '@mui/icons-material/Edit';
 import { toast } from 'react-toastify';
-import ShieldIcon from '@mui/icons-material/Shield';
-import RemoveModeratorIcon from '@mui/icons-material/RemoveModerator';
-import ThumbUpIcon from '@mui/icons-material/ThumbUp';
-import ThumbDownIcon from '@mui/icons-material/ThumbDown';
-import LoveIcon from '@mui/icons-material/Favorite';
-import CommentIcon from '@mui/icons-material/Comment';
-import BookmarkIcon from '@mui/icons-material/Bookmark';
-import ChatIcon from '@mui/icons-material/Chat';
 import { followUser, getUser, unfollowUser } from '../../src/api/user';
-import { getProfile, getUserline } from '../../src/api/user/profile';
+import { createConversation, getConversationByParticipants } from '../../src/api/user/conversation';
+import {
+    blockUser, getProfile, getUserline, unblockUser,
+} from '../../src/api/user/profile';
 import Helmet from '../../src/components/common/Helmet';
 import Link from '../../src/components/common/Link';
 import ProfileAvatar from '../../src/components/common/ProfileAvatar';
 import LazyPost from '../../src/components/LazyPost';
 import LazyUserCard from '../../src/components/LazyUserCard';
 import UserNavbar from '../../src/components/navbar/user';
-import { addConversation, setCurrentUser } from '../../src/store';
+import { TOAST_OPTIONS } from '../../src/constants/toast';
+import {
+    addBlocked, addConversation, removeBlocked, setCurrentUser,
+} from '../../src/store';
 import { ReduxStoreType } from '../../src/types/redux';
 import { ProfileType } from '../../src/types/user';
-import { TOAST_OPTIONS } from '../../src/constants/toast';
-import { createConversation, getConversationByParticipants } from '../../src/api/user/conversation';
 
 const StyledChip = styled(Chip)({
     margin: 5,
@@ -48,7 +52,7 @@ const UserProfilePage: NextPage = () => {
     const { query } = useRouter()
     const dispatch = useDispatch()
     const {
-        userId, username, following, messageSetting,
+        userId, username, following, messageSetting, blocked,
     } = useSelector((state: ReduxStoreType) => state.user)
 
     const [loadingUser, setLoadingUser] = useState(userId === undefined)
@@ -70,10 +74,10 @@ const UserProfilePage: NextPage = () => {
         userId && profile.followers && profile.followers.find((followerId) => userId === followerId)
     ), [userId, profile])
 
+    // const [hasBlocked, setHasBlocked] = useState(false)
     const hasBlocked = useMemo(() => (
-        false
-        // TODO
-    ), [userId, profile])
+        userId && profile.userId && blocked && blocked.find((blockedId) => blockedId === profile.userId) !== undefined
+    ), [userId, profile, blocked])
 
     useEffect(() => {
         if (!userId) {
@@ -93,13 +97,11 @@ const UserProfilePage: NextPage = () => {
             getProfile(query.usernameOrId as string).then((res) => {
                 if (res.success && res.data) {
                     setProfile(res.data)
+                    // setHasBlocked(blocked?.find((blockedId) => blockedId === res.data?.userId) !== undefined)
                     if (!res.data.messageSetting) {
                         setCanSendMessage(true)
                     } else {
-                        // const otherSetting = res.data.messageSetting
-                        const otherFollowsYou = res.data.following?.find((followingId) => userId === followingId) !== undefined
-                        // const youFollowOther = following?.find((followingId) => res.data?.userId === followingId) !== undefined
-                        setCanSendMessage(otherFollowsYou)
+                        setCanSendMessage(res.data.following?.find((followingId) => userId === followingId) !== undefined)
                     }
                     window.history.replaceState(null, `${res.data.username}'s Profile`, `/profile/${res.data.username}`)
                 } else {
@@ -109,7 +111,7 @@ const UserProfilePage: NextPage = () => {
             })
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [router, query, loadingUser])
+    }, [router, query, loadingUser, blocked])
 
     useEffect(() => {
         if (!loadingProfile && profile.userId) {
@@ -173,11 +175,29 @@ const UserProfilePage: NextPage = () => {
     }
 
     const handleBlockUser = (): void => {
-        // TODO block user
+        setBlockLoading(true)
+        blockUser(profile.userId).then((res) => {
+            if (res.success) {
+                toast.success(`Successfully blocked ${profile.username}!`, TOAST_OPTIONS)
+                dispatch(addBlocked(profile.userId))
+            } else {
+                toast.error(`Could not block ${profile.username}. Try again later!`, TOAST_OPTIONS)
+            }
+            setBlockLoading(false)
+        })
     }
 
     const handleUnblockUser = (): void => {
-        // TODO unblock user
+        setBlockLoading(true)
+        unblockUser(profile.userId).then((res) => {
+            if (res.success) {
+                toast.success(`Successfully unblocked ${profile.username}!`, TOAST_OPTIONS)
+                dispatch(removeBlocked(profile.userId))
+            } else {
+                toast.error(`Could not unblock ${profile.username}. Try again later!`, TOAST_OPTIONS)
+            }
+            setBlockLoading(false)
+        })
     }
 
     if (loadingUser) {
@@ -334,6 +354,7 @@ const UserProfilePage: NextPage = () => {
                             <Tab label="Followers" />
                             <Tab label="Following" />
                             <Tab label="Followed Topics" />
+                            {isSelf && <Tab label="Blocked Users" />}
                         </Tabs>
                         <Box sx={{ mt: 5 }}>
                             {tabValue === 0 && (
@@ -370,7 +391,7 @@ const UserProfilePage: NextPage = () => {
                                                                     : post.interactionType === 'Disliked'
                                                                         ? <ThumbDownIcon fontSize="large" sx={{ mr: 5 }} />
                                                                         : <BookmarkIcon fontSize="large" sx={{ mr: 5 }} />}
-                                                        <LazyPost key={post.postId} postId={post.postId} />
+                                                        <LazyPost key={post.postId + post.interactionType} postId={post.postId} />
                                                     </Stack>
                                                 ))
                                             )}
@@ -435,6 +456,22 @@ const UserProfilePage: NextPage = () => {
                                                 <StyledChip key={topicName} label={topicName} onClick={() => router.push(`/topic/${topicName}`)} />
                                             ))
                                         )}
+                                </>
+                            )}
+                            {tabValue === 6 && (
+                                <>
+                                    <Typography variant="h4" sx={{ mb: 3 }}>Blocked Users</Typography>
+                                    <Stack>
+                                        {blocked?.length === 0
+                                            ? <Typography variant="h6">No one blocked</Typography>
+                                            : (
+                                                blocked?.map((blockedId) => (
+                                                    <Box key={blockedId} sx={{ my: 1 }}>
+                                                        <LazyUserCard userId={blockedId} />
+                                                    </Box>
+                                                ))
+                                            )}
+                                    </Stack>
                                 </>
                             )}
                         </Box>
