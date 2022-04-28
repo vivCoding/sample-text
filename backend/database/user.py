@@ -1,13 +1,9 @@
-from gettext import find
-from tkinter import N
-
 import database
 from .connect import Connection
 from bson.objectid import ObjectId
 
 class User:
     collection = "users"
-
 
     def __init__(self,
         username, email, password, name="", bio="", profile_img="", following=[], followers=[],
@@ -336,8 +332,6 @@ class User:
                 return 2
             db = Connection.client[Connection.database]
             col = db[User.collection]
-            print(self.user_id + "\n")
-            print(user_to_unblock.user_id)
             self.blocked.remove(user_id)
             user_to_unblock.blockedBy.remove(self.user_id)
 
@@ -471,8 +465,6 @@ class User:
                 following=res["following"],
                 followers=res["followers"],
                 posts=res["posts"],
-                blocked=res["blocked"],
-                blockedBy=res["blockedBy"],
                 followed_topics=res["followed_topics"],
                 liked_posts=res["liked_posts"],
                 disliked_posts=res["disliked_posts"],
@@ -482,6 +474,8 @@ class User:
                 conversations=res["conversations"],
                 onlyRecieveMsgFromFollowing=res["message_setting"],
                 user_id= str(res["_id"]),
+                blocked=res["blocked"],
+                blockedBy=res["blockedBy"],
             )
         except Exception as e:
             print (e)
