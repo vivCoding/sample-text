@@ -59,7 +59,9 @@ const ConvosPage: NextPage = () => {
                 <Stack>
                     {conversations?.length === 0 && <Typography variant="h6">No Conversations</Typography>}
                     {conversations?.map((conversation) => (
-                        <ConversationCard key={conversation} conversationId={conversation} />
+                        <Box key={conversation} sx={{ my: 1 }}>
+                            <ConversationCard conversationId={conversation} />
+                        </Box>
                     ))}
                 </Stack>
             </Container>

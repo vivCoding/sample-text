@@ -84,23 +84,23 @@ const ConversationCard = ({ conversationId }: ConversationCardProps): JSX.Elemen
 
     return (
         <Card sx={{ width: '100%' }}>
+            <CardHeader
+                avatar={<ProfileAvatar size={25} picture64={authorPfp} />}
+                title={`u/${authorName}`}
+                action={(
+                    <Tooltip title="Go to Conversation">
+                        <IconButton onClick={handleConversationClick}><ArrowForwardIcon /></IconButton>
+                    </Tooltip>
+                )}
+                subheader={lastMessageDate}
+            />
             <CardActionArea onClick={handleConversationClick}>
-                <CardHeader
-                    avatar={<ProfileAvatar size={25} picture64={authorPfp} />}
-                    title={`u/${authorName}`}
-                    action={(
-                        <Tooltip title="Go to Conversation">
-                            <IconButton onClick={handleConversationClick}><ArrowForwardIcon /></IconButton>
-                        </Tooltip>
-                    )}
-                    subheader={lastMessageDate}
-                />
+                <CardContent>
+                    <OneLineTypography variant="body2">
+                        {lastMessage}
+                    </OneLineTypography>
+                </CardContent>
             </CardActionArea>
-            <CardContent>
-                <OneLineTypography variant="body2">
-                    {lastMessage}
-                </OneLineTypography>
-            </CardContent>
         </Card>
     )
 }

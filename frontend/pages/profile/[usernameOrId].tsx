@@ -52,7 +52,7 @@ const UserProfilePage: NextPage = () => {
     const { query } = useRouter()
     const dispatch = useDispatch()
     const {
-        userId, username, following, messageSetting, blocked,
+        userId, username, blocked,
     } = useSelector((state: ReduxStoreType) => state.user)
 
     const [loadingUser, setLoadingUser] = useState(userId === undefined)
@@ -458,12 +458,12 @@ const UserProfilePage: NextPage = () => {
                                         )}
                                 </>
                             )}
-                            {tabValue === 6 && (
+                            {isSelf && tabValue === 6 && (
                                 <>
                                     <Typography variant="h4" sx={{ mb: 3 }}>Blocked Users</Typography>
                                     <Stack>
                                         {blocked?.length === 0
-                                            ? <Typography variant="h6">No one blocked</Typography>
+                                            ? <Typography variant="h6">No blocked users</Typography>
                                             : (
                                                 blocked?.map((blockedId) => (
                                                     <Box key={blockedId} sx={{ my: 1 }}>
