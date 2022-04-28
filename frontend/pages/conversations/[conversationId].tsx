@@ -63,11 +63,8 @@ const ConvosPage: NextPage = () => {
             getConversation(query.conversationId as string).then((res) => {
                 if (res.success && res.data) {
                     setMessages(res.data.messages)
-                } else {
-                    toast.error('Error! Could not get conversation')
-                    if (periodicRequest) {
-                        clearInterval(periodicRequest)
-                    }
+                } else if (periodicRequest) {
+                    clearInterval(periodicRequest)
                 }
             })
         }
@@ -89,7 +86,7 @@ const ConvosPage: NextPage = () => {
                                 setOtherUsername(res.data.username)
                                 setOtherPfp(res.data.profileImg ?? '')
                                 setMessages(convoRes.data.messages)
-                                const timer = setInterval(getMessagesPeriodically, 1000)
+                                const timer = setInterval(getMessagesPeriodically, 2000)
                                 setPeriodicRequest(timer)
                                 setConversationLoading(false)
                             } else {
@@ -120,7 +117,10 @@ const ConvosPage: NextPage = () => {
             if (res.success) {
                 setMessageValue('')
             } else {
-                toast.error('Error! Could not send message', TOAST_OPTIONS)
+                toast.error('Error! Could not send message.', TOAST_OPTIONS)
+                if (periodicRequest) {
+                    clearInterval(periodicRequest)
+                }
             }
             setSendLoading(false)
         })

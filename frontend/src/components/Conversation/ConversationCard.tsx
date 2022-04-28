@@ -52,10 +52,10 @@ const ConversationCard = ({ conversationId }: ConversationCardProps): JSX.Elemen
                         } else {
                             setShouldShow(false)
                         }
-                        setLoading(false)
                     }
                 }
             }
+            setLoading(false)
         }
         if (userId) {
             getConversationAuthor()

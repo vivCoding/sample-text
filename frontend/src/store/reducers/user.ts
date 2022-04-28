@@ -111,11 +111,23 @@ export const userSlice = createSlice({
                 state.conversations = [action.payload]
             }
         },
+        addBlocked: (state, action: PayloadAction<string>) => {
+            if (state.blocked) {
+                state.blocked.push(action.payload)
+            } else {
+                state.blocked = [action.payload]
+            }
+        },
+        removeBlocked: (state, action: PayloadAction<string>) => {
+            if (state.blocked) {
+                state.blocked = state.blocked.filter((blockedId) => blockedId !== action.payload)
+            }
+        },
     },
 })
 
 export const {
     setCurrentUser, setCurrentAccount, setCurrentProfile, clearUser, setPostIds, addPostId, removePostId,
-    addSavedPost, removeSavedPost, addFollowTopic, removeFollowTopic, addConversation,
+    addSavedPost, removeSavedPost, addFollowTopic, removeFollowTopic, addConversation, addBlocked, removeBlocked,
 } = userSlice.actions
 export default userSlice.reducer

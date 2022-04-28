@@ -36,6 +36,9 @@ const LazyComment = ({ comment }: LazyCommentProps): JSX.Element | null => {
         }
         if (comment.userId !== userId) {
             getAuthor()
+        } else {
+            setCommentLoading(false)
+            setShouldShow(true)
         }
     }, [userId, comment])
 

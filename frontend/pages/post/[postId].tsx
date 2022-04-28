@@ -138,7 +138,7 @@ const PostPage: NextPage = () => {
         if (userId && !loading) {
             getPostAndAuthor()
         }
-    }, [userId, loading, username, savedPosts, blocked])
+    }, [userId, loading, username, profileImg, savedPosts, blocked])
 
     const handleLike = (): void => {
         if (hasLikedPost) {

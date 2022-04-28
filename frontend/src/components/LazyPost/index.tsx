@@ -60,10 +60,10 @@ const LazyPost = ({ postId }: LazyPostProps): JSX.Element | null => {
                             setAuthorPfp(profileRes.data.profileImg ?? '')
                             setShouldShow(true)
                         }
-                        setPostLoading(false)
                     }
                 }
             }
+            setPostLoading(false)
         }
         getPostAndAuthor()
     }, [userId, username, profileImg, postId, blocked])

@@ -32,7 +32,9 @@ import LazyPost from '../../src/components/LazyPost';
 import LazyUserCard from '../../src/components/LazyUserCard';
 import UserNavbar from '../../src/components/navbar/user';
 import { TOAST_OPTIONS } from '../../src/constants/toast';
-import { addConversation, setCurrentUser } from '../../src/store';
+import {
+    addBlocked, addConversation, removeBlocked, setCurrentUser,
+} from '../../src/store';
 import { ReduxStoreType } from '../../src/types/redux';
 import { ProfileType } from '../../src/types/user';
 
@@ -72,8 +74,9 @@ const UserProfilePage: NextPage = () => {
         userId && profile.followers && profile.followers.find((followerId) => userId === followerId)
     ), [userId, profile])
 
+    // const [hasBlocked, setHasBlocked] = useState(false)
     const hasBlocked = useMemo(() => (
-        userId && profile && profile.userId && blocked && blocked.find((blockedId) => blockedId === profile.userId) !== undefined
+        userId && profile.userId && blocked && blocked.find((blockedId) => blockedId === profile.userId) !== undefined
     ), [userId, profile, blocked])
 
     useEffect(() => {
@@ -94,6 +97,7 @@ const UserProfilePage: NextPage = () => {
             getProfile(query.usernameOrId as string).then((res) => {
                 if (res.success && res.data) {
                     setProfile(res.data)
+                    // setHasBlocked(blocked?.find((blockedId) => blockedId === res.data?.userId) !== undefined)
                     if (!res.data.messageSetting) {
                         setCanSendMessage(true)
                     } else {
@@ -107,7 +111,7 @@ const UserProfilePage: NextPage = () => {
             })
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [router, query, loadingUser])
+    }, [router, query, loadingUser, blocked])
 
     useEffect(() => {
         if (!loadingProfile && profile.userId) {
@@ -175,7 +179,7 @@ const UserProfilePage: NextPage = () => {
         blockUser(profile.userId).then((res) => {
             if (res.success) {
                 toast.success(`Successfully blocked ${profile.username}!`, TOAST_OPTIONS)
-                router.push(`/profile/${profile.userId}`)
+                dispatch(addBlocked(profile.userId))
             } else {
                 toast.error(`Could not block ${profile.username}. Try again later!`, TOAST_OPTIONS)
             }
@@ -188,7 +192,7 @@ const UserProfilePage: NextPage = () => {
         unblockUser(profile.userId).then((res) => {
             if (res.success) {
                 toast.success(`Successfully unblocked ${profile.username}!`, TOAST_OPTIONS)
-                router.push(`/profile/${profile.userId}`)
+                dispatch(removeBlocked(profile.userId))
             } else {
                 toast.error(`Could not unblock ${profile.username}. Try again later!`, TOAST_OPTIONS)
             }
@@ -350,7 +354,7 @@ const UserProfilePage: NextPage = () => {
                             <Tab label="Followers" />
                             <Tab label="Following" />
                             <Tab label="Followed Topics" />
-                            <Tab label="Blocked Users" />
+                            {isSelf && <Tab label="Blocked Users" />}
                         </Tabs>
                         <Box sx={{ mt: 5 }}>
                             {tabValue === 0 && (
@@ -387,7 +391,7 @@ const UserProfilePage: NextPage = () => {
                                                                     : post.interactionType === 'Disliked'
                                                                         ? <ThumbDownIcon fontSize="large" sx={{ mr: 5 }} />
                                                                         : <BookmarkIcon fontSize="large" sx={{ mr: 5 }} />}
-                                                        <LazyPost key={post.postId} postId={post.postId} />
+                                                        <LazyPost key={post.postId + post.interactionType} postId={post.postId} />
                                                     </Stack>
                                                 ))
                                             )}
