@@ -120,12 +120,12 @@ const PostPage: NextPage = () => {
                         if (profileRes.success && profileRes.data) {
                             setAuthorName(profileRes.data.username)
                             setAuthorPfp(profileRes.data.profileImg ?? '')
+                            setPostLoading(false)
                         } else if (profileRes.error === 401) {
                             router.push('/401')
                         } else {
                             router.push('/404')
                         }
-                        setPostLoading(false)
                     }
                 }
             } else if (res.error === 401) {

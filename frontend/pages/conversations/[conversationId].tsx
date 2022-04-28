@@ -96,6 +96,10 @@ const ConvosPage: NextPage = () => {
                             router.push('/404')
                         }
                     }
+                } else if (convoRes.error === 401) {
+                    router.push('/401')
+                } else {
+                    router.push('/404')
                 }
             }
         }
