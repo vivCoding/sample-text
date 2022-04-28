@@ -161,3 +161,8 @@ def test_blocking_db(mongodb):
         if User.delete_by_email(user_to_block.email) is not None:
             User.delete_by_email(user_to_block.email)
    
+def test_change_message_setting(mongodb):
+    old_setting = good_user.onlyRecieveMsgFromFollowing
+    good_user.update_message_setting(not old_setting)
+    assert good_user.onlyRecieveMsgFromFollowing != old_setting
+    good_user.update_message_setting(old_setting), "Message change was not made"
