@@ -1,5 +1,3 @@
-from gettext import find
-
 import database
 from .connect import Connection
 from bson.objectid import ObjectId
@@ -10,7 +8,7 @@ class User:
     def __init__(self,
         username, email, password, name="", bio="", profile_img="", following=[], followers=[],
         followed_topics = [], posts=[], liked_posts = [], disliked_posts=[], loved_posts=[], comments=[], saved_posts=[],
-        conversations=[], onlyRecieveMsgFromFollowing=False, user_id=""
+        conversations=[], onlyRecieveMsgFromFollowing=False, user_id="",  blocked=[], blockedBy=[]
     ) -> None:
         self.user_id = user_id
         self.username = username
@@ -29,6 +27,8 @@ class User:
         self.comments = comments
         self.conversations = conversations
         self.saved_posts = saved_posts
+        self.blocked = blocked
+        self.blockedBy = blockedBy
         self.onlyRecieveMsgFromFollowing = onlyRecieveMsgFromFollowing
 
     def __eq__(self, other) -> bool:
@@ -53,6 +53,8 @@ class User:
             "loved_posts": self.loved_posts,
             "comments": self.comments,
             "saved_posts": self.saved_posts,
+            "blocked": self.blocked,
+            "blockedBy": self.blockedBy,
             "conversations": self.conversations,
             "message_setting": self.onlyRecieveMsgFromFollowing
         }
@@ -80,6 +82,8 @@ class User:
                 "loved_posts": self.loved_posts,
                 "comments": self.comments,
                 "saved_posts": self.saved_posts,
+                "blocked": self.blocked,
+                "blockedBy": self.blockedBy,
                 "conversations": self.conversations,
                 "message_setting": self.onlyRecieveMsgFromFollowing
             }
@@ -252,6 +256,7 @@ class User:
     # 1 - given id isnt valid
     # 2 - already following
     # 3 - success
+    # 4 - in blocked
     def follow(self, user_id) -> int:
         if Connection.client is None:
             return 0
@@ -261,6 +266,8 @@ class User:
                 return 1
             if user_id in self.following:
                 return 2
+            if user_id in self.blocked:
+                return 4
             db = Connection.client[Connection.database]
             col = db[User.collection]
             
@@ -276,6 +283,67 @@ class User:
             return 3
         except Exception as e:
             print (e)
+            return 0
+    
+    # makes current user follow given id
+    # 0 - db error
+    # 1 - given id isnt valid
+    # 2 - already blocked
+    # 3 - success
+    def block(self, user_id) -> int:
+        if Connection.client is None:
+            return 0
+        try:
+            user_to_block = User.find_by_id(user_id)
+            if user_to_block is None:
+                return 1
+            if user_id in self.blocked:
+                return 2
+            db = Connection.client[Connection.database]
+            col = db[User.collection]
+            
+            self.blocked.append(user_id)
+            user_to_block.blockedBy.append(self.user_id)
+
+            new_value = { "$set": { "blocked": self.blocked } }
+            col.update_one({ "_id" : ObjectId(self.user_id) }, new_value)
+
+            new_value = { "$set": { "blockedBy": user_to_block.blockedBy } }
+            col.update_one({ "_id" : ObjectId(user_id) }, new_value)
+
+            return 3
+        except Exception as e:
+            print(e)
+            return 0
+
+    # makes current user follow given id
+    # 0 - db error
+    # 1 - given id isnt valid
+    # 2 - not in blocked
+    # 3 - success
+    def unblock(self, user_id) -> int:
+        if Connection.client is None:
+            return 0
+        try:
+            user_to_unblock = User.find_by_id(user_id)
+            if user_to_unblock is None:
+                return 1
+            if user_id not in self.blocked:
+                return 2
+            db = Connection.client[Connection.database]
+            col = db[User.collection]
+            self.blocked.remove(user_id)
+            user_to_unblock.blockedBy.remove(self.user_id)
+
+            new_value = { "$set": { "blocked": self.blocked } }
+            col.update_one({ "_id" : ObjectId(self.user_id) }, new_value)
+            
+            new_value = { "$set": { "blockedBy": user_to_unblock.blockedBy } }
+            col.update_one({ "_id" : ObjectId(user_id) }, new_value)
+
+            return 3
+        except Exception as e:
+            print(user_to_unblock.user_id)
             return 0
 
     # makes current user follow given id
@@ -406,6 +474,8 @@ class User:
                 conversations=res["conversations"],
                 onlyRecieveMsgFromFollowing=res["message_setting"],
                 user_id= str(res["_id"]),
+                blocked=res["blocked"],
+                blockedBy=res["blockedBy"],
             )
         except Exception as e:
             print (e)
@@ -472,6 +542,14 @@ class User:
             for follower_id in res["following"]:
                 this_user.unfollow(follower_id)
             
+            for blocked_id in res["blockedBy"]:
+                other_user = User.find_by_id(blocked_id)
+                other_user.unblock(str(res["_id"]))
+
+            this_user = User.find_by_id(str(res["_id"]))
+            for blocked_id in res["blocked"]:
+                this_user.unblock(blocked_id)
+
             col.delete_one({ "_id": ObjectId(str(res["_id"])) })
 
         except Exception as e:

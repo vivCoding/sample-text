@@ -465,6 +465,7 @@ def test_not_logged_in_getprofile(test_client):
         response = test_client.post("/api/user/getprofile", json={
             "username_or_id": user1.username
         })
+
         data = response.json
         assert response.status_code == 200, "Bad getprofile response " + str(response.status_code)
         assert data["success"] == True, f"getprofile failed, got success {data.get('success', None)}"
@@ -477,4 +478,260 @@ def test_not_logged_in_getprofile(test_client):
             Post.delete(post.post_id)
         if "user_id" in session:
             session.pop("user_id")
+        test_client.cookie_jar.clear()
+
+def test_blocked_get_profile(test_client):
+    try:
+        user1 = generate_random.generate_user(True)
+        response = test_client.post("/api/user/createaccount", json={
+            "username": user1.username,
+            "email": user1.email,
+            "password": user1.password,
+        })
+        assert response.status_code == 200, "Bad create account reponse " + str(response.status_code)
+        user1 = User.find_by_email(user1.email)
+
+        response = test_client.post("/api/user/logout", json={})
+        data = response.json
+        assert response.status_code == 200, "Bad response logging out, got " + str(response.status_code)
+        assert data["success"] == True, f"Logging out failed, got success {data.get('success', None)}"
+
+        user2 = generate_random.generate_user(True)
+        response = test_client.post("/api/user/createaccount", json={
+            "username": user2.username,
+            "email": user2.email,
+            "password": user2.password,
+        })
+        data = response.json
+        assert response.status_code == 200, "Bad create account reponse " + str(response.status_code)
+        assert data["success"] == True, f"User creation failed, got success {data.get('success', None)}"
+
+        user2 = User.find_by_email(user2.email)
+        
+        user1.block(user2.user_id)
+
+        response = test_client.post("/api/user/getprofile", json={
+            "username_or_id": user1.username
+        })
+        assert response.status_code == 404, "Worked out, however user is blocked"
+
+    finally:
+        if User.find_by_email(user1.email):
+            User.delete_by_email(user1.email)
+        if User.find_by_email(user2.email):
+            User.delete_by_email(user2.email)
+        test_client.cookie_jar.clear()
+
+def test_blockedBy_get_profile(test_client):
+    try:
+        #creating user1
+        user1 = generate_random.generate_user(True)
+        response = test_client.post("/api/user/createaccount", json={
+            "username": user1.username,
+            "email": user1.email,
+            "password": user1.password,
+        })
+        assert response.status_code == 200, "Bad create account reponse " + str(response.status_code)
+        user1 = User.find_by_email(user1.email)
+        #logging out
+        response = test_client.post("/api/user/logout", json={})
+        data = response.json
+        assert response.status_code == 200, "Bad response logging out, got " + str(response.status_code)
+        assert data["success"] == True, f"Logging out failed, got success {data.get('success', None)}"
+        #creating user2
+        user2 = generate_random.generate_user(True)
+        response = test_client.post("/api/user/createaccount", json={
+            "username": user2.username,
+            "email": user2.email,
+            "password": user2.password,
+        })
+        data = response.json
+        assert response.status_code == 200, "Bad create account reponse " + str(response.status_code)
+        assert data["success"] == True, f"User creation failed, got success {data.get('success', None)}"
+
+        user2 = User.find_by_email(user2.email)
+        #blocking beforehand
+        user2.block(user1.user_id)
+        #getting profile
+        response = test_client.post("/api/user/getprofile", json={
+            "username_or_id": user1.username
+        })
+        assert response.status_code == 200, "Did not work out, however user is not blocked"
+
+    finally:
+        if User.find_by_email(user1.email):
+            User.delete_by_email(user1.email)
+        if User.find_by_email(user2.email):
+            User.delete_by_email(user2.email)
+        test_client.cookie_jar.clear()
+
+def test_blocked_get_profile(test_client):
+    try:
+        user1 = generate_random.generate_user(True)
+        response = test_client.post("/api/user/createaccount", json={
+            "username": user1.username,
+            "email": user1.email,
+            "password": user1.password,
+        })
+        assert response.status_code == 200, "Bad create account reponse " + str(response.status_code)
+        user1 = User.find_by_email(user1.email)
+
+        response = test_client.post("/api/user/logout", json={})
+        data = response.json
+        assert response.status_code == 200, "Bad response logging out, got " + str(response.status_code)
+        assert data["success"] == True, f"Logging out failed, got success {data.get('success', None)}"
+
+        user2 = generate_random.generate_user(True)
+        response = test_client.post("/api/user/createaccount", json={
+            "username": user2.username,
+            "email": user2.email,
+            "password": user2.password,
+        })
+        data = response.json
+        assert response.status_code == 200, "Bad create account reponse " + str(response.status_code)
+        assert data["success"] == True, f"User creation failed, got success {data.get('success', None)}"
+
+        user2 = User.find_by_email(user2.email)
+        
+        user1.block(user2.user_id)
+
+        response = test_client.post("/api/user/getprofile", json={
+            "username_or_id": user1.username
+        })
+        assert response.status_code == 404, "Worked out, however user is blocked"
+
+    finally:
+        if User.find_by_email(user1.email):
+            User.delete_by_email(user1.email)
+        if User.find_by_email(user2.email):
+            User.delete_by_email(user2.email)
+        test_client.cookie_jar.clear()
+
+def test_blocked_get_post(test_client):
+    try:
+        #creating user1
+        user1 = generate_random.generate_user(True)
+        response = test_client.post("/api/user/createaccount", json={
+            "username": user1.username,
+            "email": user1.email,
+            "password": user1.password,
+        })
+        assert response.status_code == 200, "Bad create account reponse " + str(response.status_code)
+        user1 = User.find_by_email(user1.email)
+        # user creates a post
+        post = Post(title="title", topic="topic", author_id=user1.user_id)
+        response = test_client.post("/api/post/createpost", json={
+            "title": post.title,
+            "topic": post.topic,
+            "author_id": user1.user_id,
+            "img": post.img,
+            "caption": post.caption,
+            "anonymous": post.anonymous,
+            "likes": post.likes,
+            "comments": post.comments,
+            "date": post.date,
+            "post_id": post.post_id
+            })
+        data = response.json
+        post.post_id = data['data']['post_id']
+        assert response.status_code == 200, "Bad response, got " + str(response.status_code)
+        assert data["success"] == True, f"Post creation test failed for: {str(post.to_dict())}, error: {data.get('error', None)}"
+        assert Post.find(post.post_id) is not None, "Post was not found in database"
+
+        #logging out
+        response = test_client.post("/api/user/logout", json={})
+        data = response.json
+        assert response.status_code == 200, "Bad response logging out, got " + str(response.status_code)
+        assert data["success"] == True, f"Logging out failed, got success {data.get('success', None)}"
+        #creating user2
+        user2 = generate_random.generate_user(True)
+        response = test_client.post("/api/user/createaccount", json={
+            "username": user2.username,
+            "email": user2.email,
+            "password": user2.password,
+        })
+        data = response.json
+        assert response.status_code == 200, "Bad create account reponse " + str(response.status_code)
+        assert data["success"] == True, f"User creation failed, got success {data.get('success', None)}"
+
+        user2 = User.find_by_email(user2.email)
+        #blocking beforehand
+        user1.block(user2.user_id)
+
+        #getting post
+        response = test_client.post("/api/user/getprofile", json={
+            "username_or_id": user1.username
+        })
+
+        assert response.status_code == 404, "Good get profile response " + str(response.status_code)
+        
+    finally:
+        if User.find_by_email(user1.email):
+            User.delete_by_email(user1.email)
+        if User.find_by_email(user2.email):
+            User.delete_by_email(user2.email)
+        test_client.cookie_jar.clear()
+
+def test_not_blocked_get_post(test_client):
+    try:
+        #creating user1
+        user1 = generate_random.generate_user(True)
+        response = test_client.post("/api/user/createaccount", json={
+            "username": user1.username,
+            "email": user1.email,
+            "password": user1.password,
+        })
+        assert response.status_code == 200, "Bad create account reponse " + str(response.status_code)
+        user1 = User.find_by_email(user1.email)
+        # user creates a post
+        post = Post(title="title", topic="topic", author_id=user1.user_id)
+        response = test_client.post("/api/post/createpost", json={
+            "title": post.title,
+            "topic": post.topic,
+            "author_id": user1.user_id,
+            "img": post.img,
+            "caption": post.caption,
+            "anonymous": post.anonymous,
+            "likes": post.likes,
+            "comments": post.comments,
+            "date": post.date,
+            "post_id": post.post_id
+            })
+        data = response.json
+        post.post_id = data['data']['post_id']
+        assert response.status_code == 200, "Bad response, got " + str(response.status_code)
+        assert data["success"] == True, f"Post creation test failed for: {str(post.to_dict())}, error: {data.get('error', None)}"
+        assert Post.find(post.post_id) is not None, "Post was not found in database"
+
+        #logging out
+        response = test_client.post("/api/user/logout", json={})
+        data = response.json
+        assert response.status_code == 200, "Bad response logging out, got " + str(response.status_code)
+        assert data["success"] == True, f"Logging out failed, got success {data.get('success', None)}"
+        #creating user2
+        user2 = generate_random.generate_user(True)
+        response = test_client.post("/api/user/createaccount", json={
+            "username": user2.username,
+            "email": user2.email,
+            "password": user2.password,
+        })
+        data = response.json
+        assert response.status_code == 200, "Bad create account reponse " + str(response.status_code)
+        assert data["success"] == True, f"User creation failed, got success {data.get('success', None)}"
+
+        user2 = User.find_by_email(user2.email)
+        #blocking beforehand
+        user2.block(user1.user_id)
+        #getting post
+        response = test_client.post("/api/user/getprofile", json={
+            "username_or_id": user1.username
+        })
+
+        assert data.get("posts", None) != [], "list of posts did not return"
+        
+    finally:
+        if User.find_by_email(user1.email):
+            User.delete_by_email(user1.email)
+        if User.find_by_email(user2.email):
+            User.delete_by_email(user2.email)
         test_client.cookie_jar.clear()

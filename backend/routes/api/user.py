@@ -103,9 +103,11 @@ def get_profile():
 			# if the person logged in is getting their own profile, view everything
 			if user.user_id != user_id:
 				if user_id is None:
-					for key in ["followers", "following", "posts", "followed_topics", "liked_posts", "comments", "saved_posts"]:
+					for key in ["followers", "following", "posts", "followed_topics", "liked_posts", "comments", "saved_posts", "blocked", "blockedBy"]:
 						return_dict.pop(key)
 				else:
+					if user_id in user.blocked:
+						return jsonify({ "success": False }), 404
 					filtered_posts = []
 					for post_id in user.posts:
 						post = Post.find(post_id)
@@ -351,6 +353,7 @@ def unfollow_topic():
 		print(e)
 		return jsonify({ "success": False }), 500
 
+
 @user_blueprint.route('/createconversation', methods=["POST"])
 def create_convo():
 	user_id = session.get('user_id', None)
@@ -458,6 +461,42 @@ def update_message_setting():
 			# 		if other_user not in user.following:
 			# 			Conversation.delete(convo_id)
 			return jsonify({ "success": True }), 200
+		else:
+			
+			return jsonify({ "success": False }), 404
+	except Exception as e:
+		print(e)
+		return jsonify({"success": False }), 500
+
+
+@user_blueprint.route('/blockuser', methods=["POST"])
+def block_user():
+	user_id = session.get('user_id', None)
+	if user_id is None:
+		return jsonify({ "success": False }), 401
+	try:
+		data = request.get_json()
+		user = User.find_by_id(user_id)
+		if user is not None:
+			status = user.block(data['user_id'])
+			return jsonify({ "success": True, "status": status }), 200
+		else:
+			return jsonify({ "success": False }), 404
+	except Exception as e:
+		print(e)
+		return jsonify({"success": False }), 500
+
+@user_blueprint.route('/unblockuser', methods=["POST"])
+def unblock_user():
+	user_id = session.get('user_id', None)
+	if user_id is None:
+		return jsonify({ "success": False }), 401
+	try:
+		data = request.get_json()
+		user = User.find_by_id(user_id)
+		if user is not None:
+			status = user.unblock(data['user_id'])
+			return jsonify({ "success": True, "status": status }), 200
 		else:
 			return jsonify({ "success": False }), 404
 	except Exception as e:
