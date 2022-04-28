@@ -11,7 +11,7 @@ export const userSlice = createSlice({
     reducers: {
         setCurrentUser: (state, action: PayloadAction<UserType>) => {
             const {
-                userId, username, email, messageSetting, name, bio, profileImg, posts, savedPosts, followers, following, followedTopics, conversations,
+                userId, username, email, messageSetting, name, bio, profileImg, posts, savedPosts, followers, following, followedTopics, conversations, blocked,
             } = action.payload
             state.userId = userId
             state.username = username
@@ -26,6 +26,7 @@ export const userSlice = createSlice({
             state.following = following
             state.conversations = conversations
             state.followedTopics = followedTopics
+            state.blocked = blocked
         },
         setCurrentAccount: (state, action: PayloadAction<AccountType>) => {
             const { username, email } = action.payload
@@ -34,7 +35,7 @@ export const userSlice = createSlice({
         },
         setCurrentProfile: (state, action: PayloadAction<ProfileType>) => {
             const {
-                messageSetting, name, bio, profileImg, posts, savedPosts, followers, following, followedTopics, conversations,
+                messageSetting, name, bio, profileImg, posts, savedPosts, followers, following, followedTopics, conversations, blocked,
             } = action.payload
             state.messageSetting = messageSetting
             state.name = name
@@ -46,6 +47,7 @@ export const userSlice = createSlice({
             state.following = following
             state.conversations = conversations
             state.followedTopics = followedTopics
+            state.blocked = blocked
         },
         clearUser: (state) => {
             state.userId = undefined
@@ -61,6 +63,7 @@ export const userSlice = createSlice({
             state.following = undefined
             state.followedTopics = undefined
             state.conversations = undefined
+            state.blocked = undefined
         },
         setPostIds: (state, action: PayloadAction<ID[]>) => {
             state.posts = action.payload

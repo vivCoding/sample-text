@@ -30,7 +30,9 @@ const ConvosPage: NextPage = () => {
     const { query } = useRouter()
     const dispatch = useDispatch()
 
-    const { userId, username, profileImg } = useSelector((state: ReduxStoreType) => state.user)
+    const {
+        userId, username, profileImg, blocked,
+    } = useSelector((state: ReduxStoreType) => state.user)
     const [loading, setLoading] = useState(username === undefined)
     const [conversationLoading, setConversationLoading] = useState(true)
     const [messages, setMessages] = useState([] as MessageType[])
@@ -79,22 +81,25 @@ const ConvosPage: NextPage = () => {
                 const convoRes = await getConversation(query.conversationId as string)
                 if (convoRes.success && convoRes.data) {
                     const userToGet = userId === convoRes.data.user1 ? convoRes.data.user2 : convoRes.data.user1
-                    const res = await getProfile(userToGet)
-                    if (res.success && res.data) {
-                        // TODO check blocking
-                        if (!res.data.messageSetting || (res.data.messageSetting && res.data.following?.find((followingId) => userId === followingId) !== undefined)) {
-                            setOtherUserId(userToGet)
-                            setOtherUsername(res.data.username)
-                            setOtherPfp(res.data.profileImg ?? '')
-                            setMessages(convoRes.data.messages)
-                            const timer = setInterval(getMessagesPeriodically, 1000)
-                            setPeriodicRequest(timer)
-                            setConversationLoading(false)
+                    if (blocked?.find((blockedId) => blockedId === userToGet) !== undefined) {
+                        router.push('/404')
+                    } else {
+                        const res = await getProfile(userToGet)
+                        if (res.success && res.data) {
+                            if (!res.data.messageSetting || (res.data.messageSetting && res.data.following?.find((followingId) => userId === followingId) !== undefined)) {
+                                setOtherUserId(userToGet)
+                                setOtherUsername(res.data.username)
+                                setOtherPfp(res.data.profileImg ?? '')
+                                setMessages(convoRes.data.messages)
+                                const timer = setInterval(getMessagesPeriodically, 1000)
+                                setPeriodicRequest(timer)
+                                setConversationLoading(false)
+                            } else {
+                                router.push('/404')
+                            }
                         } else {
                             router.push('/404')
                         }
-                    } else {
-                        router.push('/404')
                     }
                 }
             }
@@ -105,7 +110,7 @@ const ConvosPage: NextPage = () => {
                 clearInterval(periodicRequest)
             }
         }
-    }, [username, loading, query, periodicRequest])
+    }, [router, userId, username, loading, query, periodicRequest])
 
     const handleMessageChange : ChangeEventHandler<HTMLInputElement> = (e) => {
         setMessageValue(e.target.value)

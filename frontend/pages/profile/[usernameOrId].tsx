@@ -21,7 +21,9 @@ import CommentIcon from '@mui/icons-material/Comment';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import ChatIcon from '@mui/icons-material/Chat';
 import { followUser, getUser, unfollowUser } from '../../src/api/user';
-import { getProfile, getUserline } from '../../src/api/user/profile';
+import {
+    blockUser, getProfile, getUserline, unblockUser,
+} from '../../src/api/user/profile';
 import Helmet from '../../src/components/common/Helmet';
 import Link from '../../src/components/common/Link';
 import ProfileAvatar from '../../src/components/common/ProfileAvatar';
@@ -48,7 +50,7 @@ const UserProfilePage: NextPage = () => {
     const { query } = useRouter()
     const dispatch = useDispatch()
     const {
-        userId, username, following, messageSetting,
+        userId, username, following, messageSetting, blocked,
     } = useSelector((state: ReduxStoreType) => state.user)
 
     const [loadingUser, setLoadingUser] = useState(userId === undefined)
@@ -71,9 +73,8 @@ const UserProfilePage: NextPage = () => {
     ), [userId, profile])
 
     const hasBlocked = useMemo(() => (
-        false
-        // TODO
-    ), [userId, profile])
+        userId && profile && profile.userId && blocked && blocked.find((blockedId) => blockedId === profile.userId) !== undefined
+    ), [userId, profile, blocked])
 
     useEffect(() => {
         if (!userId) {
@@ -170,11 +171,29 @@ const UserProfilePage: NextPage = () => {
     }
 
     const handleBlockUser = (): void => {
-        // TODO block user
+        setBlockLoading(true)
+        blockUser(profile.userId).then((res) => {
+            if (res.success) {
+                toast.success(`Successfully blocked ${profile.username}!`, TOAST_OPTIONS)
+                router.push(`/profile/${profile.userId}`)
+            } else {
+                toast.error(`Could not block ${profile.username}. Try again later!`, TOAST_OPTIONS)
+            }
+            setBlockLoading(false)
+        })
     }
 
     const handleUnblockUser = (): void => {
-        // TODO unblock user
+        setBlockLoading(true)
+        unblockUser(profile.userId).then((res) => {
+            if (res.success) {
+                toast.success(`Successfully unblocked ${profile.username}!`, TOAST_OPTIONS)
+                router.push(`/profile/${profile.userId}`)
+            } else {
+                toast.error(`Could not unblock ${profile.username}. Try again later!`, TOAST_OPTIONS)
+            }
+            setBlockLoading(false)
+        })
     }
 
     if (loadingUser) {
@@ -331,6 +350,7 @@ const UserProfilePage: NextPage = () => {
                             <Tab label="Followers" />
                             <Tab label="Following" />
                             <Tab label="Followed Topics" />
+                            <Tab label="Blocked Users" />
                         </Tabs>
                         <Box sx={{ mt: 5 }}>
                             {tabValue === 0 && (
@@ -432,6 +452,22 @@ const UserProfilePage: NextPage = () => {
                                                 <StyledChip key={topicName} label={topicName} onClick={() => router.push(`/topic/${topicName}`)} />
                                             ))
                                         )}
+                                </>
+                            )}
+                            {tabValue === 6 && (
+                                <>
+                                    <Typography variant="h4" sx={{ mb: 3 }}>Blocked Users</Typography>
+                                    <Stack>
+                                        {blocked?.length === 0
+                                            ? <Typography variant="h6">No one blocked</Typography>
+                                            : (
+                                                blocked?.map((blockedId) => (
+                                                    <Box key={blockedId} sx={{ my: 1 }}>
+                                                        <LazyUserCard userId={blockedId} />
+                                                    </Box>
+                                                ))
+                                            )}
+                                    </Stack>
                                 </>
                             )}
                         </Box>

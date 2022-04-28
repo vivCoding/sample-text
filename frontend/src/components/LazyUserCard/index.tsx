@@ -11,20 +11,21 @@ interface LazyUserCardProps {
     userId: string
 }
 
-const LazyUserCard = ({ userId }: LazyUserCardProps): JSX.Element => {
+const LazyUserCard = ({ userId }: LazyUserCardProps): JSX.Element | null => {
     const router = useRouter()
 
     const [userLoading, setUserLoading] = useState(true)
     const [authorName, setAuthorName] = useState('')
     const [authorPfp, setAuthorPfp] = useState('')
+    const [shouldShow, setShouldShow] = useState(false)
 
     useEffect(() => {
-        // TODO check blocking
         const getAuthor = async (): Promise<void> => {
             const res = await getProfile(userId)
             if (res.success && res.data) {
                 setAuthorName(res.data.username)
                 setAuthorPfp(res.data.profileImg ?? '')
+                setShouldShow(true)
             }
             setUserLoading(false)
         }
@@ -44,6 +45,8 @@ const LazyUserCard = ({ userId }: LazyUserCardProps): JSX.Element => {
             </Card>
         )
     }
+
+    if (!shouldShow) return null
 
     return (
         <Card>

@@ -14,7 +14,7 @@ export interface UserSliceType {
     following?: ID[],
     followedTopics?: ID[],
     conversations?: ID[],
-    blocked?: ID[]
+    blocked?: ID[],
 }
 
 export interface ReduxStoreType {

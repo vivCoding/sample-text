@@ -54,7 +54,7 @@ const PostPage: NextPage = () => {
     const router = useRouter()
     const dispatch = useDispatch()
     const {
-        userId, username, profileImg, savedPosts,
+        userId, username, profileImg, savedPosts, blocked,
     } = useSelector((state: ReduxStoreType) => state.user)
 
     const [loading, setLoading] = useState(userId === undefined)
@@ -113,16 +113,20 @@ const PostPage: NextPage = () => {
                     setIsAnonymous(true)
                     setPostLoading(false)
                 } else if (res.data.authorId) {
-                    const profileRes = await getProfile(res.data.authorId)
-                    if (profileRes.success && profileRes.data) {
-                        setAuthorName(profileRes.data.username)
-                        setAuthorPfp(profileRes.data.profileImg ?? '')
-                    } else if (profileRes.error === 401) {
-                        router.push('/401')
-                    } else {
+                    if (blocked?.find((blockedId) => blockedId === (res.data?.authorId ?? '')) !== undefined) {
                         router.push('/404')
+                    } else {
+                        const profileRes = await getProfile(res.data.authorId)
+                        if (profileRes.success && profileRes.data) {
+                            setAuthorName(profileRes.data.username)
+                            setAuthorPfp(profileRes.data.profileImg ?? '')
+                        } else if (profileRes.error === 401) {
+                            router.push('/401')
+                        } else {
+                            router.push('/404')
+                        }
+                        setPostLoading(false)
                     }
-                    setPostLoading(false)
                 }
             } else if (res.error === 401) {
                 router.push('/401')
@@ -134,7 +138,7 @@ const PostPage: NextPage = () => {
         if (userId && !loading) {
             getPostAndAuthor()
         }
-    }, [userId, loading, username, savedPosts])
+    }, [userId, loading, username, savedPosts, blocked])
 
     const handleLike = (): void => {
         if (hasLikedPost) {

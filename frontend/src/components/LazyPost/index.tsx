@@ -25,7 +25,9 @@ interface LazyPostProps {
 
 const LazyPost = ({ postId }: LazyPostProps): JSX.Element | null => {
     const router = useRouter()
-    const { userId, username, profileImg } = useSelector((state: ReduxStoreType) => state.user)
+    const {
+        userId, username, profileImg, blocked,
+    } = useSelector((state: ReduxStoreType) => state.user)
 
     const [post, setPost] = useState({} as PostType)
     const [postLoading, setPostLoading] = useState(true)
@@ -49,18 +51,22 @@ const LazyPost = ({ postId }: LazyPostProps): JSX.Element | null => {
                     setPostLoading(false)
                     setShouldShow(true)
                 } else if (res.data.authorId) {
-                    const profileRes = await getProfile(res.data.authorId)
-                    if (profileRes.success && profileRes.data) {
-                        setAuthorName(profileRes.data.username)
-                        setAuthorPfp(profileRes.data.profileImg ?? '')
-                        setShouldShow(true)
+                    if (blocked?.find((blockedId) => blockedId === (res.data?.authorId ?? '')) !== undefined) {
+                        setShouldShow(false)
+                    } else {
+                        const profileRes = await getProfile(res.data.authorId)
+                        if (profileRes.success && profileRes.data) {
+                            setAuthorName(profileRes.data.username)
+                            setAuthorPfp(profileRes.data.profileImg ?? '')
+                            setShouldShow(true)
+                        }
+                        setPostLoading(false)
                     }
-                    setPostLoading(false)
                 }
             }
         }
         getPostAndAuthor()
-    }, [userId, username, profileImg, postId])
+    }, [userId, username, profileImg, postId, blocked])
 
     const handlePostClick = (): void => {
         router.push(`/post/${postId}`)
@@ -89,9 +95,7 @@ const LazyPost = ({ postId }: LazyPostProps): JSX.Element | null => {
         )
     }
 
-    if (!shouldShow) {
-        return null
-    }
+    if (!shouldShow) return null
 
     return (
         <Card sx={{ width: '100%' }}>
