@@ -368,7 +368,7 @@ const PostPage: NextPage = () => {
                         <Typography variant="h3" fontWeight="300">
                             {post.title}
                         </Typography>
-                        <Typography sx={{ my: 2 }}>
+                        <Typography sx={{ my: 2, wordWrap: 'break-word' }}>
                             {post.caption}
                         </Typography>
                         <Box sx={{ textAlign: 'center', my: 1 }}>

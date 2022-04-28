@@ -76,7 +76,7 @@ const LazyComment = ({ comment }: LazyCommentProps): JSX.Element | null => {
                 />
             </CardActionArea>
             <CardContent sx={{ width: '100%' }}>
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant="body2" color="text.secondary" sx={{ wordWrap: 'break-word' }}>
                     {comment.comment}
                 </Typography>
             </CardContent>
