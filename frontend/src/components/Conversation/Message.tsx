@@ -1,15 +1,12 @@
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import {
-    Box, Card, CardActionArea, CardContent, CardHeader, CardMedia, IconButton, Skeleton, Stack, styled, Tooltip, Typography,
+    Box, Card, CardActionArea, CardContent, CardHeader,
 } from '@mui/material';
 import { useRouter } from 'next/router';
-import { useEffect, useMemo, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import PersonIcon from '@mui/icons-material/Person'
-import { getProfile } from '../../api/user/profile';
+import { useMemo } from 'react';
+import { useSelector } from 'react-redux';
+import { MessageType } from '../../types/conversation';
 import { ReduxStoreType } from '../../types/redux';
 import ProfileAvatar from '../common/ProfileAvatar';
-import { MessageType } from '../../types/conversation';
 
 interface MessageCardProps {
     authorUsername: string,

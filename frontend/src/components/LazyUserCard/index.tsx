@@ -1,6 +1,6 @@
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import {
-    Card, CardActionArea, CardContent, CardHeader, IconButton, Skeleton, Stack,
+    Card, CardActionArea, CardContent, CardHeader, IconButton, Skeleton,
 } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';

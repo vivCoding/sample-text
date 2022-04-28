@@ -1,9 +1,9 @@
-import {
-    AppBar, Button, Box, IconButton, Toolbar, createStyles, Tooltip, useTheme,
-} from '@mui/material';
-import TextFieldsIcon from '@mui/icons-material/TextFields';
 import LoginIcon from '@mui/icons-material/Login';
-import Link from '../common/Link'
+import TextFieldsIcon from '@mui/icons-material/TextFields';
+import {
+    AppBar, Box, Button, createStyles, IconButton, Toolbar, Tooltip, useTheme,
+} from '@mui/material';
+import Link from '../common/Link';
 import ModeSwitch from '../common/ModeSwitch';
 
 export const NavBtnStyle = createStyles({

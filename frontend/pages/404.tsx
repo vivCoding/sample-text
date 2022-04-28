@@ -1,16 +1,16 @@
-import type { NextPage } from 'next';
-import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
 import {
     Button,
     Stack,
 } from '@mui/material';
-import Link from '../src/components/common/Link';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import type { NextPage } from 'next';
 import Helmet from '../src/components/common/Helmet';
+import Link from '../src/components/common/Link';
 
 const Home: NextPage = () => (
     <Box>
-        <Helmet title="404 | Sample Text" />
+        <Helmet title="404 | SAMPLE Text" />
         <Stack sx={{
             alignItems: 'center',
             justifyContent: 'center',

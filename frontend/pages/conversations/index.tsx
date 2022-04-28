@@ -1,16 +1,16 @@
-import type { NextPage } from 'next';
 import {
-    Box, Stack, Container, CircularProgress, Typography, Divider,
+    Box, CircularProgress, Container, Divider, Stack, Typography,
 } from '@mui/material';
-import { useDispatch, useSelector } from 'react-redux';
-import { useEffect, useState } from 'react';
+import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import Helmet from '../../src/components/common/Helmet';
-import UserNavbar from '../../src/components/navbar/user';
-import { ReduxStoreType } from '../../src/types/redux';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { getUser } from '../../src/api/user';
-import { setCurrentUser } from '../../src/store';
+import Helmet from '../../src/components/common/Helmet';
 import ConversationCard from '../../src/components/Conversation/ConversationCard';
+import UserNavbar from '../../src/components/navbar/user';
+import { setCurrentUser } from '../../src/store';
+import { ReduxStoreType } from '../../src/types/redux';
 
 const ConvosPage: NextPage = () => {
     const router = useRouter()

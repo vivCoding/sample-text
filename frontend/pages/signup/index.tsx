@@ -1,20 +1,19 @@
-import type { NextPage } from 'next';
-import {
-    Box, Typography, Button, Stack, LinearProgress, Alert, AlertTitle, Paper, Container, CircularProgress,
-} from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { ChangeEventHandler, useState, useEffect } from 'react';
+import {
+    Alert, AlertTitle, Box, Button, CircularProgress, Container, LinearProgress, Paper, Stack, Typography,
+} from '@mui/material';
+import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
+import { ChangeEventHandler, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { createUser, getUser } from '../../src/api/user';
+import Helmet from '../../src/components/common/Helmet';
 import Link from '../../src/components/common/Link';
 import PasswordField from '../../src/components/common/PasswordField';
-import Helmet from '../../src/components/common/Helmet';
 import StyledTextField from '../../src/components/common/StyledTextField';
-import { createUser, getUser } from '../../src/api/user';
 import Navbar from '../../src/components/navbar';
 import { setCurrentUser } from '../../src/store';
 import { UserType } from '../../src/types/user';
-import { getAccount } from '../../src/api/user/account';
 
 interface FormType {
     email: string,

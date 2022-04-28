@@ -1,29 +1,27 @@
-import type { NextPage } from 'next';
-import {
-    Box, Button, Stack, Container, CircularProgress, Typography, Divider, Paper, Grid, InputAdornment, IconButton,
-} from '@mui/material';
-import { useDispatch, useSelector } from 'react-redux';
-import {
-    ChangeEventHandler, useEffect, useLayoutEffect, useState,
-} from 'react';
-import { useRouter } from 'next/router';
-import { LoadingButton } from '@mui/lab';
 import SendIcon from '@mui/icons-material/Send';
+import {
+    Box, CircularProgress, Container, Divider, IconButton, InputAdornment, Stack, Typography,
+} from '@mui/material';
+import type { NextPage } from 'next';
+import { useRouter } from 'next/router';
+import {
+    ChangeEventHandler, useEffect, useState,
+} from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import Helmet from '../../src/components/common/Helmet';
-import UserNavbar from '../../src/components/navbar/user';
-import { ReduxStoreType } from '../../src/types/redux';
 import { getUser } from '../../src/api/user';
-import { setCurrentUser } from '../../src/store';
-import { ConversationType, MessageType } from '../../src/types/conversation';
-import ConversationCard from '../../src/components/Conversation/ConversationCard';
-import BackButton from '../../src/components/common/BackButton';
-import MessageCard from '../../src/components/Conversation/Message';
-import StyledTextField from '../../src/components/common/StyledTextField';
-import { TOAST_OPTIONS } from '../../src/constants/toast';
 import { getConversation, sendMessage } from '../../src/api/user/conversation';
 import { getProfile } from '../../src/api/user/profile';
+import BackButton from '../../src/components/common/BackButton';
+import Helmet from '../../src/components/common/Helmet';
 import ProfileAvatar from '../../src/components/common/ProfileAvatar';
+import StyledTextField from '../../src/components/common/StyledTextField';
+import MessageCard from '../../src/components/Conversation/Message';
+import UserNavbar from '../../src/components/navbar/user';
+import { TOAST_OPTIONS } from '../../src/constants/toast';
+import { setCurrentUser } from '../../src/store';
+import { MessageType } from '../../src/types/conversation';
+import { ReduxStoreType } from '../../src/types/redux';
 
 const ConvosPage: NextPage = () => {
     const router = useRouter()

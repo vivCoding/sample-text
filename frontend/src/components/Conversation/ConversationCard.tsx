@@ -5,11 +5,11 @@ import {
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { getConversation } from '../../api/user/conversation';
 import { getProfile } from '../../api/user/profile';
 import { ID } from '../../types/misc';
 import { ReduxStoreType } from '../../types/redux';
 import ProfileAvatar from '../common/ProfileAvatar';
-import { getConversation } from '../../api/user/conversation';
 
 const OneLineTypography = styled(Typography)({
     overflow: 'hidden',

@@ -1,5 +1,17 @@
+import BookmarkIcon from '@mui/icons-material/Bookmark';
+import ChatIcon from '@mui/icons-material/Chat';
+import CommentIcon from '@mui/icons-material/Comment';
+import EditIcon from '@mui/icons-material/Edit';
+import LoveIcon from '@mui/icons-material/Favorite';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
+import RemoveModeratorIcon from '@mui/icons-material/RemoveModerator';
+import ShieldIcon from '@mui/icons-material/Shield';
+import ThumbDownIcon from '@mui/icons-material/ThumbDown';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import { LoadingButton } from '@mui/lab';
 import {
-    Box, Button, CircularProgress, Container, Divider, Grid, Skeleton, Stack, Tab, Tabs, Typography, styled, Chip,
+    Box, Button, Chip, CircularProgress, Container, Divider, Grid, Skeleton, Stack, styled, Tab, Tabs, Typography,
 } from '@mui/material';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -7,20 +19,9 @@ import {
     SyntheticEvent, useEffect, useMemo, useState,
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { LoadingButton } from '@mui/lab';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
-import EditIcon from '@mui/icons-material/Edit';
 import { toast } from 'react-toastify';
-import ShieldIcon from '@mui/icons-material/Shield';
-import RemoveModeratorIcon from '@mui/icons-material/RemoveModerator';
-import ThumbUpIcon from '@mui/icons-material/ThumbUp';
-import ThumbDownIcon from '@mui/icons-material/ThumbDown';
-import LoveIcon from '@mui/icons-material/Favorite';
-import CommentIcon from '@mui/icons-material/Comment';
-import BookmarkIcon from '@mui/icons-material/Bookmark';
-import ChatIcon from '@mui/icons-material/Chat';
 import { followUser, getUser, unfollowUser } from '../../src/api/user';
+import { createConversation, getConversationByParticipants } from '../../src/api/user/conversation';
 import {
     blockUser, getProfile, getUserline, unblockUser,
 } from '../../src/api/user/profile';
@@ -30,11 +31,10 @@ import ProfileAvatar from '../../src/components/common/ProfileAvatar';
 import LazyPost from '../../src/components/LazyPost';
 import LazyUserCard from '../../src/components/LazyUserCard';
 import UserNavbar from '../../src/components/navbar/user';
+import { TOAST_OPTIONS } from '../../src/constants/toast';
 import { addConversation, setCurrentUser } from '../../src/store';
 import { ReduxStoreType } from '../../src/types/redux';
 import { ProfileType } from '../../src/types/user';
-import { TOAST_OPTIONS } from '../../src/constants/toast';
-import { createConversation, getConversationByParticipants } from '../../src/api/user/conversation';
 
 const StyledChip = styled(Chip)({
     margin: 5,
