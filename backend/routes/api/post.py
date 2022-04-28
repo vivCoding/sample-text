@@ -74,9 +74,6 @@ def delete_post():
 		post = Post.find(post_id)
 		if post is not None:
 			Post.delete(post_id)
-			# delete this post under its topic in the database
-			parent_topic = Topic.find_by_name(post.topic)
-			parent_topic.remove_post(post.post_id)
 			return jsonify({ "success": True }), 200
 		return jsonify({ "success": False }), 404
 	except Exception as e:

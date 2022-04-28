@@ -1,3 +1,4 @@
+from database.topic import Topic
 from .connect import Connection
 from datetime import datetime
 from database.user import User
@@ -273,6 +274,9 @@ class Post:
             for _id in res["saves"]:
                 filter = { "_id": ObjectId(_id) }
                 user_col.update_one(filter, new_value)
+
+            parent_topic = Topic.find_by_name(res["topic"])
+            parent_topic.remove_post(post_id)
 
             col.delete_one(res)
         except Exception as e:

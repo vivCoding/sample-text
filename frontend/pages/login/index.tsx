@@ -1,18 +1,18 @@
-import type { NextPage } from 'next';
-import {
-    Box, Typography, Button, LinearProgress, Alert, AlertTitle, Paper, Container, CircularProgress,
-} from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { ChangeEventHandler, useEffect, useState } from 'react';
+import {
+    Alert, AlertTitle, Box, Button, CircularProgress, Container, LinearProgress, Paper, Typography,
+} from '@mui/material';
+import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
+import { ChangeEventHandler, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { getUser, loginUser } from '../../src/api/user';
+import Helmet from '../../src/components/common/Helmet';
 import Link from '../../src/components/common/Link';
 import PasswordField from '../../src/components/common/PasswordField';
-import Helmet from '../../src/components/common/Helmet';
 import StyledTextField from '../../src/components/common/StyledTextField';
 import Navbar from '../../src/components/navbar';
 import { setCurrentUser } from '../../src/store';
-import { loginUser, getUser } from '../../src/api/user';
 
 const Login: NextPage = () => {
     const router = useRouter()

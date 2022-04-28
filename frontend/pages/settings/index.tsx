@@ -1,34 +1,33 @@
-import type { NextPage } from 'next';
-import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
-import {
-    Button, Stack, Grid, Container, Paper, IconButton, Divider, LinearProgress, CircularProgress, Switch,
-} from '@mui/material';
+import CancelIcon from '@mui/icons-material/Cancel';
+import SaveIcon from '@mui/icons-material/Save';
 import LoadingButton from '@mui/lab/LoadingButton';
+import {
+    Button, CircularProgress, Container, Divider, Grid, IconButton, LinearProgress, Paper, Stack, Switch,
+} from '@mui/material';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import type { NextPage } from 'next';
+import { useRouter } from 'next/router';
 import { ChangeEventHandler, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import SaveIcon from '@mui/icons-material/Save';
-import CancelIcon from '@mui/icons-material/Cancel';
 import { toast } from 'react-toastify';
-import { useRouter } from 'next/router';
+import 'react-toastify/dist/ReactToastify.min.css';
+import { deleteUser, getUser } from '../../src/api/user';
+import { updateEmail, updatePassword, updateUsername } from '../../src/api/user/account';
+import { editProfile, updateMessageSetting } from '../../src/api/user/profile';
+import BackButton from '../../src/components/common/BackButton';
 import Helmet from '../../src/components/common/Helmet';
-import UserNavbar from '../../src/components/navbar/user';
-import ProfileAvatar from '../../src/components/common/ProfileAvatar';
 import ImageUpload from '../../src/components/common/ImageUpload';
-import { ReduxStoreType } from '../../src/types/redux';
+import PasswordField from '../../src/components/common/PasswordField';
+import ProfileAvatar from '../../src/components/common/ProfileAvatar';
+import UserNavbar from '../../src/components/navbar/user';
+import FormRow from '../../src/components/settings/FormRow';
+import { LENGTH_LIMIT, PFP_LIMIT_MB } from '../../src/constants/formLimit';
+import { TOAST_OPTIONS } from '../../src/constants/toast';
 import {
     setCurrentAccount, setCurrentProfile, setCurrentUser,
 } from '../../src/store';
-import { LENGTH_LIMIT, PFP_LIMIT_MB } from '../../src/constants/formLimit';
-import { updateEmail, updatePassword, updateUsername } from '../../src/api/user/account'
-import FormRow from '../../src/components/settings/FormRow'
-
-import 'react-toastify/dist/ReactToastify.min.css'
-import { editProfile, updateMessageSetting } from '../../src/api/user/profile';
-import { TOAST_OPTIONS } from '../../src/constants/toast';
-import { deleteUser, getUser } from '../../src/api/user';
-import PasswordField from '../../src/components/common/PasswordField';
-import BackButton from '../../src/components/common/BackButton';
+import { ReduxStoreType } from '../../src/types/redux';
 
 const Settings: NextPage = () => {
     const router = useRouter()
@@ -314,10 +313,10 @@ const Settings: NextPage = () => {
                     <Paper variant="outlined">
                         {messageLoading && <LinearProgress />}
                         <Grid container alignItems="center" justifyContent="center" spacing={3} sx={{ p: 4 }}>
-                            <Grid item xs={6}>
-                                <Typography variant="h6">Restrict incoming DMs to followers</Typography>
+                            <Grid item xs={7}>
+                                <Typography variant="h6">Restrict incoming DMs to users you follow</Typography>
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid item xs={5}>
                                 <Switch checked={messageSetting} onChange={handleMessageSettingChange} />
                             </Grid>
                         </Grid>

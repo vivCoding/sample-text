@@ -1,3 +1,4 @@
+import TagIcon from '@mui/icons-material/Tag';
 import { LoadingButton } from '@mui/lab';
 import {
     Button, CircularProgress, Container, FormControlLabel, InputAdornment, Stack, Switch,
@@ -9,7 +10,6 @@ import { useRouter } from 'next/router';
 import { ChangeEventHandler, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import TagIcon from '@mui/icons-material/Tag';
 import { createPost } from '../../src/api/post';
 import { getUser } from '../../src/api/user';
 import Helmet from '../../src/components/common/Helmet';

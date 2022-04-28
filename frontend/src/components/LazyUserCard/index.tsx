@@ -1,6 +1,6 @@
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import {
-    Card, CardActionArea, CardContent, CardHeader, IconButton, Skeleton, Stack,
+    Card, CardActionArea, CardContent, CardHeader, IconButton, Skeleton,
 } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -11,12 +11,13 @@ interface LazyUserCardProps {
     userId: string
 }
 
-const LazyUserCard = ({ userId }: LazyUserCardProps): JSX.Element => {
+const LazyUserCard = ({ userId }: LazyUserCardProps): JSX.Element | null => {
     const router = useRouter()
 
     const [userLoading, setUserLoading] = useState(true)
     const [authorName, setAuthorName] = useState('')
     const [authorPfp, setAuthorPfp] = useState('')
+    const [shouldShow, setShouldShow] = useState(false)
 
     useEffect(() => {
         const getAuthor = async (): Promise<void> => {
@@ -24,6 +25,7 @@ const LazyUserCard = ({ userId }: LazyUserCardProps): JSX.Element => {
             if (res.success && res.data) {
                 setAuthorName(res.data.username)
                 setAuthorPfp(res.data.profileImg ?? '')
+                setShouldShow(true)
             }
             setUserLoading(false)
         }
@@ -43,6 +45,8 @@ const LazyUserCard = ({ userId }: LazyUserCardProps): JSX.Element => {
             </Card>
         )
     }
+
+    if (!shouldShow) return null
 
     return (
         <Card>

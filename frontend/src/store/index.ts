@@ -10,5 +10,5 @@ export const store = configureStore({
 export {
     setCurrentUser,
     setCurrentAccount, setCurrentProfile, clearUser, setPostIds, addPostId,
-    removePostId, addSavedPost, removeSavedPost, addFollowTopic, removeFollowTopic, addConversation,
+    removePostId, addSavedPost, removeSavedPost, addFollowTopic, removeFollowTopic, addConversation, addBlocked, removeBlocked,
 } from './reducers/user'

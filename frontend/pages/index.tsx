@@ -1,18 +1,18 @@
-import type { NextPage } from 'next';
-import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
+import LoginIcon from '@mui/icons-material/Login';
 import {
     Button,
     Stack,
 } from '@mui/material';
-import LoginIcon from '@mui/icons-material/Login';
-import Link from '../src/components/common/Link';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import type { NextPage } from 'next';
 import Helmet from '../src/components/common/Helmet';
+import Link from '../src/components/common/Link';
 import Navbar from '../src/components/navbar';
 
 const Home: NextPage = () => (
     <Box>
-        <Helmet title="Sample Text" />
+        <Helmet title="SAMPLE Text" />
         <Navbar />
         <Stack sx={{
             alignItems: 'center',
@@ -24,7 +24,7 @@ const Home: NextPage = () => (
                 SAMPLE Text
             </Typography>
             <Typography variant="h6">
-                Simple Social Platform for Everyone
+                Sample Social Platform for Everyone
             </Typography>
             <Stack direction="row" alignItems="center" sx={{ mt: 5 }}>
                 <Button variant="outlined" component={Link} noLinkStyle href="/signup">Sign Up</Button>
