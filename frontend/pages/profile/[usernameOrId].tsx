@@ -258,7 +258,7 @@ const UserProfilePage: NextPage = () => {
                             </Typography>
                         </Grid>
                         <Grid item xs={12}>
-                            <Typography variant="body1" fontWeight="normal">{profile.bio}</Typography>
+                            <Typography variant="body1" fontWeight="normal" sx={{ wordWrap: 'break-word' }}>{profile.bio}</Typography>
                         </Grid>
                         {isLoggedIn && (
                             <Grid item xs={12}>
