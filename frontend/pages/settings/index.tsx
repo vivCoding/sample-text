@@ -1,40 +1,39 @@
-import type { NextPage } from 'next';
-import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
-import {
-    Button, Stack, Grid, Container, Paper, IconButton, Divider, LinearProgress, CircularProgress,
-} from '@mui/material';
+import CancelIcon from '@mui/icons-material/Cancel';
+import SaveIcon from '@mui/icons-material/Save';
 import LoadingButton from '@mui/lab/LoadingButton';
+import {
+    Button, CircularProgress, Container, Divider, Grid, IconButton, LinearProgress, Paper, Stack, Switch,
+} from '@mui/material';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import type { NextPage } from 'next';
+import { useRouter } from 'next/router';
 import { ChangeEventHandler, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import SaveIcon from '@mui/icons-material/Save';
-import CancelIcon from '@mui/icons-material/Cancel';
 import { toast } from 'react-toastify';
-import { useRouter } from 'next/router';
+import 'react-toastify/dist/ReactToastify.min.css';
+import { deleteUser, getUser } from '../../src/api/user';
+import { updateEmail, updatePassword, updateUsername } from '../../src/api/user/account';
+import { editProfile, updateMessageSetting } from '../../src/api/user/profile';
+import BackButton from '../../src/components/common/BackButton';
 import Helmet from '../../src/components/common/Helmet';
-import UserNavbar from '../../src/components/navbar/user';
-import ProfileAvatar from '../../src/components/common/ProfileAvatar';
 import ImageUpload from '../../src/components/common/ImageUpload';
-import { ReduxStoreType } from '../../src/types/redux';
+import PasswordField from '../../src/components/common/PasswordField';
+import ProfileAvatar from '../../src/components/common/ProfileAvatar';
+import UserNavbar from '../../src/components/navbar/user';
+import FormRow from '../../src/components/settings/FormRow';
+import { LENGTH_LIMIT, PFP_LIMIT_MB } from '../../src/constants/formLimit';
+import { TOAST_OPTIONS } from '../../src/constants/toast';
 import {
     setCurrentAccount, setCurrentProfile, setCurrentUser,
 } from '../../src/store';
-import { LENGTH_LIMIT, PFP_LIMIT_MB } from '../../src/constants/formLimit';
-import { updateEmail, updatePassword, updateUsername } from '../../src/api/user/account'
-import FormRow from '../../src/components/settings/FormRow'
-
-import 'react-toastify/dist/ReactToastify.min.css'
-import { editProfile } from '../../src/api/user/profile';
-import { TOAST_OPTIONS } from '../../src/constants/toast';
-import { deleteUser, getUser } from '../../src/api/user';
-import PasswordField from '../../src/components/common/PasswordField';
-import BackButton from '../../src/components/common/BackButton';
+import { ReduxStoreType } from '../../src/types/redux';
 
 const Settings: NextPage = () => {
     const router = useRouter()
 
     const {
-        username, email, name, bio, profileImg,
+        username, email, name, bio, profileImg, messageSetting: messageSettingStore,
     } = useSelector((state: ReduxStoreType) => state.user)
     const dispatch = useDispatch()
 
@@ -61,12 +60,15 @@ const Settings: NextPage = () => {
     const [emailError, setEmailError] = useState('')
     const [passwordError, setPasswordError] = useState('')
 
+    const [messageSetting, setMessageSetting] = useState(messageSettingStore)
+
     const [changingPassword, setChangingPassword] = useState(false)
     const [oldPassword, setOldPassword] = useState('')
     const [newPassword, setNewPassword] = useState('')
     const [confirm, setConfirm] = useState('')
 
     const [profileLoading, setProfileLoading] = useState(false)
+    const [messageLoading, setMessageLoading] = useState(false)
     const [accountLoading, setAccountLoading] = useState(false)
     const [passwordLoading, setPasswordLoading] = useState(false)
 
@@ -128,6 +130,19 @@ const Settings: NextPage = () => {
         }
         toast.error(res.errorMessage ?? 'Error!', TOAST_OPTIONS)
         return false
+    }
+
+    const handleMessageSettingChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+        setMessageLoading(true)
+        updateMessageSetting(!messageSetting).then((res) => {
+            if (res.success) {
+                setMessageSetting(!messageSetting)
+                toast.success('Successfully changed DMs setting!', TOAST_OPTIONS)
+            } else {
+                toast.error(res.errorMessage ?? 'Error! Could not change DMs setting.', TOAST_OPTIONS)
+            }
+            setMessageLoading(false)
+        })
     }
 
     const handleSaveUsername = async (val: string): Promise<boolean> => {
@@ -286,6 +301,24 @@ const Settings: NextPage = () => {
                             <FormRow title="Display Name" value={name} disabled={profileLoading} onSave={handleSaveName} charLimit={LENGTH_LIMIT.USER.NAME} />
                             <Grid item xs={12}><Divider /></Grid>
                             <FormRow title="Biography" value={bio} multiline disabled={profileLoading} onSave={handleSaveBio} charLimit={LENGTH_LIMIT.USER.BIO} />
+                        </Grid>
+                    </Paper>
+                    <Typography
+                        variant="h4"
+                        sx={{ mt: 10, mb: 3 }}
+                        fontWeight="light"
+                    >
+                        Messaging
+                    </Typography>
+                    <Paper variant="outlined">
+                        {messageLoading && <LinearProgress />}
+                        <Grid container alignItems="center" justifyContent="center" spacing={3} sx={{ p: 4 }}>
+                            <Grid item xs={7}>
+                                <Typography variant="h6">Restrict incoming DMs to users you follow</Typography>
+                            </Grid>
+                            <Grid item xs={5}>
+                                <Switch checked={messageSetting} onChange={handleMessageSettingChange} />
+                            </Grid>
                         </Grid>
                     </Paper>
                     <Typography

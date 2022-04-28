@@ -1,4 +1,5 @@
 import hashlib
+from sys import stdout
 from database.user import User
 from database.post import Post
 from runtests import mongodb
@@ -137,3 +138,31 @@ def test_delete_user_by_email(mongodb):
         good_user.push()
     User.delete_by_email(good_user.email)
     assert User.find_by_email(good_user.email) is None, "User was not deleted"
+
+def test_blocking_db(mongodb):
+    user = generate_user(True)
+    user_to_block = generate_user(True)
+
+    if User.find_by_email(user.email) is None:
+        user.push()
+    if User.find_by_email(user_to_block.email) is None:
+        user_to_block.push()
+
+    try:
+        ret = user.block(user_to_block.user_id)
+        assert ret == 3, "Blocking failed"
+        assert user_to_block.user_id in user.blocked and len(user.blocked) == 1, "User not added into blocked"
+        assert user.unblock(user_to_block.user_id) == 3, "Unblocking failed"
+        assert user_to_block.user_id not in user.blocked and len(user.blocked) == 0 and user.user_id not in user.blockedBy and len(user.blockedBy) == 0, "User not removed from blocked"
+
+    finally:
+        if User.delete_by_email(user.email) is not None:
+            User.delete_by_email(user.email)
+        if User.delete_by_email(user_to_block.email) is not None:
+            User.delete_by_email(user_to_block.email)
+   
+def test_change_message_setting(mongodb):
+    old_setting = good_user.onlyRecieveMsgFromFollowing
+    good_user.update_message_setting(not old_setting)
+    assert good_user.onlyRecieveMsgFromFollowing != old_setting
+    good_user.update_message_setting(old_setting), "Message change was not made"

@@ -1,23 +1,21 @@
-import type { NextPage } from 'next';
-import {
-    Box, Button, Stack, Container, CircularProgress, Typography, Divider,
-} from '@mui/material';
-import { useDispatch, useSelector } from 'react-redux';
-import { useEffect, useState, useMemo } from 'react';
-import { useRouter } from 'next/router';
 import { LoadingButton } from '@mui/lab';
+import {
+    Box, CircularProgress, Container, Divider, Stack, Typography,
+} from '@mui/material';
+import type { NextPage } from 'next';
+import { useRouter } from 'next/router';
+import { useEffect, useMemo, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import Helmet from '../../src/components/common/Helmet';
-import UserNavbar from '../../src/components/navbar/user';
-import { ReduxStoreType } from '../../src/types/redux';
-import { getUser } from '../../src/api/user';
-import { getTimeline } from '../../src/api/timeline'
-import { addFollowTopic, removeFollowTopic, setCurrentUser } from '../../src/store';
-import { ID } from '../../src/types/misc';
-import LazyPost from '../../src/components/LazyPost';
 import { followTopic, getTopic, unfollowTopic } from '../../src/api/topic';
-import { TopicType } from '../../src/types/topic';
+import { getUser } from '../../src/api/user';
+import Helmet from '../../src/components/common/Helmet';
+import LazyPost from '../../src/components/LazyPost';
+import UserNavbar from '../../src/components/navbar/user';
 import { TOAST_OPTIONS } from '../../src/constants/toast';
+import { addFollowTopic, removeFollowTopic, setCurrentUser } from '../../src/store';
+import { ReduxStoreType } from '../../src/types/redux';
+import { TopicType } from '../../src/types/topic';
 
 const ProfilePage: NextPage = () => {
     const router = useRouter()
@@ -126,7 +124,7 @@ const ProfilePage: NextPage = () => {
                                 <Box key={postId} sx={{ my: 1 }}>
                                     <LazyPost key={postId} postId={postId} />
                                 </Box>
-                            ))
+                            )).reverse()
                         )}
                 </Stack>
             </Container>

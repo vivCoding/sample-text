@@ -1,12 +1,15 @@
-from gettext import find
+import database
 from .connect import Connection
 from bson.objectid import ObjectId
 
 class User:
     collection = "users"
 
-
-    def __init__(self, username, email, password, name="", bio="", profile_img="", following=[], followers=[], followed_topics = [], posts=[], liked_posts = [], comments=[], saved_posts=[], user_id="") -> None:
+    def __init__(self,
+        username, email, password, name="", bio="", profile_img="", following=[], followers=[],
+        followed_topics = [], posts=[], liked_posts = [], disliked_posts=[], loved_posts=[], comments=[], saved_posts=[],
+        conversations=[], onlyRecieveMsgFromFollowing=False, user_id="",  blocked=[], blockedBy=[]
+    ) -> None:
         self.user_id = user_id
         self.username = username
         self.email = email
@@ -19,8 +22,14 @@ class User:
         self.posts = posts
         self.followed_topics = followed_topics
         self.liked_posts = liked_posts
+        self.disliked_posts = disliked_posts
+        self.loved_posts = loved_posts
         self.comments = comments
+        self.conversations = conversations
         self.saved_posts = saved_posts
+        self.blocked = blocked
+        self.blockedBy = blockedBy
+        self.onlyRecieveMsgFromFollowing = onlyRecieveMsgFromFollowing
 
     def __eq__(self, other) -> bool:
         if isinstance(other, User):
@@ -40,8 +49,14 @@ class User:
             "posts": self.posts,
             "followed_topics": self.followed_topics,
             "liked_posts": self.liked_posts,
+            "disliked_posts": self.disliked_posts,
+            "loved_posts": self.loved_posts,
             "comments": self.comments,
-            "saved_posts": self.saved_posts
+            "saved_posts": self.saved_posts,
+            "blocked": self.blocked,
+            "blockedBy": self.blockedBy,
+            "conversations": self.conversations,
+            "message_setting": self.onlyRecieveMsgFromFollowing
         }
 
     # Pushes this object to MongoDB, and returns the user id if it was successful. If error, return None
@@ -63,8 +78,14 @@ class User:
                 "posts": self.posts,
                 "followed_topics": self.followed_topics,
                 "liked_posts": self.liked_posts,
+                "disliked_posts": self.disliked_posts,
+                "loved_posts": self.loved_posts,
                 "comments": self.comments,
-                "saved_posts": self.saved_posts
+                "saved_posts": self.saved_posts,
+                "blocked": self.blocked,
+                "blockedBy": self.blockedBy,
+                "conversations": self.conversations,
+                "message_setting": self.onlyRecieveMsgFromFollowing
             }
             result = col.insert_one(doc)
             self.user_id = str(result.inserted_id)
@@ -214,11 +235,28 @@ class User:
             self.profile_img = old_profile_img
             return False
     
+    # Updates this object's password in MongoDB, and returns whether it was successful
+    def update_message_setting(self, onlyRecieveMsgFromFollowing) -> bool:
+        if Connection.client is None:
+            return False
+        try: 
+            db = Connection.client[Connection.database]
+            col = db[User.collection]
+            filter = { "_id" : ObjectId(self.user_id) }
+            new_value = { "$set": { "message_setting": onlyRecieveMsgFromFollowing } }
+            col.update_one(filter, new_value)
+            self.onlyRecieveMsgFromFollowing = onlyRecieveMsgFromFollowing
+            return True
+        except Exception as e:
+            print (e)
+            return False
+    
     # makes current user follow given id
     # 0 - db error
     # 1 - given id isnt valid
     # 2 - already following
     # 3 - success
+    # 4 - in blocked
     def follow(self, user_id) -> int:
         if Connection.client is None:
             return 0
@@ -228,6 +266,8 @@ class User:
                 return 1
             if user_id in self.following:
                 return 2
+            if user_id in self.blocked:
+                return 4
             db = Connection.client[Connection.database]
             col = db[User.collection]
             
@@ -243,6 +283,67 @@ class User:
             return 3
         except Exception as e:
             print (e)
+            return 0
+    
+    # makes current user follow given id
+    # 0 - db error
+    # 1 - given id isnt valid
+    # 2 - already blocked
+    # 3 - success
+    def block(self, user_id) -> int:
+        if Connection.client is None:
+            return 0
+        try:
+            user_to_block = User.find_by_id(user_id)
+            if user_to_block is None:
+                return 1
+            if user_id in self.blocked:
+                return 2
+            db = Connection.client[Connection.database]
+            col = db[User.collection]
+            
+            self.blocked.append(user_id)
+            user_to_block.blockedBy.append(self.user_id)
+
+            new_value = { "$set": { "blocked": self.blocked } }
+            col.update_one({ "_id" : ObjectId(self.user_id) }, new_value)
+
+            new_value = { "$set": { "blockedBy": user_to_block.blockedBy } }
+            col.update_one({ "_id" : ObjectId(user_id) }, new_value)
+
+            return 3
+        except Exception as e:
+            print(e)
+            return 0
+
+    # makes current user follow given id
+    # 0 - db error
+    # 1 - given id isnt valid
+    # 2 - not in blocked
+    # 3 - success
+    def unblock(self, user_id) -> int:
+        if Connection.client is None:
+            return 0
+        try:
+            user_to_unblock = User.find_by_id(user_id)
+            if user_to_unblock is None:
+                return 1
+            if user_id not in self.blocked:
+                return 2
+            db = Connection.client[Connection.database]
+            col = db[User.collection]
+            self.blocked.remove(user_id)
+            user_to_unblock.blockedBy.remove(self.user_id)
+
+            new_value = { "$set": { "blocked": self.blocked } }
+            col.update_one({ "_id" : ObjectId(self.user_id) }, new_value)
+            
+            new_value = { "$set": { "blockedBy": user_to_unblock.blockedBy } }
+            col.update_one({ "_id" : ObjectId(user_id) }, new_value)
+
+            return 3
+        except Exception as e:
+            print(user_to_unblock.user_id)
             return 0
 
     # makes current user follow given id
@@ -313,6 +414,38 @@ class User:
             print(e)
             return False
 
+    def add_conversation(self, convo_id):
+        if Connection.client is None:
+            return False
+        try:
+            if convo_id in self.conversations:
+                return False            
+            db = Connection.client[Connection.database]
+            col = db[User.collection]
+            self.conversations.append(str(convo_id))
+            new_value = { "$set": { "conversations": self.conversations } }
+            col.update_one({ "_id" : ObjectId(self.user_id) }, new_value)
+            return True
+        except Exception as e:
+            print(e)
+            return False
+
+    def remove_conversation(self, convo_id):
+        if Connection.client is None:
+            return False
+        try:
+            if convo_id not in self.conversations:
+                return False            
+            db = Connection.client[Connection.database]
+            col = db[User.collection]
+            self.conversations.remove(convo_id)
+            new_value = { "$set": { "conversations": self.conversations } }
+            col.update_one({ "_id" : ObjectId(self.user_id) }, new_value)
+            return True
+        except Exception as e:
+            print(e)
+            return False
+
     # Static method that finds and returns a specific user from the collection based on filters
     @staticmethod
     def find(filters: dict):
@@ -334,9 +467,15 @@ class User:
                 posts=res["posts"],
                 followed_topics=res["followed_topics"],
                 liked_posts=res["liked_posts"],
+                disliked_posts=res["disliked_posts"],
+                loved_posts=res["loved_posts"],
                 comments=res["comments"],
                 saved_posts=res["saved_posts"],
-                user_id= str(res["_id"])
+                conversations=res["conversations"],
+                onlyRecieveMsgFromFollowing=res["message_setting"],
+                user_id= str(res["_id"]),
+                blocked=res["blocked"],
+                blockedBy=res["blockedBy"],
             )
         except Exception as e:
             print (e)
@@ -375,6 +514,16 @@ class User:
                 filter = { "post_id": post_id }
                 postcol.update_one(filter, new_value)
 
+            new_value = { "$pull": { "dislikes": str(res["_id"]) } }
+            for post_id in res["disliked_posts"]:
+                filter = { "post_id": post_id }
+                postcol.update_one(filter, new_value)
+
+            new_value = { "$pull": { "loves": str(res["_id"]) } }
+            for post_id in res["loved_posts"]:
+                filter = { "post_id": post_id }
+                postcol.update_one(filter, new_value)
+
             new_value = { "$pull": { "comments": { "$elemMatch": { "user_id": str(res["_id"]) } } } }
             for post_id in res["comments"]:
                 filter = { "post_id": post_id }
@@ -393,6 +542,14 @@ class User:
             for follower_id in res["following"]:
                 this_user.unfollow(follower_id)
             
+            for blocked_id in res["blockedBy"]:
+                other_user = User.find_by_id(blocked_id)
+                other_user.unblock(str(res["_id"]))
+
+            this_user = User.find_by_id(str(res["_id"]))
+            for blocked_id in res["blocked"]:
+                this_user.unblock(blocked_id)
+
             col.delete_one({ "_id": ObjectId(str(res["_id"])) })
 
         except Exception as e:

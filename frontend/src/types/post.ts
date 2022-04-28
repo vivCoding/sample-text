@@ -4,13 +4,15 @@ export interface PostType {
     postId: ID,
     authorId?: ID,
     title: string,
-    likes: string[],
     caption: string,
     comments: Comment[],
     topic: string,
     img: string,
     anonymous: boolean,
     date: string,
+    likes: string[],
+    loves: string[],
+    dislikes: string[],
 }
 
 export interface Comment {

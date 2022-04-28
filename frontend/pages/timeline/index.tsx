@@ -1,20 +1,21 @@
-import type { NextPage } from 'next';
+import SortIcon from '@mui/icons-material/Sort';
 import {
-    Box, Button, Stack, Container, CircularProgress, Typography, Divider,
+    Box, CircularProgress, Container, Divider, IconButton, Stack, Typography,
 } from '@mui/material';
-import { useDispatch, useSelector } from 'react-redux';
-import { useEffect, useState } from 'react';
+import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import Helmet from '../../src/components/common/Helmet';
-import UserNavbar from '../../src/components/navbar/user';
-import { ReduxStoreType } from '../../src/types/redux';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { getTimeline } from '../../src/api/timeline';
 import { getUser } from '../../src/api/user';
-import { getTimeline } from '../../src/api/timeline'
+import Helmet from '../../src/components/common/Helmet';
+import LazyPost from '../../src/components/LazyPost';
+import UserNavbar from '../../src/components/navbar/user';
 import { setCurrentUser } from '../../src/store';
 import { ID } from '../../src/types/misc';
-import LazyPost from '../../src/components/LazyPost';
+import { ReduxStoreType } from '../../src/types/redux';
 
-const ProfilePage: NextPage = () => {
+const TimelinePage: NextPage = () => {
     const router = useRouter()
     const dispatch = useDispatch()
 
@@ -22,6 +23,7 @@ const ProfilePage: NextPage = () => {
     const [timeline, setTimeline] = useState([] as ID[])
     const [loading, setLoading] = useState(username === undefined)
     const [loadingTimeline, setLoadingTimeline] = useState(true)
+    const [sortOldest, setSortOldest] = useState(false)
 
     useEffect(() => {
         if (!username) {
@@ -42,17 +44,21 @@ const ProfilePage: NextPage = () => {
         if (username && !loading) {
             getTimeline().then((res) => {
                 if (res.success && res.data) {
-                    setTimeline(res.data)
+                    setTimeline(res.data.reverse())
                 }
                 setLoadingTimeline(false)
             })
         }
     }, [username, loading])
 
+    const handleSortClick = (): void => {
+        setSortOldest(!sortOldest)
+    }
+
     if (loading) {
         return (
             <Box>
-                <Helmet title="Create Post" />
+                <Helmet title="Timeline" />
                 <UserNavbar />
                 <Box sx={{
                     display: 'flex', height: '90vh', alignItems: 'center', justifyContent: 'center',
@@ -68,16 +74,26 @@ const ProfilePage: NextPage = () => {
         <Box>
             <Helmet title="Timeline" />
             <UserNavbar />
-            <Container maxWidth="md" sx={{ mt: 6, mb: 20 }}>
-                <Typography variant="h3" fontWeight="300">
-                    Timeline
-                </Typography>
+            <Container maxWidth="md" sx={{ mt: 6, mb: 20, width: '90vw' }}>
+                <Stack direction="row" alignItems="center" justifyContent="flex-end">
+                    <Typography variant="h3" fontWeight="300" sx={{ mr: 'auto' }}>
+                        Timeline
+                    </Typography>
+                    <Typography>{`${sortOldest ? 'Newest' : 'Oldest'} first`}</Typography>
+                    <IconButton onClick={handleSortClick}>
+                        <SortIcon />
+                    </IconButton>
+                </Stack>
                 <Divider sx={{ my: 5 }} />
-                <Stack>
-                    {loadingTimeline
-                        ? <CircularProgress />
-                        : (
-                            timeline.length === 0
+                {loadingTimeline
+                    ? (
+                        <Stack direction="row" justifyContent="center" sx={{ mt: 10 }}>
+                            <CircularProgress />
+                        </Stack>
+                    )
+                    : (
+                        <Stack>
+                            {timeline.length === 0
                                 ? (
                                     <>
                                         <Typography variant="h6">Nothing to see here!</Typography>
@@ -85,17 +101,23 @@ const ProfilePage: NextPage = () => {
                                     </>
                                 )
                                 : (
-                                    timeline.map((postId) => (
-                                        <Box key={postId} sx={{ my: 1 }}>
-                                            <LazyPost key={postId} postId={postId} />
-                                        </Box>
-                                    ))
-                                )
-                        )}
-                </Stack>
+                                    sortOldest
+                                        ? timeline.map((postId) => (
+                                            <Box key={postId} sx={{ my: 1 }}>
+                                                <LazyPost key={postId} postId={postId} />
+                                            </Box>
+                                        )).reverse()
+                                        : timeline.map((postId) => (
+                                            <Box key={postId} sx={{ my: 1 }}>
+                                                <LazyPost key={postId} postId={postId} />
+                                            </Box>
+                                        ))
+                                )}
+                        </Stack>
+                    )}
             </Container>
         </Box>
     )
 };
 
-export default ProfilePage;
+export default TimelinePage;

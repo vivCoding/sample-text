@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request, session
+from database.conversation import Conversation
 from utils.encrypt import encrypt
 from utils.validate_fields import check_account_fields, check_email, check_password, check_username
 from database.user import User
@@ -88,8 +89,6 @@ def get_user():
 def get_profile():
 	# do not proceed if user is not logged in
 	user_id = session.get('user_id', None)
-	if user_id is None:
-		return jsonify({ "success": False }), 401
 	try:
 		data = request.get_json()
 		username_or_id = data["username_or_id"]
@@ -103,12 +102,18 @@ def get_profile():
 			# we also want to sort the posts made, and not return the ones that are not anonymous
 			# if the person logged in is getting their own profile, view everything
 			if user.user_id != user_id:
-				filtered_posts = []
-				for post_id in user.posts:
-					post = Post.find(post_id)
-					if post is not None and not post.anonymous: 
-						filtered_posts.append(post_id)
-				return_dict["posts"] = filtered_posts
+				if user_id is None:
+					for key in ["followers", "following", "posts", "followed_topics", "liked_posts", "comments", "saved_posts", "blocked", "blockedBy"]:
+						return_dict.pop(key)
+				else:
+					if user_id in user.blocked:
+						return jsonify({ "success": False }), 404
+					filtered_posts = []
+					for post_id in user.posts:
+						post = Post.find(post_id)
+						if post is not None and not post.anonymous: 
+							filtered_posts.append(post_id)
+					return_dict["posts"] = filtered_posts
 			return jsonify({ "success": True, "data": return_dict }), 200
 		else:
 			return jsonify({ "success": False }), 404
@@ -265,6 +270,8 @@ def delete_user():
 				# delete this user's posts
 				for post_id in user.posts:
 					Post.delete(post_id)
+				for convo_id in user.conversations:
+					Conversation.delete(convo_id)
 				# delete this user
 				User.delete_by_id(user_id)
 				session.pop('user_id')
@@ -345,3 +352,171 @@ def unfollow_topic():
 	except Exception as e:
 		print(e)
 		return jsonify({ "success": False }), 500
+
+
+@user_blueprint.route('/createconversation', methods=["POST"])
+def create_convo():
+	user_id = session.get('user_id', None)
+	if user_id is None:
+		return jsonify({ "success": False }), 401
+	try:
+		data = request.get_json()
+		ret, convo_id = Conversation.create(user_id, data["recipient"])
+		if ret == 3:
+			return jsonify({ "success": True , "status": ret, "convo_id": convo_id}), 200
+		else:
+			return jsonify({ "success": False , "status": ret }), 200
+	except Exception as e:
+		print(e)
+		return jsonify({ "success": False }), 500
+
+@user_blueprint.route('/deleteconversation', methods=["POST"])
+def delete_convo():
+	user_id = session.get('user_id', None)
+	if user_id is None:
+		return jsonify({ "success": False }), 401
+	try:
+		data = request.get_json()
+		ret = Conversation.delete(data["conversation_id"])
+		if ret == 1:
+			return jsonify({ "success": True , "status": ret}), 200
+		else:
+			return jsonify({ "success": False , "status": ret }), 200
+	except Exception as e:
+		print(e)
+		return jsonify({ "success": False }), 500
+
+@user_blueprint.route('/sendprivatemessage', methods=["POST"])
+def send_message():
+	user_id = session.get('user_id', None)
+	if user_id is None:
+		return jsonify({ "success": False }), 401
+	try:
+		data = request.get_json()
+		convo = Conversation.find_by_id(data["conversation_id"])
+		if convo == None:
+			return jsonify({ "Success": False }), 404
+		else:
+			user1 = User.find_by_id(convo.user1)
+			user2 = User.find_by_id(convo.user2)
+			c1 = user1.onlyRecieveMsgFromFollowing and user2.user_id not in user1.following
+			c2 = user2.onlyRecieveMsgFromFollowing and user1.user_id not in user2.following
+			if user1.user_id in user2.blocked or user2.user_id in user1.blocked or c1 or c2:
+				return jsonify({ "success": False }), 404
+			ret = convo.add_message(user_id, data["message"])
+			if ret == 2:
+				return jsonify({ "success": True , "status": ret}), 200
+			return jsonify({ "success": False , "status": ret }), 200
+	except Exception as e:
+		print(e)
+		return jsonify({ "success": False }), 500
+
+@user_blueprint.route('/getconversation', methods=["POST"])
+def get_conversation():
+	user_id = session.get('user_id', None)
+	if user_id is None:
+		return jsonify({ "success": False }), 401
+	try:
+		data = request.get_json()
+		convo = Conversation.find_by_id(data["conversation_id"])
+		if convo == None:
+			return jsonify({ "Success": False }), 404
+		else:
+			user1 = User.find_by_id(convo.user1)
+			user2 = User.find_by_id(convo.user2)
+			c1 = user1.onlyRecieveMsgFromFollowing and user2.user_id not in user1.following
+			c2 = user2.onlyRecieveMsgFromFollowing and user1.user_id not in user2.following
+			if user1.user_id in user2.blocked or user2.user_id in user1.blocked or c1 or c2:
+				return jsonify({ "success": False }), 404
+			return jsonify({
+				"success": True,
+				"data": convo.to_dict()
+			}), 200
+	except Exception as e:
+		print(e)
+		return jsonify({ "success": False }), 500
+
+@user_blueprint.route('/getconversationbyparticipants', methods=["POST"])
+def get_conversation_by_participants():
+	user_id = session.get('user_id', None)
+	if user_id is None:
+		return jsonify({ "success": False }), 401
+	try:
+		data = request.get_json()
+		convo = Conversation.find_by_participants(data["user1"], data["user2"])
+		if convo == None:
+			return jsonify({ "success": False }), 404
+		else:
+			user1 = User.find_by_id(convo.user1)
+			user2 = User.find_by_id(convo.user2)
+			c1 = user1.onlyRecieveMsgFromFollowing and user2.user_id not in user1.following
+			c2 = user2.onlyRecieveMsgFromFollowing and user1.user_id not in user2.following
+			if user1.user_id in user2.blocked or user2.user_id in user1.blocked or c1 or c2:
+				return jsonify({ "success": False }), 404
+			return jsonify({
+				"success": True,
+				"data": convo.to_dict()
+			}), 200
+	except Exception as e:
+		print (e)
+		return jsonify({ "success": False }), 500
+
+@user_blueprint.route('/updatemessagesetting', methods=["POST"])
+def update_message_setting():
+	user_id = session.get('user_id', None)
+	if user_id is None:
+		return jsonify({ "success": False }), 401
+	try:
+		data = request.get_json()
+		user = User.find_by_id(user_id)
+		if user is not None:
+			new_setting = data["message_setting"]
+			status = user.update_message_setting(new_setting)
+			# if new_setting:
+			# 	for convo_id in user.conversations:
+			# 		convo = Conversation.find_by_id(convo_id)
+			# 		other_user = convo.user2 if convo.user1 == user_id else convo.user2
+			# 		if other_user not in user.following:
+			# 			Conversation.delete(convo_id)
+			return jsonify({ "success": True }), 200
+		else:
+			
+			return jsonify({ "success": False }), 404
+	except Exception as e:
+		print(e)
+		return jsonify({"success": False }), 500
+
+
+@user_blueprint.route('/blockuser', methods=["POST"])
+def block_user():
+	user_id = session.get('user_id', None)
+	if user_id is None:
+		return jsonify({ "success": False }), 401
+	try:
+		data = request.get_json()
+		user = User.find_by_id(user_id)
+		if user is not None:
+			status = user.block(data['user_id'])
+			return jsonify({ "success": True, "status": status }), 200
+		else:
+			return jsonify({ "success": False }), 404
+	except Exception as e:
+		print(e)
+		return jsonify({"success": False }), 500
+
+@user_blueprint.route('/unblockuser', methods=["POST"])
+def unblock_user():
+	user_id = session.get('user_id', None)
+	if user_id is None:
+		return jsonify({ "success": False }), 401
+	try:
+		data = request.get_json()
+		user = User.find_by_id(user_id)
+		if user is not None:
+			status = user.unblock(data['user_id'])
+			return jsonify({ "success": True, "status": status }), 200
+		else:
+			return jsonify({ "success": False }), 404
+	except Exception as e:
+		print(e)
+		return jsonify({"success": False }), 500

@@ -18,6 +18,10 @@ export const createUser = async (username: string, email: string, password: stri
     if (resData.data) {
         resData.data.savedPosts = resData.data.saved_posts
         resData.data.followedTopics = resData.data.followed_topics
+        resData.data.likedPosts = resData.data.liked_posts
+        resData.data.lovedPosts = resData.data.loved_posts
+        resData.data.dislikedPosts = resData.data.disliked_posts
+        resData.data.messageSetting = resData.data.message_setting
     }
     const data = resData as GeneralResponseType
     if (data.error) {
@@ -47,6 +51,10 @@ export const loginUser = async (loginField: string, password: string): Promise<U
     if (resData.data) {
         resData.data.savedPosts = resData.data.saved_posts
         resData.data.followedTopics = resData.data.followed_topics
+        resData.data.likedPosts = resData.data.liked_posts
+        resData.data.lovedPosts = resData.data.loved_posts
+        resData.data.dislikedPosts = resData.data.disliked_posts
+        resData.data.messageSetting = resData.data.message_setting
     }
     return resData as UserResponseType
 }
@@ -68,6 +76,10 @@ export const getUser = async (): Promise<UserResponseType> => {
     if (resData.data) {
         resData.data.savedPosts = resData.data.saved_posts
         resData.data.followedTopics = resData.data.followed_topics
+        resData.data.likedPosts = resData.data.liked_posts
+        resData.data.lovedPosts = resData.data.loved_posts
+        resData.data.dislikedPosts = resData.data.disliked_posts
+        resData.data.messageSetting = resData.data.message_setting
     }
     return response.data as UserResponseType
 }

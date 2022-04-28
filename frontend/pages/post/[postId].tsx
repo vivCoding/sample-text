@@ -1,8 +1,16 @@
 import AddCommentIcon from '@mui/icons-material/AddComment';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import CommentIcon from '@mui/icons-material/Comment';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import LoveIcon from '@mui/icons-material/Favorite';
+import LoveBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ShareIcon from '@mui/icons-material/Share';
+import ThumbDownIcon from '@mui/icons-material/ThumbDown';
+import ThumbDownOffAltIcon from '@mui/icons-material/ThumbDownOffAlt';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
+import { LoadingButton } from '@mui/lab';
 import {
     Chip, CircularProgress, Container, Divider, IconButton, Skeleton, Stack, styled, Tooltip,
 } from '@mui/material';
@@ -15,27 +23,23 @@ import {
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
-import ThumbUpIcon from '@mui/icons-material/ThumbUp';
-import BookmarkIcon from '@mui/icons-material/Bookmark';
-import { LoadingButton } from '@mui/lab';
 import {
-    deletePost, getPost, likePost, unlikePost, unsavePost, savePost, commentOnPost,
+    commentOnPost, deletePost, dislikePost, getPost, likePost, lovePost, savePost, undislikePost, unlikePost, unlovePost, unsavePost,
 } from '../../src/api/post';
 import { getUser } from '../../src/api/user';
 import { getProfile } from '../../src/api/user/profile';
 import BackButton from '../../src/components/common/BackButton';
 import Helmet from '../../src/components/common/Helmet';
 import ProfileAvatar from '../../src/components/common/ProfileAvatar';
+import StyledTextField from '../../src/components/common/StyledTextField';
+import LazyComment from '../../src/components/LazyComment';
 import UserNavbar from '../../src/components/navbar/user';
 import { TOAST_OPTIONS } from '../../src/constants/toast';
 import {
     addSavedPost, removePostId, removeSavedPost, setCurrentUser,
 } from '../../src/store';
-import { PostType, Comment } from '../../src/types/post';
+import { Comment, PostType } from '../../src/types/post';
 import { ReduxStoreType } from '../../src/types/redux';
-import StyledTextField from '../../src/components/common/StyledTextField';
-import LazyComment from '../../src/components/LazyComment';
 
 const StyledChip = styled(Chip)({
     margin: 5,
@@ -50,7 +54,7 @@ const PostPage: NextPage = () => {
     const router = useRouter()
     const dispatch = useDispatch()
     const {
-        userId, username, profileImg, savedPosts,
+        userId, username, profileImg, savedPosts, blocked,
     } = useSelector((state: ReduxStoreType) => state.user)
 
     const [loading, setLoading] = useState(userId === undefined)
@@ -64,7 +68,11 @@ const PostPage: NextPage = () => {
     const [likeCount, setLikeCount] = useState(0)
     const [hasSavedPost, setHasSavedPost] = useState(false)
     const [commentValue, setCommentValue] = useState('')
-    const [isAdding, setIsAdding] = useState(false)
+    const [isAddingComment, setIsAddingComment] = useState(false)
+    const [hasLovedPost, setHasLovedPost] = useState(false)
+    const [loveCount, setLoveCount] = useState(0)
+    const [hasDislikedPost, setHasDislikedPost] = useState(false)
+    const [dislikeCount, setDislikeCount] = useState(0)
 
     const isSelfPost = useMemo(() => userId && post.authorId && post.authorId === userId, [userId, post])
     useEffect(() => {
@@ -91,7 +99,11 @@ const PostPage: NextPage = () => {
                 setPost(res.data)
                 setHasLikedPost(res.data.likes.find((userLike) => userLike === userId) !== undefined)
                 setLikeCount(res.data.likes.length)
+                setHasLovedPost(res.data.loves.find((userLove) => userLove === userId) !== undefined)
+                setLoveCount(res.data.loves.length)
                 setHasSavedPost(savedPosts !== undefined && savedPosts.find((savePostId) => savePostId === postId) !== undefined)
+                setHasDislikedPost(res.data.dislikes.find((userDislike) => userDislike === userId) !== undefined)
+                setDislikeCount(res.data.dislikes.length)
                 setComments(res.data.comments)
                 if (res.data.authorId && res.data.authorId === userId && username) {
                     setAuthorName(username)
@@ -101,16 +113,20 @@ const PostPage: NextPage = () => {
                     setIsAnonymous(true)
                     setPostLoading(false)
                 } else if (res.data.authorId) {
-                    const profileRes = await getProfile(res.data.authorId)
-                    if (profileRes.success && profileRes.data) {
-                        setAuthorName(profileRes.data.username)
-                        setAuthorPfp(profileRes.data.profileImg ?? '')
-                    } else if (profileRes.error === 401) {
-                        router.push('/401')
-                    } else {
+                    if (blocked?.find((blockedId) => blockedId === (res.data?.authorId ?? '')) !== undefined) {
                         router.push('/404')
+                    } else {
+                        const profileRes = await getProfile(res.data.authorId)
+                        if (profileRes.success && profileRes.data) {
+                            setAuthorName(profileRes.data.username)
+                            setAuthorPfp(profileRes.data.profileImg ?? '')
+                        } else if (profileRes.error === 401) {
+                            router.push('/401')
+                        } else {
+                            router.push('/404')
+                        }
+                        setPostLoading(false)
                     }
-                    setPostLoading(false)
                 }
             } else if (res.error === 401) {
                 router.push('/401')
@@ -122,7 +138,7 @@ const PostPage: NextPage = () => {
         if (userId && !loading) {
             getPostAndAuthor()
         }
-    }, [userId, loading, username, savedPosts])
+    }, [userId, loading, username, profileImg, savedPosts, blocked])
 
     const handleLike = (): void => {
         if (hasLikedPost) {
@@ -146,12 +162,56 @@ const PostPage: NextPage = () => {
         }
     }
 
+    const handleLove = (): void => {
+        if (hasLovedPost) {
+            unlovePost(post.postId).then((res) => {
+                if (res.success && res.data) {
+                    setLoveCount(res.data.loveCount)
+                    setHasLovedPost(false)
+                } else {
+                    toast.error('There was an error in unloving the post', TOAST_OPTIONS)
+                }
+            })
+        } else {
+            lovePost(post.postId).then((res) => {
+                if (res.success && res.data) {
+                    setLoveCount(res.data.loveCount)
+                    setHasLovedPost(true)
+                } else {
+                    toast.error('There was an error in loving the post', TOAST_OPTIONS)
+                }
+            })
+        }
+    }
+
+    const handleDislike = (): void => {
+        if (hasDislikedPost) {
+            undislikePost(post.postId).then((res) => {
+                if (res.success && res.data) {
+                    setDislikeCount(res.data.dislikeCount)
+                    setHasDislikedPost(false)
+                } else {
+                    toast.error('There was an error in undisliking the post', TOAST_OPTIONS)
+                }
+            })
+        } else {
+            dislikePost(post.postId).then((res) => {
+                if (res.success && res.data) {
+                    setDislikeCount(res.data.dislikeCount)
+                    setHasDislikedPost(true)
+                } else {
+                    toast.error('There was an error in disliking the post', TOAST_OPTIONS)
+                }
+            })
+        }
+    }
+
     const handleCommentOnChange : ChangeEventHandler<HTMLInputElement> = (e) => {
         setCommentValue(e.target.value)
     }
 
     const handleComment = (): void => {
-        setIsAdding(true)
+        setIsAddingComment(true)
         commentOnPost(post.postId, commentValue).then((res) => {
             if (res.success && res.data) {
                 setComments(res.data.comments)
@@ -160,7 +220,7 @@ const PostPage: NextPage = () => {
             } else {
                 toast.error('There was an error in commenting on the post', TOAST_OPTIONS)
             }
-            setIsAdding(false)
+            setIsAddingComment(false)
         })
     }
 
@@ -230,9 +290,9 @@ const PostPage: NextPage = () => {
 
     return (
         <Box>
-            <Helmet title={`${(post.title ?? '') === '' ? 'Post' : post.title} | Sample Text`} />
+            <Helmet title={`${(post.title ?? '') === '' ? 'Post' : post.title} | SAMPLE Text`} />
             <UserNavbar />
-            <Container maxWidth="md" sx={{ mt: 6, mb: 20 }}>
+            <Container maxWidth="md" sx={{ mt: 6, mb: 20, width: '90vw' }}>
                 <BackButton />
                 {postLoading ? (
                     <>
@@ -257,6 +317,9 @@ const PostPage: NextPage = () => {
                         <Stack direction="row" justifyContent="end" alignItems="center">
                             <Skeleton variant="rectangular" width="50%" sx={{ mr: 'auto' }} />
                             <Stack direction="row" justifyContent="end" spacing={1} sx={{ my: 1 }}>
+                                <IconButton>
+                                    <LoveBorderIcon />
+                                </IconButton>
                                 <IconButton>
                                     <ThumbUpOffAltIcon />
                                 </IconButton>
@@ -319,15 +382,39 @@ const PostPage: NextPage = () => {
                                 <StyledChip label={post.topic} onClick={() => router.push(`/topic/${post.topic}`)} />
                             </Stack>
                             <Stack direction="row" spacing={1} sx={{ mt: 1, mb: 2 }}>
-                                <Tooltip title="Like Post">
+                                <Tooltip title={hasLovedPost ? 'Unlove Post' : 'Love Post'}>
                                     <Stack direction="row" alignItems="center">
-                                        <IconButton onClick={handleLike}>
+                                        <IconButton onClick={handleLove} disabled={hasLikedPost || hasDislikedPost}>
+                                            {hasLovedPost
+                                                ? <LoveIcon />
+                                                : <LoveBorderIcon />}
+                                        </IconButton>
+                                        <Typography variant="button">
+                                            {loveCount}
+                                        </Typography>
+                                    </Stack>
+                                </Tooltip>
+                                <Tooltip title={hasLikedPost ? 'Unlike Post' : 'Like Post'}>
+                                    <Stack direction="row" alignItems="center">
+                                        <IconButton onClick={handleLike} disabled={hasLovedPost || hasDislikedPost}>
                                             {hasLikedPost
                                                 ? <ThumbUpIcon />
                                                 : <ThumbUpOffAltIcon />}
                                         </IconButton>
                                         <Typography variant="button">
                                             {likeCount}
+                                        </Typography>
+                                    </Stack>
+                                </Tooltip>
+                                <Tooltip title={hasDislikedPost ? 'Remove Dislike' : 'Dislike Post'}>
+                                    <Stack direction="row" alignItems="center">
+                                        <IconButton onClick={handleDislike} disabled={hasLovedPost || hasLikedPost}>
+                                            {hasDislikedPost
+                                                ? <ThumbDownIcon />
+                                                : <ThumbDownOffAltIcon />}
+                                        </IconButton>
+                                        <Typography variant="button">
+                                            {dislikeCount}
                                         </Typography>
                                     </Stack>
                                 </Tooltip>
@@ -341,8 +428,7 @@ const PostPage: NextPage = () => {
                                         </Typography>
                                     </Stack>
                                 </Tooltip>
-                                <Tooltip title="Save Post">
-                                    {/* TODO: set icon and save tooltip title conditionally */}
+                                <Tooltip title={hasSavedPost ? 'Unsave Post' : 'Save Post'}>
                                     <IconButton onClick={handleSave}>
                                         {hasSavedPost
                                             ? <BookmarkIcon />
@@ -376,12 +462,12 @@ const PostPage: NextPage = () => {
                                 value={commentValue}
                                 error={commentValue.length > 500}
                                 helperText={`${commentValue.length} / 500`}
-                                disabled={isAdding}
+                                disabled={isAddingComment}
                             />
                             <Stack direction="row" justifyContent="flex-end">
                                 <LoadingButton
                                     variant="contained"
-                                    loading={isAdding}
+                                    loading={isAddingComment}
                                     onClick={handleComment}
                                     disabled={commentValue.length === 0 || commentValue.length > 500}
                                 >

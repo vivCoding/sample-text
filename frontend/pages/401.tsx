@@ -10,7 +10,7 @@ import Helmet from '../src/components/common/Helmet';
 
 const Home: NextPage = () => (
     <Box>
-        <Helmet title="401 | Sample Text" />
+        <Helmet title="401 | SAMPLE Text" />
         <Stack sx={{
             alignItems: 'center',
             justifyContent: 'center',
