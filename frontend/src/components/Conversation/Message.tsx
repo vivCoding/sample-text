@@ -33,7 +33,7 @@ const MessageCard = ({ authorUsername, authorPfp, message }: MessageCardProps): 
                         subheader={message.timestamp}
                     />
                 </CardActionArea>
-                <CardContent>
+                <CardContent sx={{ wordWrap: 'break-word' }}>
                     {message.message}
                 </CardContent>
             </Card>
